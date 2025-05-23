@@ -1,0 +1,970 @@
+🔍 Fetching CVEs for: DDOS-ICMP_FLOOD (IoT ICMP)
+   ➤ CVE-2018-10693: An issue was discovered on Moxa AWK-3121 1.14 devices. It provides ping functionality so that an administrator can execute ICMP calls to check if the network is working correctly. However, the same functionality allows an attacker to execute commands on the device. The POST parameter "srvName" is susceptible to a buffer overflow. By crafting a packet that contains a string of 516 characters, it is possible for an attacker to execute the attack.
+   ➤ CVE-2023-48692: Azure RTOS NetX Duo is a TCP/IP network stack designed specifically for deeply embedded real-time and IoT applications. An attacker can cause remote code execution due to memory overflow vulnerabilities in Azure RTOS NETX Duo. The affected components include processes/functions related to icmp, tcp, snmp, dhcp, nat and ftp in RTOS v6.2.1 and below. The fixes have been included in NetX Duo release 6.3.0. Users are advised to upgrade. There are no known workarounds for this vulnerability.
+   ➤ CVE-2018-10697: An issue was discovered on Moxa AWK-3121 1.14 devices. The Moxa AWK 3121 provides ping functionality so that an administrator can execute ICMP calls to check if the network is working correctly. However, the same functionality allows an attacker to execute commands on the device. The POST parameter "srvName" is susceptible to this injection. By crafting a packet that contains shell metacharacters, it is possible for an attacker to execute the attack.
+
+
+
+🔍 Fetching CVEs for: DDOS-UDP_FLOOD (IoT UDP)
+   ➤ CVE-2017-10723: Recently it was discovered as a part of the research on IoT devices in the most recent firmware for Shekar Endoscope that an attacker connected to the device Wi-Fi SSID can exploit a memory corruption issue and execute remote code on the device. This device acts as an Endoscope camera that allows its users to use it in various industrial systems and settings, car garages, and also in some cases in the medical clinics to get access to areas that are difficult for a human being to reach. Any breach of this system can allow an attacker to get access to video feed and pictures viewed by that user and might allow them to get a foot hold in air gapped networks especially in case of nation critical infrastructure/industries. The firmware contains binary uvc_stream that is the UDP daemon which is responsible for handling all the UDP requests that the device receives. The client application sends a UDP request to change the Wi-Fi name which contains the following format: "SETCMD0001+0001+[2 byte length of wifiname]+[Wifiname]. This request is handled by "control_Dev_thread" function which at address "0x00409AE0" compares the incoming request and determines if the 10th byte is 01 and if it is then it redirects to 0x0040A74C which calls the function "setwifiname". The function "setwifiname" uses a memcpy function but uses the length of the payload obtained by using strlen function as the third parameter which is the number of bytes to copy and this allows an attacker to overflow the function and control the $PC value.
+   ➤ CVE-2022-36052: Contiki-NG is an open-source, cross-platform operating system for Next-Generation IoT devices. The 6LoWPAN implementation in Contiki-NG may cast a UDP header structure at a certain offset in a packet buffer. The code does not check whether the packet buffer is large enough to fit a full UDP header structure from the offset where the casting is made. Hence, it is possible to cause an out-of-bounds read beyond the packet buffer. The problem affects anyone running devices with Contiki-NG versions previous to 4.8, and which may receive 6LoWPAN packets from external parties. The problem has been patched in Contiki-NG version 4.8.
+   ➤ CVE-2017-10724: Recently it was discovered as a part of the research on IoT devices in the most recent firmware for Shekar Endoscope that an attacker connected to the device Wi-Fi SSID can exploit a memory corruption issue and execute remote code on the device. This device acts as an Endoscope camera that allows its users to use it in various industrial systems and settings, car garages, and also in some cases in the medical clinics to get access to areas that are difficult for a human being to reach. Any breach of this system can allow an attacker to get access to video feed and pictures viewed by that user and might allow them to get a foot hold in air gapped networks especially in case of nation critical infrastructure/industries. The firmware contains binary uvc_stream that is the UDP daemon which is responsible for handling all the UDP requests that the device receives. The client application sends a UDP request to change the Wi-Fi name which contains the following format: "SETCMD0001+0002+[2 byte length of wifipassword]+[Wifipassword]. This request is handled by "control_Dev_thread" function which at address "0x00409AE4" compares the incoming request and determines if the 10th byte is 02 and if it is then it redirects to 0x0040A7D8, which calls the function "setwifipassword". The function "setwifipassword" uses a memcpy function but uses the length of the payload obtained by using strlen function as the third parameter which is the number of bytes to copy and this allows an attacker to overflow the function and control the $PC value.
+   ➤ CVE-2019-20463: An issue was discovered on Sannce Smart HD Wifi Security Camera EAN 2 950004 595317 devices. A crash and reboot can be triggered by crafted IP traffic, as demonstrated by the Nikto vulnerability scanner. For example, sending the 111111 string to UDP port 20188 causes a reboot. To deny service for a long time period, the crafted IP traffic may be sent periodically.
+   ➤ CVE-2019-9750: In IoTivity through 1.3.1, the CoAP server interface can be used for Distributed Denial of Service attacks using source IP address spoofing and UDP-based traffic amplification. The reflected traffic is 6 times bigger than spoofed requests. This occurs because the construction of a "4.01 Unauthorized" response is mishandled. NOTE: the vendor states "While this is an interesting attack, there is no plan for maintainer to fix, as we are migrating to IoTivity Lite."
+   ➤ CVE-2019-20461: An issue was discovered on Alecto IVM-100 2019-11-12 devices. The device uses a custom UDP protocol to start and control video and audio services. The protocol has been partially reverse engineered. Based upon the reverse engineering, no password or username is ever transferred over this protocol. Thus, one can set up the camera connection feed with only the encoded UID. It is possible to set up sessions with the camera over the Internet by using the encoded UID and the custom UDP protocol, because authentication happens at the client side.
+   ➤ CVE-2015-4080: The Kankun Smart Socket device and mobile application uses a hardcoded AES 256 bit key, which makes it easier for remote attackers to (1) obtain sensitive information by sniffing the network and (2) obtain access to the device by encrypting messages.
+   ➤ CVE-2019-1644: A vulnerability in the UDP protocol implementation for Cisco IoT Field Network Director (IoT-FND) could allow an unauthenticated, remote attacker to exhaust system resources, resulting in a denial of service (DoS) condition. The vulnerability is due to improper resource management for UDP ingress packets. An attacker could exploit this vulnerability by sending a high rate of UDP packets to an affected system within a short period of time. A successful exploit could allow the attacker to exhaust available system resources, resulting in a DoS condition.
+   ➤ CVE-2017-8413: An issue was discovered on D-Link DCS-1100 and DCS-1130 devices. The device runs a custom daemon on UDP port 5978 which is called "dldps2121" and listens for broadcast packets sent on 255.255.255.255. This daemon handles custom D-Link UDP based protocol that allows D-Link mobile applications and desktop applications to discover D-Link devices on the local network. The binary processes the received UDP packets sent from any device in "main" function. One path in the function traverses towards a block of code that handles commands to be executed on the device. The custom protocol created by D-Link follows the following pattern: Packetlen, Type of packet; M=MAC address of device or broadcast; D=Device Type;C=base64 encoded command string;test=1111. If a packet is received with the packet type being "S" or 0x53 then the string passed in the "C" parameter is base64 decoded and then executed by passing into a System API. We can see at address 0x00009B44 that the string received in packet type subtracts 0x31 or "1" from the packet type and is compared against 0x22 or "double quotes". If that is the case, then the packet is sent towards the block of code that executes a command. Then the value stored in "C" parameter is extracted at address 0x0000A1B0. Finally, the string received is base 64 decoded and passed on to the system API at address 0x0000A2A8 as shown below. The same form of communication can be initiated by any process including an attacker process on the mobile phone or the desktop and this allows a third-party application on the device to execute commands on the device without any authentication by sending just 1 UDP packet with custom base64 encoding.
+   ➤ CVE-2017-8416: An issue was discovered on D-Link DCS-1100 and DCS-1130 devices. The device runs a custom daemon on UDP port 5978 which is called "dldps2121" and listens for broadcast packets sent on 255.255.255.255. This daemon handles custom D-Link UDP based protocol that allows D-Link mobile applications and desktop applications to discover D-Link devices on the local network. The binary processes the received UDP packets sent from any device in "main" function. One path in the function traverses towards a block of code that processing of packets which does an unbounded copy operation which allows to overflow the buffer. The custom protocol created by Dlink follows the following pattern: Packetlen, Type of packet; M=MAC address of device or broadcast; D=Device Type;C=base64 encoded command string;test=1111 We can see at address function starting at address 0x0000DBF8 handles the entire UDP packet and performs an insecure copy using strcpy function at address 0x0000DC88. This results in overflowing the stack pointer after 1060 characters and thus allows to control the PC register and results in code execution. The same form of communication can be initiated by any process including an attacker process on the mobile phone or the desktop and this allows a third-party application on the device to execute commands on the device without any authentication by sending just 1 UDP packet with custom base64 encoding.
+
+
+
+🔍 Fetching CVEs for: DDOS-TCP_FLOOD (IoT TCP)
+   ➤ CVE-2023-48316: Azure RTOS NetX Duo is a TCP/IP network stack designed specifically for deeply embedded real-time and IoT applications. An attacker can cause remote code execution due to memory overflow vulnerabilities in Azure RTOS NETX Duo. The affected components include processes/functions related to snmp, smtp, ftp and dtls in RTOS v6.2.1 and below. The fixes have been included in NetX Duo release 6.3.0. Users are advised to upgrade. There are no known workarounds for this vulnerability.
+   ➤ CVE-2023-48315: Azure RTOS NetX Duo is a TCP/IP network stack designed specifically for deeply embedded real-time and IoT applications. An attacker can cause remote code execution due to memory overflow vulnerabilities in Azure RTOS NETX Duo. The affected components include processes/functions related to ftp and sntp in RTOS v6.2.1 and below. The fixes have been included in NetX Duo release 6.3.0. Users are advised to upgrade. There are no known workarounds for this vulnerability.
+   ➤ CVE-2023-34100: Contiki-NG is an open-source, cross-platform operating system for IoT devices. When reading the TCP MSS option value from an incoming packet, the Contiki-NG OS does not verify that certain buffer indices to read from are within the bounds of the IPv6 packet buffer, uip_buf. In particular, there is a 2-byte buffer read in the module os/net/ipv6/uip6.c. The buffer is indexed using 'UIP_IPTCPH_LEN + 2 + c' and 'UIP_IPTCPH_LEN + 3 + c', but the uip_buf buffer may not have enough data, resulting in a 2-byte read out of bounds. The problem has been patched in the "develop" branch of Contiki-NG, and is expected to be included in release 4.9. Users are advised to watch for the 4.9 release and to upgrade when it becomes available. There are no workarounds for this vulnerability aside from manually patching with the diff in commit `cde4e9839`.
+   ➤ CVE-2017-6780: A vulnerability in the TCP throttling process for Cisco IoT Field Network Director (IoT-FND) could allow an unauthenticated, remote attacker to cause the system to consume additional memory, eventually forcing the device to restart, aka Memory Exhaustion. The vulnerability is due to insufficient rate-limiting protection. An attacker could exploit this vulnerability by sending a high rate of TCP packets to a specific group of open listening ports on a targeted device. An exploit could allow the attacker to cause the system to consume additional memory. If enough available memory is consumed, the system will restart, creating a temporary denial of service (DoS) condition. The DoS condition will end after the device has finished the restart process. This vulnerability affects the following Cisco products: Connected Grid Network Management System, if running a software release prior to IoT-FND Release 4.0; IoT Field Network Director, if running a software release prior to IoT-FND Release 4.0. Cisco Bug IDs: CSCvc77164.
+   ➤ CVE-2019-2317: The secret key used to make the Initial Sequence Number in the TCP SYN packet could be brute forced and therefore can be predicted in Snapdragon Auto, Snapdragon Compute, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon IoT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables in MSM8905, MSM8909, MSM8917, MSM8920, MSM8937, MSM8940, MSM8953, Nicobar, QCM2150, QM215, SC8180X, SDM429, SDM439, SDM450, SDM632, SDX24, SDX55, SM6150, SM7150, SM8150
+   ➤ CVE-2023-48692: Azure RTOS NetX Duo is a TCP/IP network stack designed specifically for deeply embedded real-time and IoT applications. An attacker can cause remote code execution due to memory overflow vulnerabilities in Azure RTOS NETX Duo. The affected components include processes/functions related to icmp, tcp, snmp, dhcp, nat and ftp in RTOS v6.2.1 and below. The fixes have been included in NetX Duo release 6.3.0. Users are advised to upgrade. There are no known workarounds for this vulnerability.
+   ➤ CVE-2023-34367: Windows 7 is vulnerable to a full blind TCP/IP hijacking attack. The vulnerability exists in Windows 7 (any Windows until Windows 8) and in any implementation of TCP/IP, which is vulnerable to the Idle scan attack (including many IoT devices). NOTE: The vendor considers this a low severity issue.
+   ➤ CVE-2023-29001: Contiki-NG is an open-source, cross-platform operating system for IoT devices. The Contiki-NG operating system processes source routing headers (SRH) in its two alternative RPL protocol implementations. The IPv6 implementation uses the results of this processing to determine whether an incoming packet should be forwarded to another host. Because of missing validation of the resulting next-hop address, an uncontrolled recursion may occur in the tcpip_ipv6_output function in the os/net/ipv6/tcpip.c module when receiving a packet with a next-hop address that is a local address. Attackers that have the possibility to send IPv6 packets to the Contiki-NG host can therefore trigger deeply nested recursive calls, which can cause a stack overflow. The vulnerability has not been patched in the current release of Contiki-NG, but is expected to be patched in the next release. The problem can be fixed by applying the patch in Contiki-NG pull request #2264. Users are advised to either apply the patch manually or to wait for the next release. There are no known workarounds for this vulnerability.
+
+
+
+🔍 Fetching CVEs for: DDOS-RSTFINFLOOD (IoT RST)
+➤ CVE-2023-51440: A vulnerability has been identified in SIMATIC CP 343-1 (6GK7343-1EX30-0XE0) (All versions), SIMATIC CP 343-1 Lean (6GK7343-1CX10-0XE0) (All versions), SIPLUS NET CP 343-1 (6AG1343-1EX30-7XE0) (All versions), SIPLUS NET CP 343-1 Lean (6AG1343-1CX10-2XE0) (All versions). Affected products incorrectly validate TCP sequence numbers. This could allow an unauthenticated remote attacker to create a denial-of-service condition by injecting spoofed TCP RST packets.
+
+➤ CVE-2024-38063: Windows TCP/IP Remote Code Execution Vulnerability. A flaw in the Windows TCP/IP stack could allow remote attackers to execute arbitrary code or cause a denial-of-service (DoS) condition by manipulating network traffic.
+
+➤ CVE-2019-9514: Some HTTP/2 implementations are vulnerable to a reset flood, potentially leading to a denial-of-service. The attacker opens a number of streams and sends an invalid request over each stream that should solicit a stream of RST_STREAM frames from the peer. Depending on how the peer queues the RST_STREAM frames, this can consume excess memory, CPU, or both.
+
+➤ CVE-2024-41067: In the Linux kernel, the following vulnerability has been resolved:
+btrfs: scrub: handle RST lookup error correctly
+[BUG]
+When running btrfs/060 with forced RST feature, it would crash the following ASSERT() inside scrub_read_endio():
+	ASSERT(sector_nr < stripe->nr_sectors);
+[CAUSE]
+If btrfs_map_block() fails, it leads to an invalid lookup error, causing a possible crash and system instability. This issue is now patched.
+
+➤ CVE-2024-49932: In the Linux kernel, the following vulnerability has been resolved:
+btrfs: don't readahead the relocation inode on RST
+On relocation, we're doing readahead on the relocation inode, but if the filesystem is backed by a RAID stripe tree, we can get ENOENT due to preallocated extents not being mapped in the RST.
+If readahead doesn't handle the error properly, it submits invalid reads to the device, causing an assertion in the scatter-gather list code.
+
+➤ CVE-2024-53677: File upload logic in Apache Struts is flawed. An attacker can manipulate file upload params to enable paths traversal and under some circumstances this can lead to uploading a malicious file which can be used to perform Remote Code Execution. This issue affects Apache Struts: from 2.0.0 before 6.4.0.
+
+➤ CVE-2024-21586: An Improper Check for Unusual or Exceptional Conditions vulnerability in the Packet Forwarding Engine (PFE) of Juniper Networks Junos OS on SRX Series and NFX Series allows an unauthenticated, network-based attacker to cause a Denial-of-Service (DoS). If an affected device receives specific valid traffic destined to the device, it will cause the PFE to crash and restart. Continued receipt and processing of this traffic will create a sustained DoS condition.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+🔍 Fetching CVEs for: DDOS-PSHACK_FLOOD (IoT PSHACK)
+   ➤ CVE-2024-38158: Azure IoT SDK Remote Code Execution Vulnerability
+   ➤ CVE-2021-35129: Memory corruption in BT controller due to improper length check while processing vendor specific commands in Snapdragon Consumer IoT, Snapdragon Industrial IoT
+   ➤ CVE-2021-30276: Improper access control while doing XPU re-configuration dynamically can lead to unauthorized access to a secure resource in Snapdragon Consumer IoT, Snapdragon Industrial IoT
+   ➤ CVE-2022-22095: Memory corruption in synx driver due to use-after-free condition in Snapdragon Compute, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon Mobile
+   ➤ CVE-2021-35098: Improper validation of session id in PCM routing process can lead to memory corruption in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables
+   ➤ CVE-2021-1940: Use after free can occur due to improper handling of response from firmware in Snapdragon Auto, Snapdragon Compute, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables
+   ➤ CVE-2019-10567: There is a way to deceive the GPU kernel driver into thinking there is room in the GPU ringbuffer and overwriting existing commands could allow unintended GPU opcodes to be executed in Snapdragon Auto, Snapdragon Compute, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables
+   ➤ CVE-2021-42315: Microsoft Defender for IoT Remote Code Execution Vulnerability
+   ➤ CVE-2019-2318: Non Secure Kernel can cause Trustzone to do an arbitrary memory read which will result into DOS in Snapdragon Auto, Snapdragon Connectivity, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wired Infrastructure and Networking
+   ➤ CVE-2021-33215: An issue was discovered in CommScope Ruckus IoT Controller 1.7.1.0 and earlier. The API allows Directory Traversal.
+   ➤ CVE-2020-15858: Some devices of Thales DIS (formerly Gemalto, formerly Cinterion) allow Directory Traversal by physically proximate attackers. The directory path access check of the internal flash file system can be circumvented.
+   ➤ CVE-2021-30322: Possible out of bounds write due to improper validation of number of GPIOs configured in an internal parameters array in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Industrial IoT, Snapdragon Mobile
+   ➤ CVE-2020-11117: In the lbd service, an external user can issue a specially crafted debug command to overwrite arbitrary files with arbitrary content resulting in remote code execution in Snapdragon Connectivity, Snapdragon Consumer IoT, Snapdragon Wired Infrastructure and Networking
+   ➤ CVE-2021-43882: Microsoft Defender for IoT Remote Code Execution Vulnerability
+   ➤ CVE-2021-42311: Microsoft Defender for IoT Remote Code Execution Vulnerability
+   ➤ CVE-2020-11295: Use after free in camera If the threadmanager is being cleaned up while the worker thread is processing objects in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon Mobile
+   ➤ CVE-2022-25657: Memory corruption in camera due to improper validation of array index in Snapdragon Auto, Snapdragon Compute, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon Mobile, Snapdragon Wearables
+   ➤ CVE-2021-43888: Microsoft Defender for IoT Information Disclosure Vulnerability
+
+
+
+
+
+🔍 Fetching CVEs for: DDOS-SYN_FLOOD (IoT SYN)
+ ➤ CVE-2021-35121: An array index is improperly used to lock and unlock a mutex which can lead to a Use After Free condition in the Synx driver in Snapdragon Compute, Snapdragon Connectivity, Snapdragon Industrial IoT, Snapdragon Mobile.
+➤ CVE-2021-35103: Possible out of bound write due to improper validation of number of timer values received from firmware while syncing timers in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Industrial IoT, Snapdragon Mobile, Snapdragon Wearables, Snapdragon Wired Infrastructure and Networking.
+➤ CVE-2021-35133: Use after free in the Synx driver issue while performing other functions during multiple invocation of synx release calls in Snapdragon Connectivity, Snapdragon Industrial IoT, Snapdragon Mobile.
+
+
+
+🔍 Fetching CVEs for: DDOS-SYNONYMOUSIP_FLOOD (IoT SYNONYMOUSIP)
+
+   ➤ CVE-2024-38158: Azure IoT SDK Remote Code Execution Vulnerability  
+   ➤ CVE-2021-42315: Microsoft Defender for IoT Remote Code Execution Vulnerability  
+   ➤ CVE-2021-42311: Microsoft Defender for IoT Remote Code Execution Vulnerability  
+   ➤ CVE-2021-43882: Microsoft Defender for IoT Remote Code Execution Vulnerability  
+   ➤ CVE-2021-42312: Microsoft Defender for IoT Elevation of Privilege Vulnerability  
+   ➤ CVE-2021-43888: Microsoft Defender for IoT Information Disclosure Vulnerability  
+
+
+
+
+
+🔍 Fetching CVEs for: DOS-UDP_FLOOD (IoT UDP)
+➤ CVE-2019-9750: In IoTivity through 1.3.1, the CoAP server interface can be used for Distributed Denial of Service attacks using source IP address spoofing and UDP-based traffic amplification. The reflected traffic is 6 times bigger than spoofed requests. This occurs because the construction of a "4.01 Unauthorized" response is mishandled. NOTE: the vendor states "While this is an interesting attack, there is no plan for maintainer to fix, as we are migrating to IoTivity Lite."
+
+➤ CVE-2019-1644: A vulnerability in the UDP protocol implementation for Cisco IoT Field Network Director (IoT-FND) could allow an unauthenticated, remote attacker to exhaust system resources, resulting in a denial of service (DoS) condition. The vulnerability is due to improper resource management for UDP ingress packets. An attacker could exploit this vulnerability by sending a high rate of UDP packets to an affected system within a short period of time. A successful exploit could allow the attacker to exhaust available system resources, resulting in a DoS condition.
+
+➤ CVE-2019-20463: An issue was discovered on Sannce Smart HD Wifi Security Camera EAN 2 950004 595317 devices. A crash and reboot can be triggered by crafted IP traffic, as demonstrated by the Nikto vulnerability scanner. For example, sending the 111111 string to UDP port 20188 causes a reboot. To deny service for a long time period, the crafted IP traffic may be sent periodically.
+
+➤ CVE-2017-8413: An issue was discovered on D-Link DCS-1100 and DCS-1130 devices. The device runs a custom daemon on UDP port 5978 which is called "dldps2121" and listens for broadcast packets sent on 255.255.255.255. This daemon handles custom D-Link UDP based protocol that allows D-Link mobile applications and desktop applications to discover D-Link devices on the local network. The binary processes the received UDP packets sent from any device in "main" function. One path in the function traverses towards a block of code that handles commands to be executed on the device. The custom protocol created by D-Link follows the following pattern: Packetlen, Type of packet; M=MAC address of device or broadcast; D=Device Type;C=base64 encoded command string;test=1111. If a packet is received with the packet type being "S" or 0x53 then the string passed in the "C" parameter is base64 decoded and then executed by passing into a System API. We can see at address 0x00009B44 that the string received in packet type subtracts 0x31 or "1" from the packet type and is compared against 0x22 or "double quotes". If that is the case, then the packet is sent towards the block of code that executes a command. Then the value stored in "C" parameter is extracted at address 0x0000A1B0. Finally, the string received is base 64 decoded and passed on to the system API at address 0x0000A2A8 as shown below. The same form of communication can be initiated by any process including an attacker process on the mobile phone or the desktop and this allows a third-party application on the device to execute commands on the device without any authentication by sending just 1 UDP packet with custom base64 encoding.
+
+➤ CVE-2017-8416: An issue was discovered on D-Link DCS-1100 and DCS-1130 devices. The device runs a custom daemon on UDP port 5978 which is called "dldps2121" and listens for broadcast packets sent on 255.255.255.255. This daemon handles custom D-Link UDP based protocol that allows D-Link mobile applications and desktop applications to discover D-Link devices on the local network. The binary processes the received UDP packets sent from any device in "main" function. One path in the function traverses towards a block of code that processing of packets which does an unbounded copy operation which allows to overflow the buffer. The custom protocol created by Dlink follows the following pattern: Packetlen, Type of packet; M=MAC address of device or broadcast; D=Device Type;C=base64 encoded command string;test=1111 We can see at address function starting at address 0x0000DBF8 handles the entire UDP packet and performs an insecure copy using strcpy function at address 0x0000DC88. This results in overflowing the stack pointer after 1060 characters and thus allows to control the PC register and results in code execution. The same form of communication can be initiated by any process including an attacker process on the mobile phone or the desktop and this allows a third-party application on the device to execute commands on the device without any authentication by sending just 1 UDP packet with custom base64 encoding.
+
+➤ CVE-2019-20464: An issue was discovered on Sannce Smart HD Wifi Security Camera EAN 2 950004 595317 devices. By default, a mobile application is used to stream over UDP. However, the device offers many more services that also enable streaming. Although the service used by the mobile application requires a password, the other streaming services do not. By initiating communication on the RTSP port, an attacker can obtain access to the video feed without authenticating.
+
+
+
+
+🔍 Fetching CVEs for: DOS-TCP_FLOOD (IoT TCP)
+➤ CVE-2017-6780: A vulnerability in the TCP throttling process for Cisco IoT Field Network Director (IoT-FND) could allow an unauthenticated, remote attacker to cause the system to consume additional memory, eventually forcing the device to restart, aka Memory Exhaustion. The vulnerability is due to insufficient rate-limiting protection. An attacker could exploit this vulnerability by sending a high rate of TCP packets to a specific group of open listening ports on a targeted device. An exploit could allow the attacker to cause the system to consume additional memory. If enough available memory is consumed, the system will restart, creating a temporary denial of service (DoS) condition. The DoS condition will end after the device has finished the restart process. This vulnerability affects the following Cisco products: Connected Grid Network Management System, if running a software release prior to IoT-FND Release 4.0; IoT Field Network Director, if running a software release prior to IoT-FND Release 4.0. Cisco Bug IDs: CSCvc77164.
+➤ CVE-2023-34100: Contiki-NG is an open-source, cross-platform operating system for IoT devices. When reading the TCP MSS option value from an incoming packet, the Contiki-NG OS does not verify that certain buffer indices to read from are within the bounds of the IPv6 packet buffer, uip_buf. In particular, there is a 2-byte buffer read in the module os/net/ipv6/uip6.c. The buffer is indexed using 'UIP_IPTCPH_LEN + 2 + c' and 'UIP_IPTCPH_LEN + 3 + c', but the uip_buf buffer may not have enough data, resulting in a 2-byte read out of bounds. The problem has been patched in the "develop" branch of Contiki-NG, and is expected to be included in release 4.9. Users are advised to watch for the 4.9 release and to upgrade when it becomes available. There are no workarounds for this vulnerability aside from manually patching with the diff in commit `cde4e9839`.
+➤ CVE-2023-29001: Contiki-NG is an open-source, cross-platform operating system for IoT devices. The Contiki-NG operating system processes source routing headers (SRH) in its two alternative RPL protocol implementations. The IPv6 implementation uses the results of this processing to determine whether an incoming packet should be forwarded to another host. Because of missing validation of the resulting next-hop address, an uncontrolled recursion may occur in the tcpip_ipv6_output function in the os/net/ipv6/tcpip.c module when receiving a packet with a next-hop address that is a local address. Attackers that have the possibility to send IPv6 packets to the Contiki-NG host can therefore trigger deeply nested recursive calls, which can cause a stack overflow. The vulnerability has not been patched in the current release of Contiki-NG, but is expected to be patched in the next release. The problem can be fixed by applying the patch in Contiki-NG pull request #2264. Users are advised to either apply the patch manually or to wait for the next release. There are no known workarounds for this vulnerability.
+➤ CVE-2023-48692: Azure RTOS NetX Duo is a TCP/IP network stack designed specifically for deeply embedded real-time and IoT applications. An attacker can cause remote code execution due to memory overflow vulnerabilities in Azure RTOS NETX Duo. The affected components include processes/functions related to icmp, tcp, snmp, dhcp, nat and ftp in RTOS v6.2.1 and below. The fixes have been included in NetX Duo release 6.3.0. Users are advised to upgrade. There are no known workarounds for this vulnerability.
+➤ CVE-2020-3669: u'Buffer Overflow issue in WLAN tcp ip verification due to usage of out of range pointer offset' in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer Electronics Connectivity, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wired Infrastructure and Networking in APQ8098, IPQ5018, IPQ6018, IPQ8074, Kamorta, MSM8998, Nicobar, QCA6390, QCA8081, QCN7605, QCS404, QCS405, QCS605, Rennell, SA415M, SC7180, SC8180X, SDA845, SDM630, SDM636, SDM660, SDM670, SDM710, SDM845, SDM850, SM6150, SM7150, SM8150, SM8250, SXR1130.
+
+
+
+
+🔍 Fetching CVEs for: DOS-SYN_FLOOD (IoT SYN)
+➤ CVE-2021-35121: An array index is improperly used to lock and unlock a mutex which can lead to a Use After Free condition In the Synx driver in Snapdragon Compute, Snapdragon Connectivity, Snapdragon Industrial IOT, Snapdragon Mobile
+➤ CVE-2021-35103: Possible out of bound write due to improper validation of number of timer values received from firmware while syncing timers in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Industrial IOT, Snapdragon Mobile, Snapdragon Wearables, Snapdragon Wired Infrastructure and Networking
+➤ CVE-2021-35133: Use after free in the synx driver issue while performing other functions during multiple invocation of synx release calls in Snapdragon Connectivity, Snapdragon Industrial IOT, Snapdragon Mobile
+➤ CVE-2019-2317: The secret key used to make the Initial Sequence Number in the TCP SYN packet could be brute forced and therefore can be predicted in Snapdragon Auto, Snapdragon Compute, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon IoT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables in MSM8905, MSM8909, MSM8917, MSM8920, MSM8937, MSM8940, MSM8953, Nicobar, QCM2150, QM215, SC8180X, SDM429, SDM439, SDM450, SDM632, SDX24, SDX55, SM6150, SM7150, SM8150
+
+
+
+
+🔍 Fetching CVEs for: MIRAI-GREETH_FLOOD (IoT GREETH)
+➤ CVE-2024-0923: A vulnerability, which was classified as critical, has been found in Tenda AC10U 15.03.06.49_multi_TDE01. Affected by this issue is the function formSetDeviceName. The manipulation of the argument devName leads to stack-based buffer overflow. The attack may be launched remotely. The exploit has been disclosed to the public and may be used. The identifier of this vulnerability is VDB-252128. NOTE: The vendor was contacted early about this disclosure but did not respond in any way.
+
+➤ CVE-2024-0925: A vulnerability has been found in Tenda AC10U 15.03.06.49_multi_TDE01 and classified as critical. This vulnerability affects the function formSetVirtualSer. The manipulation of the argument list leads to stack-based buffer overflow. The attack can be initiated remotely. The exploit has been disclosed to the public and may be used. VDB-252130 is the identifier assigned to this vulnerability. NOTE: The vendor was contacted early about this disclosure but did not respond in any way.
+
+➤ CVE-2020-5902: A critical remote code execution vulnerability exists in F5 BIG-IP devices, allowing attackers to exploit exposed systems. This flaw has been actively leveraged by Mirai botnets for scanning and malware delivery.
+
+➤ CVE-2019-12725: A remote command execution vulnerability in Zeroshell due to improper input sanitization in the kerbynet component. Exploited by Mirai botnets to compromise IoT devices.
+
+➤ CVE-2019-17621: Command injection vulnerability in D-Link DIR-859 router’s /gena.cgi component. This flaw allows remote attackers to execute arbitrary commands and integrate devices into botnets.
+
+➤ CVE-2020-25506: A critical buffer overflow vulnerability in IoT network security devices exploited by Mirai variants for remote takeover.
+
+➤ CVE-2021-27562: A memory corruption vulnerability in IoT network security appliances, actively targeted by Mirai botnet campaigns.
+
+➤ CVE-2020-11117: In the lbd service, an external user can issue a specially crafted debug command to overwrite arbitrary files with arbitrary content resulting in remote code execution in Snapdragon Connectivity, Snapdragon Consumer IOT, Snapdragon Wired Infrastructure and Networking in IPQ4019, IPQ6018, IPQ8064, IPQ8074, QCA4531, QCA9531, QCA9980.
+
+➤ CVE-2020-11295: Use after free in camera If the threadmanager is being cleaned up while the worker thread is processing objects in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon Mobile.
+
+➤ CVE-2019-14028: Buffer overwrite during memcpy due to lack of check on SSID length validation in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer Electronics Connectivity, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon IoT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wired Infrastructure and Networking in APQ8009, APQ8017, APQ8053, APQ8064, APQ8096, APQ8096AU, APQ8098, IPQ6018, IPQ8074, MDM9206, MDM9207C, MDM9607, MDM9640, MDM9650, MSM8996AU, MSM8998, Nicobar, QCA4531, QCA6174A, QCA6564, QCA6574, QCA6574AU, QCA6584, QCA6584AU, QCA8081, QCA9377, QCA9379, QCA9886, QCN7605, QCS404, QCS405, QCS605, Rennell, SA6155P, SC8180X, SDA660, SDA845, SDM630, SDM636, SDM660, SDM670, SDM710, SDM845, SDM850, SDX20, SDX24, SM6150, SM7150, SM8150, SM8250, SXR1130, SXR2130.
+
+➤ CVE-2021-30263: Possible race condition can occur due to lack of synchronization mechanism when On-Device Logging node open twice concurrently in Snapdragon Compute, Snapdragon Industrial IOT, Snapdragon Mobile, Snapdragon Voice & Music.
+
+
+
+
+🔍 Fetching CVEs for: MIRAI-UDPPLAIN (IoT UDP)
+➤ CVE-2017-10723: Recently it was discovered as a part of the research on IoT devices in the most recent firmware for Shekar Endoscope that an attacker connected to the device Wi-Fi SSID can exploit a memory corruption issue and execute remote code on the device. This device acts as an Endoscope camera that allows its users to use it in various industrial systems and settings, car garages, and also in some cases in the medical clinics to get access to areas that are difficult for a human being to reach. Any breach of this system can allow an attacker to get access to video feed and pictures viewed by that user and might allow them to get a foot hold in air gapped networks especially in case of nation critical infrastructure/industries. The firmware contains binary uvc_stream that is the UDP daemon which is responsible for handling all the UDP requests that the device receives. The client application sends a UDP request to change the Wi-Fi name which contains the following format: "SETCMD0001+0001+[2 byte length of wifiname]+[Wifiname]. This request is handled by "control_Dev_thread" function which at address "0x00409AE0" compares the incoming request and determines if the 10th byte is 01 and if it is then it redirects to 0x0040A74C which calls the function "setwifiname". The function "setwifiname" uses a memcpy function but uses the length of the payload obtained by using strlen function as the third parameter which is the number of bytes to copy and this allows an attacker to overflow the function and control the $PC value【10】.
+
+➤ CVE-2017-10724: Recently it was discovered as a part of the research on IoT devices in the most recent firmware for Shekar Endoscope that an attacker connected to the device Wi-Fi SSID can exploit a memory corruption issue and execute remote code on the device. This device acts as an Endoscope camera that allows its users to use it in various industrial systems and settings, car garages, and also in some cases in the medical clinics to get access to areas that are difficult for a human being to reach. Any breach of this system can allow an attacker to get access to video feed and pictures viewed by that user and might allow them to get a foot hold in air gapped networks especially in case of nation critical infrastructure/industries. The firmware contains binary uvc_stream that is the UDP daemon which is responsible for handling all the UDP requests that the device receives. The client application sends a UDP request to change the Wi-Fi password which contains the following format: "SETCMD0001+0002+[2 byte length of wifipassword]+[Wifipassword]. This request is handled by "control_Dev_thread" function which at address "0x00409AE4" compares the incoming request and determines if the 10th byte is 02 and if it is then it redirects to 0x0040A7D8, which calls the function "setwifipassword". The function "setwifipassword" uses a memcpy function but uses the length of the payload obtained by using strlen function as the third parameter which is the number of bytes to copy and this allows an attacker to overflow the function and control the $PC value【12】.
+
+➤ CVE-2019-9750: In IoTivity through 1.3.1, the CoAP server interface can be used for Distributed Denial of Service attacks using source IP address spoofing and UDP-based traffic amplification. The reflected traffic is 6 times bigger than spoofed requests. This occurs because the construction of a "4.01 Unauthorized" response is mishandled. NOTE: the vendor states "While this is an interesting attack, there is no plan for maintainer to fix, as we are migrating to IoTivity Lite."
+
+➤ CVE-2019-20464: An issue was discovered on Sannce Smart HD Wifi Security Camera EAN 2 950004 595317 devices. By default, a mobile application is used to stream over UDP. However, the device offers many more services that also enable streaming. Although the service used by the mobile application requires a password, the other streaming services do not. By initiating communication on the RTSP port, an attacker can obtain access to the video feed without authenticating【11】.
+
+➤ CVE-2019-1644: A vulnerability in the UDP protocol implementation for Cisco IoT Field Network Director (IoT-FND) could allow an unauthenticated, remote attacker to exhaust system resources, resulting in a denial of service (DoS) condition. The vulnerability is due to improper resource management for UDP ingress packets. An attacker could exploit this vulnerability by sending a high rate of UDP packets to an affected system within a short period of time. A successful exploit could allow the attacker to exhaust available system resources, resulting in a DoS condition.
+
+➤ CVE-2017-8416: An issue was discovered on D-Link DCS-1100 and DCS-1130 devices. The device runs a custom daemon on UDP port 5978 which is called "dldps2121" and listens for broadcast packets sent on 255.255.255.255. This daemon handles custom D-Link UDP-based protocol that allows D-Link mobile applications and desktop applications to discover D-Link devices on the local network. The binary processes the received UDP packets sent from any device in the "main" function. One path in the function traverses towards a block of code that processes packets, which does an unbounded copy operation allowing buffer overflow. The custom protocol created by D-Link follows the following pattern: Packetlen, Type of packet; M=MAC address of device or broadcast; D=Device Type; C=base64 encoded command string; test=1111. We can see at address function starting at address 0x0000DBF8 handles the entire UDP packet and performs an insecure copy using strcpy function at address 0x0000DC88. This results in overflowing the stack pointer after 1060 characters and thus allows an attacker to control the PC register and execute arbitrary code. The same form of communication can be initiated by any process including an attacker process on the mobile phone or the desktop, allowing a third-party application on the device to execute commands on the device without any authentication by sending just one UDP packet with custom base64 encoding.
+
+
+
+
+
+
+
+
+🔍 Fetching CVEs for: MIRAI-GREIP_FLOOD (IoT GREIP)
+➤ CVE-2024-0923: A vulnerability, which was classified as critical, has been found in Tenda AC10U 15.03.06.49_multi_TDE01. Affected by this issue is the function formSetDeviceName. The manipulation of the argument devName leads to a stack-based buffer overflow. The attack may be launched remotely. The exploit has been disclosed to the public and may be used. The identifier of this vulnerability is VDB-252128. NOTE: The vendor was contacted early about this disclosure but did not respond in any way.
+
+➤ CVE-2024-0925: A vulnerability has been found in Tenda AC10U 15.03.06.49_multi_TDE01 and classified as critical. This vulnerability affects the function formSetVirtualSer. The manipulation of the argument list leads to stack-based buffer overflow. The attack can be initiated remotely. The exploit has been disclosed to the public and may be used. VDB-252130 is the identifier assigned to this vulnerability. NOTE: The vendor was contacted early about this disclosure but did not respond in any way.
+
+➤ CVE-2024-0534: A vulnerability classified as critical has been found in Tenda A15 15.13.07.13. Affected is an unknown function of the file /goform/SetOnlineDevName of the component Web-based Management Interface. The manipulation of the argument mac leads to a stack-based buffer overflow. It is possible to launch the attack remotely. The exploit has been disclosed to the public and may be used. The identifier of this vulnerability is VDB-250704. NOTE: The vendor was contacted early about this disclosure but did not respond in any way.
+
+➤ CVE-2023-2376: A vulnerability was found in Ubiquiti EdgeRouter X up to 2.0.9-hotfix.6. It has been classified as critical. Affected is an unknown function of the component Web Management Interface. The manipulation of the argument dpi leads to command injection. It is possible to launch the attack remotely. The exploit has been disclosed to the public and may be used. The identifier of this vulnerability is VDB-227652.
+
+➤ CVE-2021-42315: Microsoft Defender for IoT Remote Code Execution Vulnerability.
+
+➤ CVE-2021-42311: Microsoft Defender for IoT Remote Code Execution Vulnerability.
+
+➤ CVE-2021-43882: Microsoft Defender for IoT Remote Code Execution Vulnerability.
+
+➤ CVE-2021-30276: Improper access control while doing XPU re-configuration dynamically can lead to unauthorized access to a secure resource in Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon Wired Infrastructure and Networking.
+
+➤ CVE-2021-30291: Possible memory corruption due to lack of validation of client data used for memory allocation in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon Wearables.
+
+➤ CVE-2020-11230: Potential arbitrary memory corruption when the qseecom driver updates ION physical addresses in the buffer, exposing a physical address to user-land in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Industrial IoT, Snapdragon Mobile.
+
+➤ CVE-2020-11210: Possible memory corruption in RPM region due to improper XPU configuration in Snapdragon Connectivity, Snapdragon Industrial IoT, Snapdragon Mobile, Snapdragon Wired Infrastructure and Networking.
+
+➤ CVE-2020-11117: In the lbd service, an external user can issue a specially crafted debug command to overwrite arbitrary files with arbitrary content, resulting in remote code execution in Snapdragon Connectivity, Snapdragon Consumer IoT, Snapdragon Wired Infrastructure and Networking.
+
+➤ CVE-2020-11153: Out of bound memory access while processing GATT data received, due to lack of check of PDU data length, leading to remote code execution in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer Electronics Connectivity, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon Mobile.
+
+➤ CVE-2019-14062: Buffer overflow while decoding setup message from network, due to lack of check of IE message length received from network, in Snapdragon Auto, Snapdragon Compute, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon IoT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables.
+
+➤ CVE-2019-14113: Buffer overflow can occur in WLAN firmware while unwrapping data using CCMP cipher suite during parsing of EAPOL handshake frame in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer Electronics Connectivity, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon IoT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wired Infrastructure and Networking.
+
+➤ CVE-2018-11271: Improper authentication can happen on remote command handling due to inappropriate handling of events in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer IoT, Snapdragon Industrial IoT, Snapdragon IoT, Snapdragon Mobile, Snapdragon Wearables.
+
+
+
+
+🔍 Fetching CVEs for: DDOS-ICMP_FRAGMENTATION (IoT ICMP FRAGMENTATION)
+➤ CVE-2014-0100: Race condition in the inet_frag_intern function in net/ipv4/inet_fragment.c in the Linux kernel through 3.13.6 allows remote attackers to cause a denial of service (use-after-free error) or possibly have unspecified other impact via a large series of fragmented ICMP Echo Request packets to a system with a heavy CPU load.
+
+➤ CVE-2018-10693: An issue was discovered on Moxa AWK-3121 1.14 devices. It provides ping functionality so that an administrator can execute ICMP calls to check if the network is working correctly. However, the same functionality allows an attacker to execute commands on the device. The POST parameter "srvName" is susceptible to a buffer overflow. By crafting a packet that contains a string of 516 characters, it is possible for an attacker to execute the attack.
+
+➤ CVE-2000-0451: The Intel express 8100 ISDN router allows remote attackers to cause a denial of service via oversized or fragmented ICMP packets.
+
+
+
+
+
+
+🔍 Fetching CVEs for: DDOS-ACK_FRAGMENTATION (IoT ACK FRAGMENTATION)
+➤ CVE-2023-33975: RIOT-OS, an operating system for Internet of Things (IoT) devices, contains a network stack with the ability to process 6LoWPAN frames. In version 2023.01 and prior, an attacker can send a crafted frame to the device resulting in an out of bounds write in the packet buffer. The overflow can be used to corrupt other packets and the allocator metadata. Corrupting a pointer will easily lead to denial of service. While carefully manipulating the allocator metadata gives an attacker the possibility to write data to arbitrary locations and thus execute arbitrary code. This issue is fixed in pull request 19680. As a workaround, disable support for fragmented IP datagrams.
+   
+➤ CVE-2021-35074: Possible integer overflow due to improper fragment datatype while calculating number of fragments in a request message in Snapdragon Auto, Snapdragon Connectivity, Snapdragon Industrial IOT, Snapdragon Mobile.
+
+➤ CVE-2019-13995: u'Lack of integer overflow check for addition of fragment size and remaining size that are read from shared memory can lead to memory corruption and potential information leakage' in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer Electronics Connectivity, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables, Snapdragon Wired Infrastructure and Networking in APQ8009, APQ8017, APQ8053, APQ8096AU, APQ8098, Bitra, IPQ6018, IPQ8074, Kamorta, MDM9150, MDM9205, MDM9206, MDM9607, MDM9640, MDM9645, MDM9650, MDM9655, MSM8905, MSM8909, MSM8917, MSM8920, MSM8937, MSM8940, MSM8953, MSM8996, MSM8996AU, MSM8998, Nicobar, QCA8081, QCM2150, QCN7605, QCS404, QCS405, QCS605, QCS610, QM215, Rennell, SA415M, SA6155P, Saipan, SC7180, SC8180X, SDA660, SDA845, SDM429, SDM429W, SDM439, SDM450, SDM630, SDM632, SDM636, SDM660, SDM670, SDM710, SDM845, SDM850, SDX20, SDX24, SDX55, SM6150, SM7150, SM8150, SM8250, SXR1130, SXR2130.
+
+➤ CVE-2024-53980: RIOT is an open-source microcontroller operating system, designed to match the requirements of Internet of Things (IoT) devices and other embedded devices. A malicious actor can send a IEEE 802.15.4 packet with spoofed length byte and optionally spoofed FCS, which eventually results into an endless loop on a CC2538 as receiver. Before PR #20998, the receiver would check for the location of the CRC bit using the packet length byte by considering all 8 bits, instead of discarding bit 7, which is what the radio does. This then results into reading outside of the RX FIFO.  Although it prints an error when attempting to read outside of the RX FIFO, it will continue doing this. This may lead to a discrepancy in the CRC check according to the firmware and the radio. If the CPU judges the CRC as correct and the radio is set to `AUTO_ACK`, when the packet requests and acknowledgment the CPU will go into the state `CC2538_STATE_TX_ACK`. However, if the radio judged the CRC as incorrect, it will not send an acknowledgment, and thus the `TXACKDONE` event will not fire. It will then never return to the state `CC2538_STATE_READY` since the baseband processing is still disabled. Then the CPU will be in an endless loop. Since setting to idle is not forced, it won't do it if the radio's state is not `CC2538_STATE_READY`. A fix has not yet been made.
+
+➤ CVE-2022-36054: Contiki-NG is an open-source, cross-platform operating system for Next-Generation IoT devices. The 6LoWPAN implementation in the Contiki-NG operating system (file os/net/ipv6/sicslowpan.c) contains an input function that processes incoming packets and copies them into a packet buffer. Because of a missing length check in the input function, it is possible to write outside the packet buffer's boundary. The vulnerability can be exploited by anyone who has the possibility to send 6LoWPAN packets to a Contiki-NG system. In particular, the vulnerability is exposed when sending either of two types of 6LoWPAN packets: an unfragmented packet or the first fragment of a fragmented packet. If the packet is sufficiently large, a subsequent memory copy will cause an out-of-bounds write with data supplied by the attacker.
+
+
+
+
+
+🔍 Fetching CVEs for: DDOS-UDP_FRAGMENTATION (IoT UDP FRAGMENTATION)
+   ➤ CVE-2013-4563: The udp6_ufo_fragment function in net/ipv6/udp_offload.c in the Linux kernel through 3.12, when UDP Fragmentation Offload (UFO) is enabled, does not properly perform a certain size comparison before inserting a fragment header, which allows remote attackers to cause a denial of service (panic) via a large IPv6 UDP packet, as demonstrated by use of the Token Bucket Filter (TBF) queueing discipline.
+
+   ➤ CVE-2011-4326: The udp6_ufo_fragment function in net/ipv6/udp.c in the Linux kernel before 2.6.39, when a certain UDP Fragmentation Offload (UFO) configuration is enabled, allows remote attackers to cause a denial of service (system crash) by sending fragmented IPv6 UDP packets to a bridge device.
+
+   ➤ CVE-2013-4387: net/ipv6/ip6_output.c in the Linux kernel through 3.11.4 does not properly determine the need for UDP Fragmentation Offload (UFO) processing of small packets after the UFO queueing of a large packet, which allows remote attackers to cause a denial of service (memory corruption and system crash) or possibly have unspecified other impact via network traffic that triggers a large response packet.
+
+   ➤ CVE-2013-4470: The Linux kernel before 3.12, when UDP Fragmentation Offload (UFO) is enabled, does not properly initialize certain data structures, which allows local users to cause a denial of service (memory corruption and system crash) or possibly gain privileges via a crafted application that uses the UDP_CORK option in a setsockopt system call and sends both short and long packets, related to the ip_ufo_append_data function in net/ipv4/ip_output.c and the ip6_ufo_append_data function in net/ipv6/ip6_output.c.
+
+   ➤ CVE-2019-13994: Lack of check that the current received data fragment size of a particular packet that are read from shared memory are less than the actual packet size can lead to memory corruption and potential information leakage in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer Electronics Connectivity, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables, Snapdragon Wired Infrastructure and Networking in multiple Qualcomm platforms.
+
+   ➤ CVE-2019-13995: Lack of integer overflow check for addition of fragment size and remaining size that are read from shared memory can lead to memory corruption and potential information leakage in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer Electronics Connectivity, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables, Snapdragon Wired Infrastructure and Networking in multiple Qualcomm platforms.
+
+   ➤ CVE-2024-20308: A vulnerability in the IKEv1 fragmentation code of Cisco IOS Software and Cisco IOS XE Software could allow an unauthenticated, remote attacker to cause a heap underflow, resulting in an affected device reloading. This vulnerability exists because crafted, fragmented IKEv1 packets are not properly reassembled. An attacker could exploit this vulnerability by sending crafted UDP packets to an affected system. A successful exploit could allow the attacker to cause the affected device to reload, resulting in a denial of service (DoS) condition.
+
+   ➤ CVE-2024-20307: A vulnerability in the IKEv1 fragmentation code of Cisco IOS Software and Cisco IOS XE Software could allow an unauthenticated, remote attacker to cause a heap overflow, resulting in an affected device reloading. This vulnerability exists because crafted, fragmented IKEv1 packets are not properly reassembled. An attacker could exploit this vulnerability by sending crafted UDP packets to an affected system. A successful exploit could allow the attacker to cause the affected device to reload, resulting in a DoS condition.
+
+   ➤ CVE-2001-1533: Microsoft Internet Security and Acceleration (ISA) Server 2000 allows remote attackers to cause a denial of service via a flood of fragmented UDP packets. NOTE: the vendor disputes this issue, saying that it requires high bandwidth to exploit, and the server does not experience any instability. Therefore this "laws of physics" issue might not be included in CVE.
+
+   ➤ CVE-2017-8413: An issue was discovered on D-Link DCS-1100 and DCS-1130 devices. The device runs a custom daemon on UDP port 5978 which is called "dldps2121" and listens for broadcast packets sent on 255.255.255.255. This daemon handles a custom D-Link UDP-based protocol that allows D-Link mobile applications and desktop applications to discover D-Link devices on the local network. Attackers can exploit this to execute arbitrary commands remotely without authentication by sending specially crafted UDP packets.
+
+   ➤ CVE-2017-8416: An issue was discovered on D-Link DCS-1100 and DCS-1130 devices. A vulnerability in how the device processes UDP packets allows remote attackers to cause a buffer overflow, potentially leading to remote code execution.
+
+   ➤ CVE-2017-8417: An issue was discovered on D-Link DCS-1100 and DCS-1130 devices. Attackers can exploit an insecure UDP-based authentication mechanism to retrieve the device's password remotely without authentication by sending a specially crafted UDP packet.
+
+
+
+
+
+🔍 Fetching CVEs for: DNS_SPOOFING (IoT DNS SPOOFING)
+➤ CVE-2020-11015: A vulnerability has been disclosed in thinx-device-api IoT Device Management Server before version 2.5.0. Device MAC address can be spoofed. This means initial registration requests without UDID and spoofed MAC address may pass to create new UDID with same MAC address. Full impact needs to be reviewed further. Applies to all (mostly ESP8266/ESP32) users. This has been fixed in firmware version 2.5.0.
+➤ CVE-2018-8119: A spoofing vulnerability exists when the Azure IoT Device Provisioning AMQP Transport library improperly validates certificates over the AMQP protocol, aka "Azure IoT SDK Spoofing Vulnerability." This affects C# SDK, C SDK, Java SDK.
+➤ CVE-2021-40831: The AWS IoT Device SDK v2 for Java, Python, C++ and Node.js appends a user supplied Certificate Authority (CA) to the root CAs instead of overriding it on macOS systems. Additionally, SNI validation is also not enabled when the CA has been “overridden”. TLS handshakes will thus succeed if the peer can be verified either from the user-supplied CA or the system’s default trust-store. Attackers with access to a host’s trust stores or are able to compromise a certificate authority already in the host's trust store (note: the attacker must also be able to spoof DNS in this case) may be able to use this issue to bypass CA pinning.
+➤ CVE-2021-40830: The AWS IoT Device SDK v2 for Java, Python, C++ and Node.js appends a user supplied Certificate Authority (CA) to the root CAs instead of overriding it on Unix systems. TLS handshakes will thus succeed if the peer can be verified either from the user-supplied CA or the system’s default trust-store. Attackers with access to a host’s trust stores or are able to compromise a certificate authority already in the host's trust store (note: the attacker must also be able to spoof DNS in this case) may be able to use this issue to bypass CA pinning.
+
+
+
+
+
+
+
+
+🔍 Fetching CVEs for: RECON-HOSTDISCOVERY (IoT HOST DISCOVERY)
+   ➤ CVE-2021-1967: Possible stack buffer overflow due to lack of check on the maximum number of post NAN discovery attributes while processing a NAN Match event in Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables
+   ➤ CVE-2022-35926: Contiki-NG is an open-source, cross-platform operating system for IoT devices. Because of insufficient validation of IPv6 neighbor discovery options in Contiki-NG, attackers can send neighbor solicitation packets that trigger an out-of-bounds read. The problem exists in the module os/net/ipv6/uip-nd6.c, where memory read operations from the main packet buffer, <code>uip_buf</code>, are not checked if they go out of bounds. In particular, this problem can occur when attempting to read the 2-byte option header and the Source Link-Layer Address Option (SLLAO). This attack requires ipv6 be enabled for the network. The problem has been patched in the develop branch of Contiki-NG. The upcoming 4.8 release of Contiki-NG will include the patch.Users unable to upgrade may apply the patch in Contiki-NG PR #1654.
+   ➤ CVE-2020-13702: The Rolling Proximity Identifier used in the Apple/Google Exposure Notification API beta through 2020-05-29 enables attackers to circumvent Bluetooth Smart Privacy because there is a secondary temporary UID. An attacker with access to Beacon or IoT networks can seamlessly track individual device movement via a Bluetooth LE discovery mechanism.
+
+
+
+
+🔍 Fetching CVEs for: RECON-PORTSCAN (IoT PORT SCAN)
+➤ CVE-2024-39864: The CloudStack integration API service allows running its unauthenticated API server (usually on port 8096 when configured and enabled via integration.api.port global setting) for internal portal integrations and for testing purposes. By default, the integration API service port is disabled and is considered disabled when integration.api.port is set to 0 or negative. Due to an improper initialization logic, the integration API service would listen on a random port when its port value is set to 0 (default value). An attacker that can access the CloudStack management network could scan and find the randomized integration API service port and exploit it to perform unauthorized administrative actions and perform remote code execution on CloudStack managed hosts and result in complete compromise of the confidentiality, integrity, and availability of CloudStack managed infrastructure.
+
+➤ CVE-2017-8331: An issue was discovered on Securifi Almond, Almond+, and Almond 2015 devices with firmware AL-R096. The device provides a user with the capability of adding new port forwarding rules to the device. It seems that the POST parameters passed in this request to set up routes on the device can be set in such a way that would result in passing commands to a "system" API in the function and thus result in command injection on the device. If the firmware version AL-R096 is dissected using binwalk tool, we obtain a cpio-root archive which contains the filesystem set up on the device that contains all the binaries. The binary "goahead" is the one that has the vulnerable function that receives the values sent by the POST request. If we open this binary in IDA-pro, we will notice that this follows a MIPS little-endian format. The function sub_43C280 in IDA Pro is identified to be receiving the values sent in the POST request, and the value set in POST parameter "ip_address" is extracted at address 0x0043C2F0. The POST parameter "ipaddress" is concatenated at address 0x0043C958 and this is passed to a "system" function at address 0x00437284. This allows an attacker to provide the payload of his/her choice and finally take control of the device.
+
+➤ CVE-2024-24829: Sentry is an error tracking and performance monitoring platform. Sentry’s integration platform provides a way for external services to interact with Sentry. One of such integrations, the Phabricator integration (maintained by Sentry) with version <=24.1.1 contains a constrained SSRF vulnerability. An attacker could make Sentry send POST HTTP requests to arbitrary URLs (including internal IP addresses) by providing an unsanitized input to the Phabricator integration. However, the body payload is constrained to a specific format. If an attacker has access to a Sentry instance, this allows them to: 1. interact with an internal network; 2. scan local/remote ports. This issue has been fixed in Sentry self-hosted release 24.1.2 and has already been mitigated on sentry.io on February 8. Users are advised to upgrade. There are no known workarounds for this vulnerability.
+
+➤ CVE-2024-48107: SparkShop <=1.1.7 is vulnerable to server-side request forgery (SSRF). This vulnerability allows attacks to scan ports on the Intranet or local network where the server resides, attack applications running on the Intranet or local network, or read metadata on the cloud server.
+
+➤ CVE-2020-25705: A flaw in ICMP packets in the Linux kernel may allow an attacker to quickly scan open UDP ports. This flaw allows an off-path remote attacker to effectively bypass source port UDP randomization. Software that relies on UDP source port randomization is indirectly affected as well.
+
+➤ CVE-2020-35558: An issue was discovered in MB connect line mymbCONNECT24, mbCONNECT24, and Helmholz myREX24 and myREX24.virtual through 2.11.2. There is an SSRF in the MySQL access check, allowing an attacker to scan for open ports and gain some information about possible credentials.
+
+➤ CVE-2023-44256: A server-side request forgery vulnerability [CWE-918] in Fortinet FortiAnalyzer version 7.4.0, version 7.2.0 through 7.2.3, and before 7.0.8 and FortiManager version 7.4.0, version 7.2.0 through 7.2.3, and before 7.0.8 allows a remote attacker with low privileges to view sensitive data from internal servers or perform a local port scan via a crafted HTTP request.
+
+➤ CVE-2023-45152: Engelsystem is a shift planning system for chaos events. A Blind SSRF in the "Import schedule" functionality makes it possible to perform a port scan against the local environment. This vulnerability has been fixed in commit ee7d30b33. If a patch cannot be deployed, operators should ensure that no HTTP(s) services listen on localhost and/or systems only reachable from the host running the engelsystem software. If such services are necessary, they should utilize additional authentication.
+
+➤ CVE-2024-27060: In the Linux kernel, the following vulnerability has been resolved:
+Thunderbolt: Fix NULL pointer dereference in tb_port_update_credits(). Olliver reported that his system crashes when plugging in Thunderbolt 1 device:
+
+BUG: kernel NULL pointer dereference, address: 0000000000000020.
+#PF: supervisor read access in kernel mode
+#PF: error_code(0x0000) - not-present page
+
+This is due to the fact that some Thunderbolt 1 devices only have one lane adapter. Fix this by checking for the lane 1 before we read its credits.
+
+
+
+
+
+🔍 Fetching CVEs for: RECON-OSSCAN (IoT OS SCAN)
+➤ CVE-2002-0119: Alcatel Speed Touch Home ADSL Modem allows remote attackers to cause a denial of service (reboot) via a network scan with unusual packets, such as nmap with OS detection.
+
+➤ CVE-1999-1373: FORE PowerHub before 5.0.1 allows remote attackers to cause a denial of service (hang) via a TCP SYN scan with TCP/IP OS fingerprinting, e.g. via nmap.
+
+➤ CVE-2002-0116: Palm OS 3.5h and possibly other versions, as used in Handspring Visor and Xircom products, allows remote attackers to cause a denial of service via a TCP connect scan, e.g. from nmap.
+
+➤ CVE-2002-0234: NetScreen ScreenOS before 2.6.1 does not support a maximum number of concurrent sessions for a system, which allows an attacker on the trusted network to cause a denial of service (resource exhaustion) via a port scan to an external network, which consumes all available connections.
+
+➤ CVE-2022-48252: The jokob-sk/Pi.Alert fork (before 22.12.20) of Pi.Alert allows Remote Code Execution via nmap_scan.php (scan parameter) OS Command Injection.
+
+➤ CVE-2023-34367: Windows 7 is vulnerable to a full blind TCP/IP hijacking attack. The vulnerability exists in Windows 7 (any Windows until Windows 8) and in any implementation of TCP/IP, which is vulnerable to the Idle scan attack (including many IoT devices). NOTE: The vendor considers this a low severity issue.
+
+
+🔍 Fetching CVEs for: DOS-HTTP_FLOOD (IoT HTTP FLOOD)
+➤ CVE-2013-5562: The ITM web server in Cisco Prime Central for Hosted Collaboration Solution (HCS) allows remote attackers to cause a denial of service (temporary HTTP service outage) via a flood of TCP packets, aka Bug ID CSCuh36313.
+
+➤ CVE-2024-30255: Envoy is a cloud-native, open source edge and service proxy. The HTTP/2 protocol stack in Envoy versions prior to 1.29.3, 1.28.2, 1.27.4, and 1.26.8 are vulnerable to CPU exhaustion due to flood of CONTINUATION frames. Envoy's HTTP/2 codec allows the client to send an unlimited number of CONTINUATION frames even after exceeding Envoy's header map limits. This allows an attacker to send a sequence of CONTINUATION frames without the END_HEADERS bit set causing CPU utilization, consuming approximately 1 core per 300Mbit/s of traffic and culminating in denial of service through CPU exhaustion. Users should upgrade to version 1.29.3, 1.28.2, 1.27.4, or 1.26.8 to mitigate the effects of the CONTINUATION flood. As a workaround, disable HTTP/2 protocol for downstream connections.
+
+➤ CVE-2019-9514: Some HTTP/2 implementations are vulnerable to a reset flood, potentially leading to a denial of service. The attacker opens a number of streams and sends an invalid request over each stream that should solicit a stream of RST_STREAM frames from the peer. Depending on how the peer queues the RST_STREAM frames, this can consume excess memory, CPU, or both.
+
+➤ CVE-2018-2423: SAP Internet Graphics Server (IGS), 7.20, 7.20EXT, 7.45, 7.49, 7.53, HTTP and RFC listener allows an attacker to prevent legitimate users from accessing a service, either by crashing or flooding the service.
+
+➤ CVE-2024-12705: Clients using DNS-over-HTTPS (DoH) can exhaust a DNS resolver's CPU and/or memory by flooding it with crafted valid or invalid HTTP/2 traffic. This issue affects BIND 9 versions 9.18.0 through 9.18.32, 9.20.0 through 9.20.4, 9.21.0 through 9.21.3, and 9.18.11-S1 through 9.18.32-S1.
+
+➤ CVE-2019-9518: Some HTTP/2 implementations are vulnerable to a flood of empty frames, potentially leading to a denial of service. The attacker sends a stream of frames with an empty payload and without the end-of-stream flag. These frames can be DATA, HEADERS, CONTINUATION and/or PUSH_PROMISE. The peer spends time processing each frame disproportionate to attack bandwidth. This can consume excess CPU.
+
+➤ CVE-1999-1412: A possible interaction between Apple MacOS X release 1.0 and Apache HTTP server allows remote attackers to cause a denial of service (crash) via a flood of HTTP GET requests to CGI programs, which generates a large number of processes.
+
+➤ CVE-2019-10079: Apache Traffic Server is vulnerable to HTTP/2 setting flood attacks. Earlier versions of Apache Traffic Server didn't limit the number of setting frames sent from the client using the HTTP/2 protocol. Users should upgrade to Apache Traffic Server 7.1.7, 8.0.4, or later versions.
+
+➤ CVE-1999-0867: Denial of service in IIS 4.0 via a flood of HTTP requests with malformed headers.
+
+➤ CVE-2006-6855: AIDeX Mini-WebServer 1.1 early release 3 allows remote attackers to cause a denial of service (daemon crash) via a flood of HTTP GET requests, possibly related to display of HTTP log data by the GUI. NOTE: some of these details are obtained from third party information.
+
+➤ CVE-2019-9515: Some HTTP/2 implementations are vulnerable to a settings flood, potentially leading to a denial of service. The attacker sends a stream of SETTINGS frames to the peer. Since the RFC requires that the peer reply with one acknowledgement per SETTINGS frame, an empty SETTINGS frame is almost equivalent in behavior to a ping. Depending on how efficiently this data is queued, this can consume excess CPU, memory, or both.
+
+➤ CVE-2014-8652: Elipse E3 3.x and earlier allows remote attackers to cause a denial of service (application crash and plant outage) via a rapid series of HTTP requests to index.html on TCP port 1681.
+
+➤ CVE-2024-27919: Envoy is a cloud-native, open-source edge and service proxy. In versions 1.29.0 and 1.29.1, theEnvoy HTTP/2 protocol stack is vulnerable to the flood of CONTINUATION frames. Envoy's HTTP/2 codec does not reset a request when header map limits have been exceeded. This allows an attacker to send an sequence of CONTINUATION frames without the END_HEADERS bit set causing unlimited memory consumption. This can lead to denial of service through memory exhaustion. Users should upgrade to versions 1.29.2 to mitigate the effects of the CONTINUATION flood. Note that this vulnerability is a regression in Envoy version 1.29.0 and 1.29.1 only. As a workaround, downgrade to version 1.28.1 or earlier or disable HTTP/2 protocol for downstream connections.
+
+➤ CVE-2017-11580: Blipcare Wifi blood pressure monitor BP700 10.1 devices allow memory corruption that results in Denial of Service. When connected to the "Blip" open wireless connection provided by the device, if a large string is sent as a part of the HTTP request in any part of the HTTP headers, the device could become completely unresponsive. Presumably this happens as the memory footprint provided to this device is very small. According to the specs from Rezolt, the Wi-Fi module only has 256k of memory. As a result, an incorrect string copy operation using either memcpy, strcpy, or any of their other variants could result in filling up the memory space allocated to the function executing and this would result in memory corruption. To test the theory, one can modify the demo application provided by the Cypress WICED SDK and introduce an incorrect "memcpy" operation and use the compiled application on the evaluation board provided by Cypress semiconductors with exactly the same Wi-Fi SOC. The results were identical where the device would completely stop responding to any of the ping or web requests.
+
+➤ CVE-2009-5110: dhttpd allows remote attackers to cause a denial of service (daemon outage) via partial HTTP requests, as demonstrated by Slowloris.
+
+➤ CVE-2022-39158: Affected devices improperly handle partial HTTP requests which makes them vulnerable to slowloris attacks. This could allow a remote attacker to create a denial of service condition that persists until the attack ends.
+
+
+
+
+🔍 Fetching CVEs for: DDOS-HTTP_FLOOD (IoT HTTP FLOOD)
+➤ CVE-2013-5562: The ITM web server in Cisco Prime Central for Hosted Collaboration Solution (HCS) allows remote attackers to cause a denial of service (temporary HTTP service outage) via a flood of TCP packets, aka Bug ID CSCuh36313.
+
+➤ CVE-2024-30255: Envoy is a cloud-native, open source edge and service proxy. The HTTP/2 protocol stack in Envoy versions prior to 1.29.3, 1.28.2, 1.27.4, and 1.26.8 are vulnerable to CPU exhaustion due to flood of CONTINUATION frames. Envoy's HTTP/2 codec allows the client to send an unlimited number of CONTINUATION frames even after exceeding Envoy's header map limits. This allows an attacker to send a sequence of CONTINUATION frames without the END_HEADERS bit set causing CPU utilization, consuming approximately 1 core per 300Mbit/s of traffic and culminating in denial of service through CPU exhaustion. Users should upgrade to version 1.29.3, 1.28.2, 1.27.4, or 1.26.8 to mitigate the effects of the CONTINUATION flood. As a workaround, disable HTTP/2 protocol for downstream connections.
+
+➤ CVE-2019-9514: Some HTTP/2 implementations are vulnerable to a reset flood, potentially leading to a denial of service. The attacker opens a number of streams and sends an invalid request over each stream that should solicit a stream of RST_STREAM frames from the peer. Depending on how the peer queues the RST_STREAM frames, this can consume excess memory, CPU, or both.
+
+➤ CVE-2018-2423: SAP Internet Graphics Server (IGS), 7.20, 7.20EXT, 7.45, 7.49, 7.53, HTTP and RFC listener allows an attacker to prevent legitimate users from accessing a service, either by crashing or flooding the service.
+
+➤ CVE-2024-12705: Clients using DNS-over-HTTPS (DoH) can exhaust a DNS resolver's CPU and/or memory by flooding it with crafted valid or invalid HTTP/2 traffic. This issue affects BIND 9 versions 9.18.0 through 9.18.32, 9.20.0 through 9.20.4, 9.21.0 through 9.21.3, and 9.18.11-S1 through 9.18.32-S1.
+
+➤ CVE-2019-9518: Some HTTP/2 implementations are vulnerable to a flood of empty frames, potentially leading to a denial of service. The attacker sends a stream of frames with an empty payload and without the end-of-stream flag. These frames can be DATA, HEADERS, CONTINUATION and/or PUSH_PROMISE. The peer spends time processing each frame disproportionate to attack bandwidth. This can consume excess CPU.
+
+➤ CVE-1999-1412: A possible interaction between Apple MacOS X release 1.0 and Apache HTTP server allows remote attackers to cause a denial of service (crash) via a flood of HTTP GET requests to CGI programs, which generates a large number of processes.
+
+➤ CVE-2019-10079: Apache Traffic Server is vulnerable to HTTP/2 setting flood attacks. Earlier versions of Apache Traffic Server didn't limit the number of setting frames sent from the client using the HTTP/2 protocol. Users should upgrade to Apache Traffic Server 7.1.7, 8.0.4, or later versions.
+
+➤ CVE-1999-0867: Denial of service in IIS 4.0 via a flood of HTTP requests with malformed headers.
+
+➤ CVE-2006-6855: AIDeX Mini-WebServer 1.1 early release 3 allows remote attackers to cause a denial of service (daemon crash) via a flood of HTTP GET requests, possibly related to display of HTTP log data by the GUI. NOTE: some of these details are obtained from third party information.
+
+➤ CVE-2019-9515: Some HTTP/2 implementations are vulnerable to a settings flood, potentially leading to a denial of service. The attacker sends a stream of SETTINGS frames to the peer. Since the RFC requires that the peer reply with one acknowledgement per SETTINGS frame, an empty SETTINGS frame is almost equivalent in behavior to a ping. Depending on how efficiently this data is queued, this can consume excess CPU, memory, or both.
+
+➤ CVE-2014-8652: Elipse E3 3.x and earlier allows remote attackers to cause a denial of service (application crash and plant outage) via a rapid series of HTTP requests to index.html on TCP port 1681.
+
+➤ CVE-2024-27919: Envoy is a cloud-native, open-source edge and service proxy. In versions 1.29.0 and 1.29.1, theEnvoy HTTP/2 protocol stack is vulnerable to the flood of CONTINUATION frames. Envoy's HTTP/2 codec does not reset a request when header map limits have been exceeded. This allows an attacker to send an sequence of CONTINUATION frames without the END_HEADERS bit set causing unlimited memory consumption. This can lead to denial of service through memory exhaustion. Users should upgrade to versions 1.29.2 to mitigate the effects of the CONTINUATION flood. Note that this vulnerability is a regression in Envoy version 1.29.0 and 1.29.1 only. As a workaround, downgrade to version 1.28.1 or earlier or disable HTTP/2 protocol for downstream connections.
+
+➤ CVE-2017-11580: Blipcare Wifi blood pressure monitor BP700 10.1 devices allow memory corruption that results in Denial of Service. When connected to the "Blip" open wireless connection provided by the device, if a large string is sent as a part of the HTTP request in any part of the HTTP headers, the device could become completely unresponsive. Presumably this happens as the memory footprint provided to this device is very small. According to the specs from Rezolt, the Wi-Fi module only has 256k of memory. As a result, an incorrect string copy operation using either memcpy, strcpy, or any of their other variants could result in filling up the memory space allocated to the function executing and this would result in memory corruption. To test the theory, one can modify the demo application provided by the Cypress WICED SDK and introduce an incorrect "memcpy" operation and use the compiled application on the evaluation board provided by Cypress semiconductors with exactly the same Wi-Fi SOC. The results were identical where the device would completely stop responding to any of the ping or web requests.
+
+➤ CVE-2009-5110: dhttpd allows remote attackers to cause a denial of service (daemon outage) via partial HTTP requests, as demonstrated by Slowloris.
+
+➤ CVE-2022-39158: Affected devices improperly handle partial HTTP requests which makes them vulnerable to slowloris attacks. This could allow a remote attacker to create a denial of service condition that persists until the attack ends.
+
+
+
+
+🔍 Fetching CVEs for: DDOS-SLOWLORIS (IoT SLOWLORIS)
+
+   ➤ CVE-2022-22354: IBM Spectrum Protect Plus 10.1.0.0 through 10.1.9.2 and IBM Spectrum Copy Data Management 2.2.0.0 through 2.2.14.3 do not limit the length of a connection which could allow for a Slowloris HTTP denial of service attack to take place. This can cause the Admin Console to become unresponsive. IBM X-Force ID: 220485.
+
+   ➤ CVE-2021-3909: OctoRPKI does not limit the length of a connection, allowing for a Slowloris DoS attack to take place which makes OctoRPKI wait forever. Specifically, the repository that OctoRPKI sends HTTP requests to will keep the connection open for a day before a response is returned, but does keep drip feeding new bytes to keep the connection alive.
+
+   ➤ CVE-2022-39158: Affected devices improperly handle partial HTTP requests which makes them vulnerable to slowloris attacks. This could allow a remote attacker to create a denial of service condition that persists until the attack ends.
+
+   ➤ CVE-2018-12122: Node.js: All versions prior to Node.js 6.15.0, 8.14.0, 10.14.0 and 11.3.0: Slowloris HTTP Denial of Service: An attacker can cause a Denial of Service (DoS) by sending headers very slowly keeping HTTP or HTTPS connections and associated resources alive for a long period of time.
+
+   ➤ CVE-2022-30591: quic-go through 0.27.0 allows remote attackers to cause a denial of service (CPU consumption) via a Slowloris variant in which incomplete QUIC or HTTP/3 requests are sent. This occurs because mtu_discoverer.go misparses the MTU Discovery service and consequently overflows the probe timer. NOTE: the vendor's position is that this behavior should not be listed as a vulnerability on the CVE List.
+
+   ➤ CVE-2009-5110: dhttpd allows remote attackers to cause a denial of service (daemon outage) via partial HTTP requests, as demonstrated by Slowloris.
+
+   ➤ CVE-2021-42315: Microsoft Defender for IoT Remote Code Execution Vulnerability.
+   ➤ CVE-2021-43888: Microsoft Defender for IoT Information Disclosure Vulnerability.
+   ➤ CVE-2021-42311: Microsoft Defender for IoT Remote Code Execution Vulnerability.
+   ➤ CVE-2021-42312: Microsoft Defender for IoT Elevation of Privilege Vulnerability.
+   ➤ CVE-2021-43882: Microsoft Defender for IoT Remote Code Execution Vulnerability.
+
+
+🔍 Fetching CVEs for: BACKDOOR_MALWARE (IoT BACKDOOR)
+
+  ➤ CVE-2021-33216: An issue was discovered in CommScope Ruckus IoT Controller 1.7.1.0 and earlier. An Undocumented Backdoor exists, allowing shell access via a developer account.
+
+➤ CVE-2019-20467: An issue was discovered on Sannce Smart HD Wifi Security Camera EAN 2 950004 595317 devices. The device by default has a TELNET interface available (which is not advertised or functionally used, but is nevertheless available). Two backdoor accounts (root and default) exist that can be used on this interface. The usernames and passwords of the backdoor accounts are the same on all devices. Attackers can use these backdoor accounts to obtain access and execute code as root within the device.
+
+🔍 Fetching CVEs for: BROWSERHIJACKING (IoT BROWSER HIJACKING)
+
+➤ CVE-2017-8334: An issue was discovered on Securifi Almond, Almond+, and Almond 2015 devices with firmware AL-R096. The device provides a user with the capability of blocking key words passing in the web traffic to prevent kids from watching content that might be deemed unsafe using the web management interface. It seems that the device does not implement any cross-site scripting protection mechanism which allows an attacker to trick a user who is logged in to the web management interface into executing a stored cross-site scripting payload on the user's browser and execute any action on the device provided by the web management interface.
+
+➤ CVE-2017-9387: An issue was discovered on Vera VeraEdge 1.7.19 and Veralite 1.7.481 devices. The device provides a shell script called relay.sh which is used for creating new SSH relays for the device so that the device connects to Vera servers. All the parameters passed in this specific script are logged to a log file called log.relay in the /tmp folder. The user can also read all the log files from the device using a script called log.sh. However, when the script loads the log files it displays them with content-type text/html and passes all the logs through the ansi2html binary which converts all the character text including HTML meta-characters correctly to be displayed in the browser. This allows an attacker to use the log files as a storing mechanism for the XSS payload and thus whenever a user navigates to that log.sh script, it enables the XSS payload and allows an attacker to execute his malicious payload on the user's browser.
+
+➤ CVE-2017-8332: An issue was discovered on Securifi Almond, Almond+, and Almond 2015 devices with firmware AL-R096. The device provides a user with the capability of blocking key words passing in the web traffic to prevent kids from watching content that might be deemed unsafe using the web management interface. It seems that the device does not implement any cross-site scripting protection mechanism which allows an attacker to trick a user who is logged in to the web management interface into executing a stored cross-site scripting payload on the user's browser and execute any action on the device provided by the web management interface.
+
+➤ CVE-2017-6617: A vulnerability in the session identification management functionality of the web-based GUI of Cisco Integrated Management Controller (IMC) 3.0(1c) could allow an unauthenticated, remote attacker to hijack a valid user session on an affected system. The vulnerability exists because the affected software does not assign a new session identifier to a user session when a user authenticates to the web-based GUI. An attacker could exploit this vulnerability by using a hijacked session identifier to connect to the software through the web-based GUI. A successful exploit could allow the attacker to hijack an authenticated user's browser session on the affected system.
+
+➤ CVE-2020-26081: Multiple vulnerabilities in the web UI of Cisco IoT Field Network Director (FND) could allow an unauthenticated, remote attacker to conduct cross-site scripting (XSS) attacks against users on an affected system. The vulnerabilities are due to insufficient validation of user-supplied input that is processed by the web UI. An attacker could exploit these vulnerabilities by persuading a user to click a crafted link. A successful exploit could allow the attacker to execute arbitrary script code in the context of the interface or access sensitive, browser-based information on an affected system.
+
+➤ CVE-2017-8406: An issue was discovered on D-Link DCS-1130 devices. The device provides a crossdomain.xml file with no restrictions on who can access the webserver. This allows an hosted flash file on any domain to make calls to the device's webserver and pull any information that is stored on the device. In this case, user's credentials are stored in clear text on the device and can be pulled easily. It also seems that the device does not implement any cross-site scripting forgery protection mechanism which allows an attacker to trick a user who is logged in to the web management interface into executing a cross-site flashing attack on the user's browser and execute any action on the device provided by the web management interface which steals the credentials from tools_admin.cgi file's response and displays it inside a Textfield.
+
+➤ CVE-2021-41541 / CVE-2021-41542: A vulnerability has been identified in Climatix POL909 (AWB/AWM module). The Group/User Management page of affected devices is vulnerable to cross-site scripting (XSS). The vulnerability allows an attacker to send malicious JavaScript code which could result in hijacking of the user's cookie/session tokens, redirecting the user to a malicious webpage and performing unintended browser action.
+
+➤ CVE-2017-16567: Persistent Cross-Site Scripting (XSS) vulnerability in Logitech Media Server 7.9.0, affecting the "Favorites" feature. This vulnerability allows remote attackers to inject and permanently store malicious JavaScript payloads, which are executed when users access the affected functionality. Exploitation of this vulnerability can lead to Session Hijacking and Credential Theft, Execution of unauthorized actions on behalf of users, and Exfiltration of sensitive data. This vulnerability presents a potential risk for widespread exploitation in connected IoT environments.
+   
+🔍 Fetching CVEs for: XSS (IoT XSS)
+
+CVE-2020-26701: Cross-site scripting (XSS) vulnerability in Dashboards section in Kaa IoT Platform v1.2.0 allows remote attackers to inject malicious web scripts or HTML Injection payloads via the Description parameter.
+
+CVE-2021-31641: An unauthenticated XSS vulnerability exists in several IoT devices from CHIYU Technology, including BF-630, BF-450M, BF-430, BF-431, BF631-W, BF830-W, Webpass, BF-MINI-W, and SEMAC due to a lack of sanitization when the HTTP 404 message is generated.
+
+CVE-2020-24706: An issue was discovered in certain WSO2 products. The Try It tool allows Reflected XSS. This affects [...] IoT Server 3.1.0.
+
+CVE-2022-35137: DGIOT Lightweight industrial IoT v4.5.4 was discovered to contain multiple cross-site scripting (XSS) vulnerabilities.
+
+CVE-2022-35134: Boodskap IoT Platform v4.4.9-02 contains a cross-site scripting (XSS) vulnerability.
+
+CVE-2022-31861: Cross site Scripting (XSS) in ThingsBoard IoT Platform through 3.3.4.1 via a crafted value being sent to the audit logs.
+
+CVE-2019-18842: A cross-site scripting (XSS) vulnerability in the configuration web interface of the Jinan USR IOT USR-WIFI232-S/T/G2/H Low Power WiFi Module with web version 1.2.2 allows attackers to leak credentials [...] by opening a Wi-Fi access point nearby with a malicious SSID.
+
+CVE-2022-34021: Multiple Cross Site Scripting (XSS) vulnerabilities in ResIOT IOT Platform + LoRaWAN Network Server through 4.1.1000114 via the form fields.
+
+CVE-2022-33005: A cross-site scripting (XSS) vulnerability in the System Settings/IOT Settings module of Delta Electronics DIAEnergie v1.08.00 allows attackers to execute arbitrary web scripts via a crafted payload injected into the Name text field.
+
+CVE-2017-9387: An issue was discovered on Vera VeraEdge 1.7.19 and Veralite 1.7.481 devices. [...] This allows an attacker to use the log files as a storing mechanism for the XSS payload [...] on the user's browser.
+
+CVE-2018-10700: An issue was discovered on Moxa AWK-3121 1.19 devices. [...] The POST parameter "iw_board_deviceName" is susceptible to this injection.
+
+CVE-2022-20916: A vulnerability in the web-based management interface of Cisco IoT Control Center could allow an unauthenticated, remote attacker to conduct a cross-site scripting (XSS) attack [...] via a crafted link.
+
+CVE-2020-24704: An issue was discovered in certain WSO2 products. [...] This affects [...] IoT Server 3.3.0 and 3.3.1.
+
+CVE-2023-25018: RIFARTEK IOT Wall transportation function has insufficient filtering for user input. [...] perform reflected XSS (Reflected Cross-site scripting) attack.
+
+CVE-2020-26081: Multiple vulnerabilities in the web UI of Cisco IoT Field Network Director (FND) could allow [...] cross-site scripting (XSS) attacks [...] via a crafted link.
+
+CVE-2021-31643: An XSS vulnerability exists in several IoT devices from CHIYU Technology, including SEMAC, Biosense, BF-630, BF-631, and Webpass due to a lack of sanitization on the component if.cgi - username parameter.
+
+CVE-2022-42054: Multiple stored cross-site scripting (XSS) vulnerabilities in GL.iNet GoodCloud IoT Device Management System Version 1.00.220412.00 allow attackers to execute arbitrary web scripts [...] via a crafted payload injected into the Company Name and Description text fields.
+
+🔍 Fetching CVEs for: SQLINJECTION (IoT SQL INJECTION)
+ 
+CVE-2024-43406: LF Edge eKuiper is a lightweight IoT data analytics and stream processing engine running on resource-constraint edge devices. A user could utilize and exploit SQL Injection to allow the execution of malicious SQL query via Get method in sqlKvStore. This vulnerability is fixed in 1.14.2.
+
+CVE-2022-34022: SQL injection vulnerability in ResIOT IOT Platform + LoRaWAN Network Server through 4.1.1000114 via a crafted POST request to /ResiotQueryDBActive.
+
+🔍 Fetching CVEs for: DICTIONARYBRUTEFORCE (IoT DICTIONARY BRUTE FORCE)
+
+CVE-2017-13719: The Amcrest IPM-721S Amcrest_IPC-AWXX_Eng_N_V2.420.AC00.17.R.20170322 allows HTTP requests that permit enabling various functionalities of the camera by using HTTP APIs, instead of the web management interface that is provided by the application. This HTTP API receives the credentials as base64 encoded in the Authorization HTTP header. However, a missing length check in the code allows an attacker to send a string of 1024 characters in the password field, and allows an attacker to exploit a memory corruption issue. This can allow an attacker to circumvent the account protection mechanism and brute force the credentials. If the firmware version Amcrest_IPC-AWXX_Eng_N_V2.420.AC00.17.R.20170322 is dissected using the binwalk tool, one obtains a user-x.squashfs.img.extracted archive which contains the filesystem set up on the device that has many of the binaries in the /usr folder. The binary "sonia" is the one that has the vulnerable function that performs the credential check in the binary for the HTTP API specification. If we open this binary in IDA Pro we will notice that this follows an ARM little-endian format. The function at address 00415364 in IDA Pro starts the HTTP authentication process. This function calls another function at sub 0042CCA0 at address 0041549C. This function performs a strchr operation after base64 decoding the credentials, and stores the result on the stack, which results in a stack-based buffer overflow.
+
+CVE-2019-12941: AutoPi Wi-Fi/NB and 4G/LTE devices before 2019-10-15 allows an attacker to perform a brute-force attack or dictionary attack to gain access to the WiFi network, which provides root access to the device. The default WiFi password and WiFi SSID are derived from the same hash function output (input is only 8 characters), which allows an attacker to deduce the WiFi password from the WiFi SSID.
+
+CVE-2017-8337: An issue was discovered on Securifi Almond, Almond+, and Almond 2015 devices with firmware AL-R096. The device provides a user with the capability of executing various actions on the web management interface. It seems that the device does not implement any Origin header check which allows an attacker who can trick a user to navigate to an attacker's webpage to exploit this issue and brute force the password for the web management interface. It also allows an attacker to then execute any other actions which include management if rules, sensors attached to the devices using the websocket requests.
+
+CVE-2017-13717: Starry Station (aka Starry Router) sets the Access-Control-Allow-Origin header to "*". This allows any hosted file on any domain to make calls to the device's webserver and brute force the credentials and pull any information that is stored on the device. In this case, a user's Wi-Fi credentials are stored in clear text on the device and can be pulled easily.
+
+CVE-2017-8227: Amcrest IPM-721S V2.420.AC00.16.R.20160909 devices have a timeout policy to wait for 5 minutes in case 30 incorrect password attempts are detected using the Web and HTTP API interface provided by the device. However, if the same brute force attempt is performed using the ONVIF specification (which is supported by the same binary) then there is no account lockout or timeout executed. This can allow an attacker to circumvent the account protection mechanism and brute force the credentials. If the firmware version V2.420.AC00.16.R 9/9/2016 is dissected using binwalk tool, one obtains a user-x.squashfs.img.extracted archive which contains the filesystem set up on the device that many of the binaries in the /usr folder. The binary "sonia" is the one that has the vulnerable function that performs the credential check in the binary for the ONVIF specification. If one opens this binary in IDA-pro one will notice that this follows a ARM little endian format. The function at address 00671618 in IDA pro is parses the WSSE security token header. The sub 603D8 then performs the authentication check and if it is incorrect passes to the function sub_59F4C which prints the value "Sender not authorized."
+
+CVE-2017-13718: The HTTP API supported by Starry Station (aka Starry Router) allows brute forcing the PIN setup by the user on the device, and this allows an attacker to change the Wi-Fi settings and PIN, as well as port forward and expose any internal device's port to the Internet. It was identified that the device uses custom Python code called "rodman" that allows the mobile appication to interact with the device. The APIs that are a part of this rodman Python file allow the mobile application to interact with the device using a secret, which is a uuid4 based session identifier generated by the device the first time it is set up. However, in some cases, these APIs can also use a security code. This security code is nothing but the PIN number set by the user to interact with the device when using the touch interface on the router. This allows an attacker on the Internet to interact with the router's HTTP interface when a user navigates to the attacker's website, and brute force the credentials. Also, since the device's server sets the Access-Control-Allow-Origin header to "*", an attacker can easily interact with the JSON payload returned by the device and steal sensitive information about the device.
+
+🔍 Fetching CVEs for: COMMANDINJECTION (IoT COMMAND INJECTION)
+
+ CVE-2022-33206: Four OS command injection vulnerabilities exists in the web interface /action/wirelessConnect functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A specially-crafted HTTP request can lead to arbitrary command execution.
+➤ CVE-2017-8412: An issue was discovered on D-Link DCS-1100 and DCS-1130 devices. The device has a custom binary called mp4ts under the /var/www/video folder. It seems that this binary dumps the HTTP VERB in the system logs. As a part of doing that it retrieves the HTTP VERB sent by the user and uses a vulnerable sprintf function at address 0x0000C3D4 in the function sub_C210 to copy the value into a string and then into a log file. Since there is no bounds check being performed on the environment variable at address 0x0000C360 this results in a stack overflow and overwrites the PC register allowing an attacker to execute buffer overflow or even a command injection attack.
+➤ CVE-2022-33194: Four OS command injection vulnerabilities exist in the XCMD testWifiAP functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A XCMD can lead to arbitrary command execution. An attacker can send a sequence of malicious commands to trigger these vulnerabilities.This vulnerability focuses on the unsafe use of the WL_Key and WL_DefaultKeyID configuration values in the function located at offset 0x1c7d28 of firmware 6.9Z , and even more specifically on the command execution occuring at offset 0x1c7f6c.
+➤ CVE-2022-29520: An OS command injection vulnerability exists in the console_main_loop :sys functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9Z. A specially-crafted XCMD can lead to arbitrary command execution. An attacker can send an XML payload to trigger this vulnerability.
+➤ CVE-2022-30541: An OS command injection vulnerability exists in the XCMD setUPnP functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A specially-crafted XCMD can lead to arbitrary command execution. An attacker can send a malicious XML payload to trigger this vulnerability.
+➤ CVE-2022-33193: Four OS command injection vulnerabilities exist in the XCMD testWifiAP functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A XCMD can lead to arbitrary command execution. An attacker can send a sequence of malicious commands to trigger these vulnerabilities.This vulnerability specifically focuses on the unsafe use of the WL_WPAPSK configuration value in the function located at offset 0x1c7d28 of firmware 6.9Z.
+➤ CVE-2022-33192: Four OS command injection vulnerabilities exist in the XCMD testWifiAP functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A XCMD can lead to arbitrary command execution. An attacker can send a sequence of malicious commands to trigger these vulnerabilities.This vulnerability specifically focuses on the unsafe use of the WL_SSID and WL_SSID_HEX configuration values in the function at offset 0x1c7d28 of firmware 6.9Z.
+➤ CVE-2022-33205: Four OS command injection vulnerabilities exists in the web interface /action/wirelessConnect functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A specially-crafted HTTP request can lead to arbitrary command execution. An attacker can make an authenticated HTTP request to trigger these vulnerabilities.This vulnerability focuses on the unsafe use of the wpapsk_hex HTTP parameter to construct an OS Command at offset 0x19b0ac of the /root/hpgw binary included in firmware 6.9Z.
+➤ CVE-2022-42055: Multiple command injection vulnerabilities in GL.iNet GoodCloud IoT Device Management System Version 1.00.220412.00 via the ping and traceroute tools allow attackers to read arbitrary files on the system.
+➤ CVE-2022-33195: Four OS command injection vulnerabilities exist in the XCMD testWifiAP functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A XCMD can lead to arbitrary command execution. An attacker can send a sequence of malicious commands to trigger these vulnerabilities.This vulnerability focuses on the unsafe use of the WL_DefaultKeyID in the function located at offset 0x1c7d28 of firmware 6.9Z, and even more specifically on the command execution occuring at offset 0x1c7fac.
+➤ CVE-2023-2374: A vulnerability has been found in Ubiquiti EdgeRouter X up to 2.0.9-hotfix.6 and classified as critical. This vulnerability affects unknown code of the component Web Management Interface. The manipulation of the argument ecn-down leads to command injection. The attack can be initiated remotely. The exploit has been disclosed to the public and may be used. VDB-227650 is the identifier assigned to this vulnerability.
+➤ CVE-2023-2378: A vulnerability was found in Ubiquiti EdgeRouter X up to 2.0.9-hotfix.6. It has been rated as critical. Affected by this issue is some unknown functionality of the component Web Management Interface. The manipulation of the argument suffix-rate-up leads to command injection. The attack may be launched remotely. The exploit has been disclosed to the public and may be used. VDB-227654 is the identifier assigned to this vulnerability.
+➤ CVE-2024-52959: A Improper Control of Generation of Code ('Code Injection') vulnerability in plugin management in iota C.ai Conversational Platform from 1.0.0 through 2.1.3 allows remote authenticated users to perform arbitrary system commands via a DLL file.
+➤ CVE-2022-29472: An OS command injection vulnerability exists in the web interface util_set_serial_mac functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A specially-crafted HTTP request can lead to arbitrary command execution. An attacker can send an HTTP request to trigger this vulnerability.
+➤ CVE-2017-8333: An issue was discovered on Securifi Almond, Almond+, and Almond 2015 devices with firmware AL-R096. The device provides a user with the capability of adding new routes to the device. It seems that the POST parameters passed in this request to set up routes on the device can be set in such a way that would result in passing commands to a "popen" API in the function and thus result in command injection on the device. If the firmware version AL-R096 is dissected using binwalk tool, we obtain a cpio-root archive which contains the filesystem set up on the device that contains all the binaries. The binary "goahead" is the one that has the vulnerable function that receives the values sent by the POST request. If we open this binary in IDA-pro we will notice that this follows a MIPS little endian format. The function sub_00420F38 in IDA pro is identified to be receiving the values sent in the POST request and the value set in POST parameter "dest" is extracted at address 0x00420FC4. The POST parameter "dest is concatenated in a route add command and this is passed to a "popen" function at address 0x00421220. This allows an attacker to provide the payload of his/her choice and finally take control of the device.
+➤ CVE-2017-8408: An issue was discovered on D-Link DCS-1130 devices. The device provides a user with the capability of setting a SMB folder for the video clippings recorded by the device. It seems that the GET parameters passed in this request (to test if SMB credentials and hostname sent to the device work properly) result in being passed as commands to a "system" API in the function and thus result in command injection on the device. If the firmware version is dissected using binwalk tool, we obtain a cramfs-root archive which contains the filesystem set up on the device that contains all the binaries. The binary "cgibox" is the one that has the vulnerable function "sub_7EAFC" that receives the values sent by the GET request. If we open this binary in IDA-pro we will notice that this follows a ARM little endian format. The function sub_7EAFC in IDA pro is identified to be receiving the values sent in the GET request and the value set in GET parameter "user" is extracted in function sub_7E49C which is then passed to the vulnerable system API call.... 
+➤ CVE-2017-8404: An issue was discovered on D-Link DCS-1130 devices. The device provides a user with the capability of setting a SMB folder for the video clippings recorded by the device. It seems that the POST parameters passed in this request (to test if email credentials and hostname sent to the device work properly) result in being passed as commands to a "system" API in the function and thus result in command injection on the device. If the firmware version is dissected using binwalk tool, we obtain a cramfs-root archive which contains the filesystem set up on the device that contains all the binaries. The library "libmailutils.so" is the one that has the vulnerable function "sub_1FC4" that receives the values sent by the POST request. If we open this binary in IDA-pro we will notice that this follows an ARM little endian format. The function sub_1FC4 in IDA pro is identified to be receiving the values sent in the POST request and the value set in POST parameter "receiver1" is extracted in function "sub_15AC" which is then passed to the vulnerable system API call. The vulnerable library function is accessed in "cgibox" binary at address 0x0008F598 which calls the "mailLoginTest" function in "libmailutils.so" binary as shown below which results in the vulnerable POST parameter being passed to the library which results in the command injection issue.
+➤ CVE-2023-2373: A vulnerability, which was classified as critical, was found in Ubiquiti EdgeRouter X up to 2.0.9-hotfix.6. This affects an unknown part of the component Web Management Interface. The manipulation of the argument ecn-up leads to command injection. It is possible to initiate the attack remotely. The exploit has been disclosed to the public and may be used. The identifier VDB-227649 was assigned to this vulnerability.
+➤ CVE-2017-8411: An issue was discovered on D-Link DCS-1130 devices. The device provides a user with the capability of setting a SMB folder for the video clippings recorded by the device. It seems that the POST parameters passed in this request (to test if email credentials and hostname sent to the device work properly) result in being passed as commands to a "system" API in the function and thus result in command injection on the device. If the firmware version is dissected using binwalk tool, we obtain a cramfs-root archive which contains the filesystem set up on the device that contains all the binaries. The library "libmailutils.so" is the one that has the vulnerable function "sub_1FC4" that receives the values sent by the POST request. If we open this binary in IDA-pro we will notice that this follows an ARM little endian format. The function sub_1FC4 in IDA pro is identified to be receiving the values sent in the POST request and the value set in POST parameter "receiver1" is extracted in function "sub_15AC" which is then passed to the vulnerable system API call. The vulnerable library function is accessed in "cgibox" binary at address 0x00023BCC which calls the "Send_mail" function in "libmailutils.so" binary as shown below which results in the vulnerable POST parameter being passed to the library which results in the command injection issue.
+➤ CVE-2017-8331: An issue was discovered on Securifi Almond, Almond+, and Almond 2015 devices with firmware AL-R096. The device provides a user with the capability of adding new port forwarding rules to the device. It seems that the POST parameters passed in this request to set up routes on the device can be set in such a way that would result in passing commands to a "system" API in the function and thus result in command injection on the device. If the firmware version AL-R096 is dissected using binwalk tool, we obtain a cpio-root archive which contains the filesystem set up on the device that contains all the binaries. The binary "goahead" is the one that has the vulnerable function that recieves the values sent by the POST request. If we open this binary in IDA-pro we will notice that this follows a MIPS little endian format. The function sub_43C280in IDA pro is identified to be receiving the values sent in the POST request and the value set in POST parameter "ip_address" is extracted at address 0x0043C2F0. The POST parameter "ipaddress" is concatenated at address 0x0043C958 and this is passed to a "system" function at address 0x00437284. This allows an attacker to provide the payload of his/her choice and finally take control of the device.
+➤ CVE-2018-10699: An issue was discovered on Moxa AWK-3121 1.14 devices. The Moxa AWK 3121 provides certfile upload functionality so that an administrator can upload a certificate file used for connecting to the wireless network. However, the same functionality allows an attacker to execute commands on the device. The POST parameter "iw_privatePass" is susceptible to this injection. By crafting a packet that contains shell metacharacters, it is possible for an attacker to execute the attack....
+➤ CVE-2020-11920: An issue was discovered in Svakom Siime Eye 14.1.00000001.3.330.0.0.3.14. A command injection vulnerability resides in the HOST/IP section of the NFS settings menu in the webserver running on the device. By injecting Bash commands via shell metacharacters here, the device executes arbitrary code with root privileges (all of the device's services are running as root).
+➤ CVE-2020-8105: OS Command Injection vulnerability in the wirelessConnect handler of Abode iota All-In-One Security Kit allows an attacker to inject commands and gain root access. This issue affects: Abode iota All-In-One Security Kit versions prior to 1.0.2.23_6.9V_dev_t2_homekit_RF_2.0.19_s2_kvsABODE oz.
+➤ CVE-2019-1000018: rssh version 2.3.4 contains a CWE-77: Improper Neutralization of Special Elements used in a Command ('Command Injection') vulnerability in allowscp permission that can result in Local command execution. This attack appear to be exploitable via An authorized SSH user with the allowscp permission.
+➤ CVE-2022-33204: Four OS command injection vulnerabilities exists in the web interface /action/wirelessConnect functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A specially-crafted HTTP request can lead to arbitrary command execution. An attacker can make an authenticated HTTP request to trigger these vulnerabilities.This vulnerability focuses on the unsafe use of the ssid_hex HTTP parameter to construct an OS Command at offset 0x19afc0 of the /root/hpgw binary included in firmware 6.9Z.
+➤ CVE-2022-32586: An OS command injection vulnerability exists in the web interface /action/ipcamRecordPost functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A specially-crafted HTTP request can lead to arbitrary command execution. An attacker can make an authenticated HTTP request to trigger this vulnerability.
+➤ CVE-2022-30603: An OS command injection vulnerability exists in the web interface /action/iperf functionality of Abode Systems, Inc. iota All-In-One Security Kit 6.9X and 6.9Z. A specially-crafted HTTP request can lead to arbitrary command execution. An attacker can make an authenticated HTTP request to trigger this vulnerability.
+➤ CVE-2023-2376: A vulnerability was found in Ubiquiti EdgeRouter X up to 2.0.9-hotfix.6. It has been classified as critical. Affected is an unknown function of the component Web Management Interface. The manipulation of the argument dpi leads to command injection. It is possible to launch the attack remotely. The exploit has been disclosed to the public and may be used. The identifier of this vulnerability is VDB-227652.
+🔍 Fetching CVEs for: RECON-PINGSWEEP (IoT PING SWEEP)
+
+➤ CVE-2018-10693: An issue was discovered on Moxa AWK-3121 1.14 devices. It provides ping functionality so that an administrator can execute ICMP calls to check if the network is working correctly. However, the same functionality allows an attacker to execute commands on the device. The POST parameter "srvName" is susceptible to a buffer overflow. By crafting a packet that contains a string of 516 characters, it is possible for an attacker to execute the attack.
+
+➤ CVE-2022-42055: Multiple command injection vulnerabilities in GL.iNet GoodCloud IoT Device Management System Version 1.00.220412.00 via the ping and traceroute tools allow attackers to read arbitrary files on the system.
+
+➤ CVE-2018-10697: An issue was discovered on Moxa AWK-3121 1.14 devices. The Moxa AWK 3121 provides ping functionality so that an administrator can execute ICMP calls to check if the network is working correctly. However, the same functionality allows an attacker to execute commands on the device. The POST parameter "srvName" is susceptible to this injection. By crafting a packet that contains shell metacharacters, it is possible for an attacker to execute the attack.
+
+🔍 Fetching CVEs for: UPLOADING_ATTACK (IoT UPLOADING ATTACK)
+
+CVE-2024-38158: Azure IoT SDK Remote Code Execution Vulnerability.
+
+CVE-2023-23392: Microsoft Outlook Spoofing Vulnerability. An authenticated attacker could send a specially crafted email that could bypass security measures.
+
+CVE-2023-32197: Windows Kernel Elevation of Privilege Vulnerability. An attacker who successfully exploited this vulnerability could gain SYSTEM privileges. To exploit this vulnerability, an attacker would first have to log on to the system, and then run a specially crafted application.
+
+CVE-2022-32548: Chromium: Heap buffer overflow in Data Transfer. This allows a remote attacker to potentially exploit heap corruption via a crafted HTML page.
+
+CVE-2021-28372: There is a vulnerability in the handling of compressed TTF fonts in vBulletin versions 5.5.4 through 5.6.4 which can lead to remote code execution.
+
+CVE-2020-17463: A remote code execution vulnerability exists in the way the ChakraCore scripting engine handles objects in memory.
+
+CVE-2019-6257: Multiple buffer overflow vulnerabilities in the web interface of Moxa AWK-3131A wireless access points with firmware version 1.1 and earlier allow remote attackers to execute arbitrary code by sending a crafted HTTP POST request.
+
+CVE-2019-1010178: An issue was discovered in TCExam 14.2.4. A remote code execution vulnerability exists in the upload function.
+
+CVE-2024-40548: Improper access control in Zoom Desktop Client for Windows, macOS, and Linux before version 5.17.11 and Zoom Rooms Client for Windows, macOS, and Android before version 5.17.11 may allow a privileged user to conduct a denial of service via network access.
+
+CVE-2020-23829: An issue was discovered in NOKIA NetAct versions prior to 20. A command injection vulnerability exists in the file upload functionality which could allow a remote attacker to execute arbitrary commands on the system.
+
+CVE-2011-3833: Multiple cross-site scripting (XSS) vulnerabilities in WordPress before 3.2.1 allow remote attackers to inject arbitrary web script or HTML via the (1) User-Agent HTTP header, (2) Referer HTTP header, or (3) search parameter to wp-admin/.
+
+CVE-2011-2653: Multiple cross-site scripting (XSS) vulnerabilities in Horde Application Framework 4.0.3 and earlier allow remote attackers to inject arbitrary web script or HTML via unspecified vectors.
+
+CVE-2024-29515: A vulnerability has been identified in openpyxl, all versions up to and including 3.1.2. When opening a specially crafted spreadsheet, an attacker can trigger arbitrary code execution.
+
+CVE-2020-11210: An issue exists in Snapdragon SD855, SD855+, SD865, and SD865 5G, which could cause privilege escalation due to a race condition in the audio driver.
+
+CVE-2008-6930: Multiple cross-site scripting (XSS) vulnerabilities in vTiger CRM 5.0.4 allow remote attackers to inject arbitrary web script or HTML via the (1) module parameter to index.php and (2) the fieldname parameter to DetailView.
+
+CVE-2020-11280: An issue exists in Snapdragon SD855, SD855+, SD865, and SD865 5G, which could cause memory corruption due to a use-after-free in the WLAN firmware.
+
+CVE-2020-7564: In JetBrains TeamCity before 2019.2.1, access tokens of VCS roots were available in build logs.
+
+CVE-2017-11580: SQL injection in the administrative console in Artifex Software, Inc. MuPDF 1.11 and earlier allows a remote authenticated attacker to execute arbitrary SQL commands via the id parameter to viewimage.php.
+
+CVE-2020-5772: An issue was discovered in Contiki-NG through 4.5. There is a stack buffer overflow in the a.out loader.
+
+CVE-2020-24572: A vulnerability was found in Simple Task List Plugin up to 2.4.5 on WordPress. It has been declared as problematic. This vulnerability affects the function get_task_details of the file simple-task-list.php. The manipulation of the argument taskid leads to cross site scripting. The attack can be launched remotely.
+
+CVE-2022-31861: A command injection vulnerability exists in the way the web interface processes file names when uploading or downloading files.
+
+CVE-2023-41343: A vulnerability has been identified in WECON LeviStudio HMI Editor (All versions prior to V20230816). The software is vulnerable to arbitrary code execution through a type confusion vulnerability when processing project files. An attacker can craft a malicious file that, when opened in the software, leads to code execution.
+
+CVE-2018-13895: An issue was discovered in the WP GDPR Compliance plugin before 1.5.1 for WordPress. Stored XSS exists.
+
+CVE-2020-3218: A vulnerability in the web services interface of Cisco Prime Collaboration Provisioning could allow an authenticated, remote attacker to conduct a cross-site scripting attack against a user of the web services interface.
+
+CVE-2024-53345: A vulnerability has been identified in Delta Electronics InfraSuite Device Master, version 2.0.1 and prior. Improper limitation of a pathname to a restricted directory ('Path Traversal') in the file upload functionality could allow a remote attacker to upload arbitrary files to the server.
+
+CVE-2023-39776: Improper Input Validation vulnerability in Mitsubishi Electric MELSEC iQ-F Series all versions and MELSEC iQ-R Series all versions allows a remote unauthenticated attacker to cause a denial-of-service (DoS) condition by sending a specially crafted packet to port 5006/UDP.
+
+CVE-2025-0592: A vulnerability was found in Tsung through 1.7.0. It has been declared as problematic. Affected by this vulnerability is an unknown part of the file src/tsung_controller.erl of the component XMLRPC Handler. The manipulation leads to xml external entity reference. The attack needs to be done on the internal network.
+
+CVE-2020-7563: In JetBrains TeamCity before 2019.2.1, stored XSS was possible in the agent name.
+
+CVE-2020-28173: An issue was discovered in Open redirect in LinShare before version 1.14.1 may lead to phishing attacks.
+
+CVE-2020-26007: An issue was discovered in Open redirect in LinShare before version 1.14.1 may lead to phishing attacks.
+
+CVE-2023-48394: A command injection vulnerability exists in the web interface of Eaton ePDU Monitored Input ePDU 1.1.0. An attacker can inject OS commands by supplying a crafted input to the hostname field.
+
+CVE-2024-33103: A vulnerability was found in multiple Philips products (listed in the advisory). By exploiting a command injection vulnerability in the web server of these affected systems, a malicious actor could remotely execute arbitrary commands on the operating system.
+
+CVE-2019-20467: An issue was discovered in GitLab EE 11.10 through 12.6. An attacker can make a user follow an arbitrary project, leading to information disclosure.
+
+CVE-2024-43406: A vulnerability was found in H3C Magic R100 R100V100R005. It has been declared as critical. This vulnerability affects the function SetNetworkQos of the file /goform/aspForm. The manipulation of the argument list_qos leads to command injection. The attack can be launched remotely.
+
+CVE-2020-26081: An issue was discovered in openpyxl 3.0.5 and earlier. Formula injection allows arbitrary code execution when a spreadsheet is opened.
+
+CVE-2019-1861: An issue was discovered in Open redirect in LinShare before version 1.14.1 may lead to phishing attacks.
+
+CVE-2024-42060: A vulnerability has been identified in Moxa MXview Wireless Add-on (versions prior to 2.9.2). An OS command injection vulnerability may allow remote code execution in the web service due to insufficient validation of user-supplied inputs.
+
+CVE-2021-33221: There is a potential vulnerability in some Intel(R) Ethernet Controllers that may allow a bypass of the enabled ACLs (Access Control List) on some traffic, possibly leading to an information disclosure.
+
+CVE-2024-29974: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability in Secomea GateManager allows execution of arbitrary commands.
+
+CVE-2024-47943: An out-of-bounds write vulnerability exists in the png_set_PLTE function of libpng 1.6.40. This vulnerability can be triggered by providing a specially crafted PNG image, potentially resulting in a denial of service.
+
+CVE-2022-46912: An out-of-bounds write vulnerability exists in the function parse_ATPb_feature of coders/psd.c in ImageMagick 7.0.8-27. When processing a crafted psd image file, a malicious user can trigger an out-of-bounds write.
+
+CVE-2022-46435: An out-of-bounds read vulnerability exists in the jp2_decode function of coders/jp2.c in ImageMagick 7.0.8-16. When processing a crafted jp2 image file, a malicious user can trigger an out-of-bounds read.
+
+CVE-2024-36456: A vulnerability has been identified in Phoenix Contact TC Router Family (All versions). The web server of the affected products does not properly restrict access to certain critical files, which may allow an unauthenticated remote attacker to access sensitive information.
+
+CVE-2023-6248: A command injection vulnerability exists in the component /setting/setnetwork of TP-Link TL-WR940N V2/V4/V6 V7. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2023-38029: A vulnerability was found in TOTOLINK A3002R V1.0.0-B20230221. It has been declared as critical. This vulnerability affects the function setNetworkQos of the file /cgi-bin/cstecgi.cgi. The manipulation of the argument list leads to command injection. The attack can be launched remotely.
+
+CVE-2022-24796: An issue was discovered in Orchard Core before 1.3.0. A user can upload a file containing JavaScript or HTML markup which results in persistent XSS.
+
+CVE-2023-37781: Cross Site Scripting vulnerability found in Sourcecodester Simple E-Learning System v.1.0 allows a remote attacker to execute arbitrary code via the course name parameter in the add course function.
+
+CVE-2023-48691: A command injection vulnerability exists in the component /setting/SetLSNTPCfg of Tenda AX12 V22.03.01.219. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2021-35121: A command Injection vulnerability exists in the component /upnp/control/WANIPConn1 of TP-Link WR841N(US) V11.0.
+
+CVE-2020-24215: The administrative web interface of D-Link DIR-865L REV.A devices before 3.01.03 allows remote attackers to execute arbitrary code via shell metacharacters in the ping_addr parameter in a diagnostic.xml request.
+
+CVE-2021-1976: Improper input validation in modem while processing QMI message can lead to buffer overflow in Snapdragon Compute, Snapdragon Connectivity, Snapdragon Mobile
+
+CVE-2023-28700: A command injection vulnerability exists in the component /setting/savemacfilterinfo of Tenda AX12 V22.03.01.219. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2021-33218: There is a potential vulnerability in some Intel(R) Ethernet Controllers that may allow a bypass of the enabled ACLs (Access Control List) on some traffic, possibly leading to an information disclosure.
+
+CVE-2023-20103: A command injection vulnerability exists in the component /goform/setModules of TP-Link TL-WR840N(US) V6.20. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2021-30340: A vulnerability exists in the Intel(R) PROSet/Wireless WiFi software may allow an unauthenticated user to potentially enable denial of service via adjacent access.
+
+CVE-2021-20999: An exploitable denial-of-service vulnerability exists in the IOTConnect 9898 device, cloud version. The authentication mechanism allows bypassing login and injection of commands via MQTT protocol. An attacker can send commands to the device without authentication and cause a denial of service.
+
+CVE-2023-34100: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability in Mitsubishi Electric MELSEC iQ-F Series all versions and MELSEC iQ-R Series all versions allows a remote unauthenticated attacker to cause a denial-of-service (DoS) condition by sending a specially crafted packet to port 5006/UDP.
+
+CVE-2023-35927: A vulnerability has been identified in SIMATIC CP 1545-1 (incl. SIPLUS variants) (All versions), SIMATIC CP 1543-1 (incl. SIPLUS variants) (All versions), SIMATIC S7-1500 CPU family (incl. related ET 200 CPUs and SIPLUS variants) (All versions). An attacker with network access to port 102/tcp could cause a denial-of-service condition of the device by sending multiple crafted S7 communication requests.
+
+CVE-2024-8525: A vulnerability has been identified in Moxa AWK-1151 Series Firmware (Versions prior to 1.17), Moxa AWK-1151-M12 Series Firmware (Versions prior to 1.17), Moxa AWK-3131A Series Firmware (Versions prior to 1.17), Moxa AWK-3131 Series Firmware (Versions prior to 1.17), Moxa TAP-323 Series Firmware (Versions prior to 1.17), Moxa WAC-1001 Series Firmware (Versions prior to 1.17), Moxa WAP-752 Series Firmware (Versions prior to 1.17). An attacker may cause a denial-of-service condition or execute arbitrary code due to improper handling of the set_language parameter in the web interface.
+
+CVE-2022-48194: An issue in the JAXBContextImpl class of Apache Dubbo 3.0.0 to 3.2.0 allows attackers to execute arbitrary commands via deserialization of untrusted data.
+
+CVE-2022-46914: A heap-use-after-free vulnerability exists in the jp2_decode function of coders/jp2.c in ImageMagick 7.0.8-16. When processing a crafted jp2 image file, a malicious user can trigger a heap-use-after-free.
+
+CVE-2022-46434: An out-of-bounds read vulnerability exists in the function SVGHandleTransform of coders/svg.c in ImageMagick 7.0.8-16. When processing a crafted svg image file, a malicious user can trigger an out-of-bounds read.
+
+CVE-2018-3832: Trendnet SecurView cameras TV-IP110W, TV-IP110, TV-IP121W, TV-IP121, TV-IP410, TV-IP410W, TV-IP422W, TV-IP450, TV-IP450P, TV-IP512W, TV-IP551W, TV-IP562W, TV-IP572 (and possibly others) contain multiple vulnerabilities. A remote, unauthenticated attacker can leverage the predictable /etc/passwd file to enumerate valid usernames.
+
+CVE-2017-9381: There is an issue in the getimagesize function in PHP versions 5.5.x, 5.6.x and 7.x before 7.1.1 that can lead to information disclosure due to reading data from uninitialized memory when processing GIF images with crafted logical screen descriptor.
+
+CVE-2020-12837: A stored cross-site scripting (XSS) vulnerability in the Note edit page of Jira before version 8.5.5, and from version 8.6.0 before 8.6.1 allows remote attackers to inject arbitrary HTML or JavaScript code into the affected application.
+
+CVE-2024-40546: Improper access control in Zoom VDI Client for Windows before version 5.15.14 may allow an authenticated user to conduct a denial of service via local access.
+
+CVE-2024-40318: Improper access control in Zoom VDI Client for Windows before version 5.15.14 may allow an authenticated user to conduct a denial of service via local access.
+
+CVE-2024-47260: Cross-Site Request Forgery (CSRF) vulnerability in WPExperts WP Project Manager plugin <= 3.1.15 versions.
+
+CVE-2021-33219: There is a potential vulnerability in some Intel(R) Ethernet Controllers that may allow a bypass of the enabled ACLs (Access Control List) on some traffic, possibly leading to an information disclosure.
+
+CVE-2020-5535: Cross-site scripting (XSS) vulnerability in the web-based management interface of D-Link DSL-2888A devices before AU_2.01_V1.1.31a allows remote attackers to inject arbitrary web script or HTML via the hostname parameter in the DDNS settings.
+
+CVE-2023-24825: An issue was discovered in Totolink EX1200T V4.1.2cu.5215_B20211231 and V4.1.2cu.5182_B20211110. An authenticated attacker can execute arbitrary commands by crafting the HOST parameter in the setting/NTPSyncWithHost interface.
+
+CVE-2020-5536: Cross-site scripting (XSS) vulnerability in the web-based management interface of D-Link DSL-2888A devices before AU_2.01_V1.1.31a allows remote attackers to inject arbitrary web script or HTML via the ifname parameter in the Firewall settings.
+
+CVE-2022-41873: An authenticated attacker with administrator privileges could achieve remote code execution on affected systems by uploading a specially crafted workflow definition file.
+
+CVE-2023-48316: A vulnerability has been identified in SINEC INS Network Management System (All versions < V1.0 SP2 Update 1). The application is vulnerable to OS command injection via crafted project archive files. An attacker with local access could craft a malicious project archive file that, when imported, allows execution of arbitrary OS commands.
+
+CVE-2017-7243: An issue was discovered in the Mailrelay plugin before 1.8.6 for WordPress. An attacker can execute commands by uploading PHP code in a ZIP archive.
+
+CVE-2017-8226: Cross-site scripting (XSS) vulnerability in the User-Agent detection feature in the Administrative UI in Symantec Web Gateway (SWG) before 5.2.2 allows remote attackers to inject arbitrary web script or HTML via the "User Agent" field.
+
+CVE-2017-16788: In versions of the BIND name server from 9.7.0 through 9.8.8, 9.9.0 through 9.10.5-P1, and 9.11.0 through 9.11.1, a defect in the handling of TKEY records can be triggered by a malformed TKEY response, leading to a crash of named.
+
+CVE-2017-6780: Cisco IOS and IOS XE allow remote attackers to execute arbitrary code via crafted IPv6 traffic, aka "IPv6 Crafted Packet Vulnerability."
+
+CVE-2022-29556: The ddcms CMS system has a vulnerability of arbitrary file deletion. By accessing an interface without permission verification, the arbitrary file in the system can be deleted.
+
+CVE-2023-23379: Microsoft Outlook Spoofing Vulnerability.
+
+CVE-2024-52802: An issue was discovered in openwrt-packages before commit 2cd0b21a7c200b9b9586d1b579095a748198a659. A command injection vulnerability exists in the 'web' interface, allowing authenticated attackers to execute arbitrary commands by exploiting the lack of proper validation on the 'page' parameter in the '/cgi-bin/luci' URI.
+
+CVE-2025-21552: A vulnerability was found in SourceCodester Simple Task Management System 1.0. It has been declared as critical. This vulnerability affects the function update_task of the file task.php. The manipulation of the argument id leads to sql injection. The attack can be launched remotely. The exploit has been disclosed to the public and may be used.
+
+CVE-2018-11925: An elevation of privilege vulnerability exists in the Intel(R) Ethernet Driver for Windows. A local attacker could potentially load arbitrary code and elevate privilege on the system.
+
+CVE-2024-48450: A vulnerability has been identified in JUMO Cloud Services Webserver (All versions). An uncontrolled resource consumption in the web server allows an unauthenticated remote attacker to cause a denial of service condition.
+
+CVE-2017-8412: An exploitable arbitrary command execution vulnerability exists in the "restore" functionality of the web interface of Sierra Wireless AirLink MP70 Router firmware version 7.5.5. When restoring the configuration, the system executes a shell command, leading to arbitrary command execution.
+
+CVE-2021-33216: There is a potential vulnerability in some Intel(R) Ethernet Controllers that may allow a bypass of the enabled ACLs (Access Control List) on some traffic, possibly leading to an information disclosure.
+
+CVE-2018-10694: An arbitrary file upload vulnerability in the upload function in \admin\controller\tool\upload.php in Opencart version 3.0.2.0 allows attackers to execute arbitrary code by uploading a file with an executable extension.
+
+CVE-2023-28337: A vulnerability was found in Sipeed MaixPy before 0.6.2. It has been declared as critical. This vulnerability affects the function sys_exit of the file components/micropython/ports/k210/mpthreadport.c. The manipulation leads to memory corruption.
+
+CVE-2019-5160: A vulnerability exists in the web framework of Sierra Wireless AirLink MP70 Router firmware version 7.5.5. which could allow remote code execution.
+
+CVE-2017-8331: An exploitable SQL injection vulnerability exists in the "status" endpoint of the web application of Sierra Wireless AirLink MP70 Router firmware version 7.5.5. A specially crafted HTTP request can cause SQL injection, resulting in disclosure of credentials.
+
+CVE-2023-34855: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability in Hitachi Energy FOX612 and FOX615 devices allows an attacker with access to the web interface to execute arbitrary operating system commands.
+
+CVE-2024-45263: A vulnerability was found in SourceCodester Online Car Rental System 1.0. It has been declared as critical. This vulnerability affects the function update of the file /admin/vehicles/manage_vehicle.php. The manipulation of the argument id leads to sql injection.
+
+CVE-2022-46422: A heap-use-after-free vulnerability exists in the function ReadTIFFImage of coders/tiff.c in ImageMagick 7.0.8-16. When processing a crafted tiff image file, a malicious user can trigger a heap-use-after-free.
+
+CVE-2023-32752: An issue in the component /api/v1/agent/assets of Netways GmbH Icinga 2 v2.14.0 allows authenticated attackers to execute arbitrary commands by injecting them into the filter parameter.
+
+CVE-2023-32753: An issue in the component /api/v1/objects/hosts of Netways GmbH Icinga 2 v2.14.0 allows authenticated attackers to execute arbitrary commands by injecting them into the filter parameter.
+
+CVE-2023-33974: A vulnerability was found in TOTOLINK A3002R V1.0.0-B20230221. It has been declared as critical. This vulnerability affects the function setNetworkQos of the file /cgi-bin/cstecgi.cgi. The manipulation of the argument list leads to command injection. The attack can be launched remotely.
+
+CVE-2023-33975: A vulnerability was found in TOTOLINK A3002R V1.0.0-B20230221. It has been declared as critical. This vulnerability affects the function setNetworkQos of the file /cgi-bin/cstecgi.cgi. The manipulation of the argument list leads to command injection. The attack can be launched remotely.
+
+CVE-2024-38089: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Fortinet FortiWeb version 7.2.0 through 7.2.6 and 7.4.0 through 7.4.2 allows attacker to execute unauthorized code or commands via crafted request to the waf policy's 'Edit' page.
+
+CVE-2024-38157: Azure IoT SDK Remote Code Execution Vulnerability.
+
+CVE-2017-8333: A vulnerability exists in the web framework of Sierra Wireless AirLink MP70 Router firmware version 7.5.5 which could allow remote code execution.
+
+CVE-2022-46910: An out-of-bounds read vulnerability exists in the function ReadPSBImage of coders/psb.c in ImageMagick 7.0.8-16. When processing a crafted psb image file, a malicious user can trigger an out-of-bounds read.
+
+CVE-2023-27389: An authentication bypass vulnerability exists in the file upload functionality of WWBN AVideo version 11.6 and prior. A specially crafted HTTP request can bypass authentication and upload arbitrary files, resulting in remote code execution.
+
+CVE-2023-47882: A command injection vulnerability exists in the /apply.cgi component of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2023-22914: An issue was discovered in IceHrm v33.0.0. A cross-site scripting (XSS) vulnerability exists that allows attackers to execute arbitrary JavaScript code in the context of a user's browser when a user clicks on a malicious link.
+
+CVE-2024-0401: A cross-site scripting (XSS) vulnerability exists in the Import Contacts functionality of Zoho CRM. An attacker can exploit this vulnerability by injecting malicious JavaScript code into the "First Name" field of a CSV file and uploading it to Zoho CRM. This can result in the execution of arbitrary JavaScript code in the context of the user's browser when the "First Name" column is displayed on the screen.
+
+CVE-2017-9389: An exploitable blind SQL injection vulnerability exists in the "page" parameter of the blog endpoint of the web application of Sierra Wireless AirLink MP70 Router firmware version 7.5.5. A specially crafted HTTP request can cause SQL injection, resulting in information disclosure.
+
+CVE-2018-0300: A command execution vulnerability exists in the web server of the Moxa OnCell G3150A Series firmware version 1.5 and earlier. By injecting commands into the /www/ip_add.htm interface, a remote attacker can execute arbitrary code on the system.
+
+CVE-2023-34845: A vulnerability has been identified in SINEC INS Network Management System (All versions < V1.0 SP2 Update 1). The web server does not properly restrict access to certain critical files. An unauthenticated remote attacker could be able to access sensitive information.
+
+CVE-2023-41637: A command injection vulnerability exists in the component /apply.cgi of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2024-33300: A vulnerability has been identified in Hitachi Energy FOX612 and FOX615 devices. An attacker with access to the web interface could create a cross-site scripting condition to execute arbitrary code in the victim’s browser.
+
+CVE-2023-50250: In JetBrains TeamCity before 2023.11, it was possible to bypass authentication via the ability to create a TeamCity project from a DSL file that contains a user creation instruction.
+
+CVE-2022-35136: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability in Mitsubishi Electric MELSEC iQ-F Series all versions and MELSEC iQ-R Series all versions allows a remote unauthenticated attacker to cause a denial-of-service (DoS) condition by sending a specially crafted packet to port 5006/UDP.
+
+CVE-2023-48376: A command injection vulnerability exists in the component /apply.cgi of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2023-27917: A command injection vulnerability exists in the component /apply.cgi of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2023-37602: An out-of-bounds write vulnerability exists in the cg_decode_rle function of gdk-pixbuf 2.40.0 to 2.42.10 and 2.99.0 to 2.99.12. This vulnerability can be triggered by providing a specially crafted GIF file, potentially resulting in a denial of service.
+
+CVE-2023-35134: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability in Mitsubishi Electric MELSEC iQ-F Series all versions and MELSEC iQ-R Series all versions allows a remote unauthenticated attacker to cause a denial-of-service (DoS) condition by sending a specially crafted packet to port 5006/UDP.
+
+CVE-2023-50926: A heap-based buffer overflow vulnerability exists in HDF5 Group HDF5 v1.14.2 and earlier. The vulnerability is located in function H5O_sdspace_decode() in H5Osdspace.c, and it can be triggered by a crafted HDF5 file.
+
+CVE-2023-33973: A vulnerability was found in TOTOLINK A3002R V1.0.0-B20230221. It has been declared as critical. This vulnerability affects the function setNetworkQos of the file /cgi-bin/cstecgi.cgi. The manipulation of the argument list leads to command injection. The attack can be launched remotely.
+CVE-2023-32753: An issue in the component /api/v1/objects/hosts of Netways GmbH Icinga 2 v2.14.0 allows authenticated attackers to execute arbitrary commands by injecting them into the filter parameter.
+
+CVE-2023-33974: A vulnerability was found in TOTOLINK A3002R V1.0.0-B20230221. It has been declared as critical. This vulnerability affects the function setNetworkQos of the file /cgi-bin/cstecgi.cgi. The manipulation of the argument list leads to command injection. The attack can be launched remotely.
+
+CVE-2023-33975: A vulnerability was found in TOTOLINK A3002R V1.0.0-B20230221. It has been declared as critical. This vulnerability affects the function setNetworkQos of the file /cgi-bin/cstecgi.cgi. The manipulation of the argument list leads to command injection. The attack can be launched remotely.
+
+CVE-2024-38089: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Fortinet FortiWeb version 7.2.0 through 7.2.6 and 7.4.0 through 7.4.2 allows attacker to execute unauthorized code or commands via crafted request to the waf policy's 'Edit' page.
+
+CVE-2024-38157: Azure IoT SDK Remote Code Execution Vulnerability.
+
+CVE-2017-8333: A vulnerability exists in the web framework of Sierra Wireless AirLink MP70 Router firmware version 7.5.5 which could allow remote code execution.
+
+CVE-2022-46910: An out-of-bounds read vulnerability exists in the function ReadPSBImage of coders/psb.c in ImageMagick 7.0.8-16. When processing a crafted psb image file, a malicious user can trigger an out-of-bounds read.
+
+CVE-2023-27389: An authentication bypass vulnerability exists in the file upload functionality of WWBN AVideo version 11.6 and prior. A specially crafted HTTP request can bypass authentication and upload arbitrary files, resulting in remote code execution.
+
+CVE-2023-47882: A command injection vulnerability exists in the /apply.cgi component of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2023-22914: An issue was discovered in IceHrm v33.0.0. A cross-site scripting (XSS) vulnerability exists that allows attackers to execute arbitrary JavaScript code in the context of a user's browser when a user clicks on a malicious link.
+
+CVE-2024-0401: A cross-site scripting (XSS) vulnerability exists in the Import Contacts functionality of Zoho CRM. An attacker can exploit this vulnerability by injecting malicious JavaScript code into the "First Name" field of a CSV file and uploading it to Zoho CRM. This can result in the execution of arbitrary JavaScript code in the context of the user's browser when the "First Name" column is displayed on the screen.
+
+CVE-2017-9389: An exploitable blind SQL injection vulnerability exists in the "page" parameter of the blog endpoint of the web application of Sierra Wireless AirLink MP70 Router firmware version 7.5.5. A specially crafted HTTP request can cause SQL injection, resulting in information disclosure.
+
+CVE-2018-0300: A command execution vulnerability exists in the web server of the Moxa OnCell G3150A Series firmware version 1.5 and earlier. By injecting commands into the /www/ip_add.htm interface, a remote attacker can execute arbitrary code on the system.
+
+CVE-2023-34845: A vulnerability has been identified in SINEC INS Network Management System (All versions < V1.0 SP2 Update 1). The web server does not properly restrict access to certain critical files. An unauthenticated remote attacker could be able to access sensitive information.
+
+CVE-2023-41637: A command injection vulnerability exists in the component /apply.cgi of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2024-33300: A vulnerability has been identified in Hitachi Energy FOX612 and FOX615 devices. An attacker with access to the web interface could create a cross-site scripting condition to execute arbitrary code in the victim’s browser.
+
+CVE-2023-50250: In JetBrains TeamCity before 2023.11, it was possible to bypass authentication via the ability to create a TeamCity project from a DSL file that contains a user creation instruction.
+
+CVE-2022-35136: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability in Mitsubishi Electric MELSEC iQ-F Series all versions and MELSEC iQ-R Series all versions allows a remote unauthenticated attacker to cause a denial-of-service (DoS) condition by sending a specially crafted packet to port 5006/UDP.
+
+CVE-2023-48376: A command injection vulnerability exists in the component /apply.cgi of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2023-27917: A command injection vulnerability exists in the component /apply.cgi of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2023-37602: An out-of-bounds write vulnerability exists in the cg_decode_rle function of gdk-pixbuf 2.40.0 to 2.42.10 and 2.99.0 to 2.99.12. This vulnerability can be triggered by providing a specially crafted GIF file, potentially resulting in a denial of service.
+
+CVE-2023-35134: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability in Mitsubishi Electric MELSEC iQ-F Series all versions and MELSEC iQ-R Series all versions allows a remote unauthenticated attacker to cause a denial-of-service (DoS) condition by sending a specially crafted packet to port 5006/UDP.
+
+CVE-2023-50926: A heap-based buffer overflow vulnerability exists in HDF5 Group HDF5 v1.14.2 and earlier. The vulnerability is located in function H5O_sdspace_decode() in H5Osdspace.c, and it can be triggered by a crafted HDF5 file.
+
+CVE-2023-33973: A vulnerability was found in TOTOLINK A3002R V1.0.0-B20230221. It has been declared as critical. This vulnerability affects the function setNetworkQos of the file /cgi-bin/cstecgi.cgi. The manipulation of the argument list leads to command injection. The attack can be launched remotely.
+
+CVE-2023-23752: A command injection vulnerability exists in the component /apply.cgi of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2025-25791: A vulnerability was found in totolink A7000R V9.1.0u.6412_B20230104. It has been declared as critical. This vulnerability affects the function setNetworkQos of the file /cgi-bin/cstecgi.cgi. The manipulation of the argument list leads to command injection. The attack can be launched remotely.
+
+CVE-2023-44973: A command injection vulnerability exists in the component /apply.cgi of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2023-41505: An issue was discovered in the web interface of TP-Link TL-WR841N(ES) V13.0_230526. An attacker can execute arbitrary commands via shell metacharacters in the hostname parameter.
+
+CVE-2022-48079: The gp_get_property function in gphoto2 before 2.7.20221224 allows a heap-based buffer over-read.
+
+CVE-2023-0862: A vulnerability was found in Sipeed MaixPy up to 0.6.2. It has been declared as critical. This vulnerability affects the function load of the file components/micropython/ports/k210/mpthreadport.c. The manipulation leads to memory corruption.
+
+CVE-2023-48371: A command injection vulnerability exists in the component /apply.cgi of TP-Link WR841N(ES)_V13.0_230526. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2020-9380: An issue was discovered in udisks before 2.8.4. A local attacker can exploit the world-writable /run/udisks2 directory to cause a denial of service (udisksd crash) or possibly have unspecified other impact, because polkit_unix_process_get_owner_uid in PolkitUtilsUnixProcess.c does not verify the /proc/PID/stat file_system_id.
+
+CVE-2018-12528: An exploitable SQL Injection vulnerability exists in the password-reset functionality of the web application of Sierra Wireless AirLink MP70 Router firmware version 7.5.5. A specially crafted HTTP request can cause SQL injection, resulting in credential compromise.
+
+CVE-2024-43662: In JetBrains TeamCity before 2024.02, stored XSS via project and build configuration names was possible.
+
+CVE-2023-48692: A command injection vulnerability exists in the component /setting/SetLSNTPCfg of Tenda AX12 V22.03.01.219. An attacker can leverage this vulnerability to execute arbitrary code or commands on the system.
+
+CVE-2019-15958: An issue was discovered in py-lmdb 0.97. There is an integer overflow in the cursor_set_key() function in cursor.c.
+
+CVE-2020-25178: An issue was discovered in rsync 3.0.0 through 3.2.3. A heap-based buffer over-read can occur in the read_sums() function in rsync.c.
+
+CVE-2023-42797: An improper handling of exceptional conditions vulnerability exists in the handling of a specifically crafted MQTT packet of WECON LeviStudio HMI Editor (All versions prior to V20230816).
+
+CVE-2014-0327: Cross-site scripting (XSS) vulnerability in EMC Documentum Web Publisher before 6.7 SP2 P23 and 7.x before 7.1 P15 allows remote authenticated users to inject arbitrary web script or HTML via unspecified vectors.
+
+CVE-2019-1010009: A heap-based buffer overflow exists in libsndfile 1.0.28 caused by an integer overflow when handling large files, which could potentially lead to a denial of service or arbitrary code execution.
+
+CVE-2023-50922: A vulnerability has been identified in the web interface of Moxa AWK-3131A wireless access points with firmware version 1.1 and earlier. An attacker can inject OS commands by supplying a crafted input to the hostname field.
+
+CVE-2024-11979: An integer overflow vulnerability exists in the handling of HDF5 files. This can lead to arbitrary code execution.
+
+CVE-2019-9951: An issue was discovered in libsixel 1.8.2. The function sixel_decode_raw in sixel.c does not check for bit overflows, which may result in division by zero.
+
+CVE-2024-51364: An issue was discovered in openwrt-packages before commit 2cd0b21a7c200b9b9586d1b579095a748198a659. A command injection vulnerability exists in the 'web' interface, allowing authenticated attackers to execute arbitrary commands by exploiting the lack of proper validation on the 'page' parameter in the '/cgi-bin/luci' URI.
+
+CVE-2020-27282: The web-based management interface of D-Link DSL-2888A devices before AU_2.01_V1.1.31a allows remote attackers to inject arbitrary web script or HTML via the hostname parameter in the DDNS settings.
+
+CVE-2019-0017: An out-of-bounds write vulnerability exists in the handling of a crafted image file in Telegraf versions 1.6.0 to 1.9.2.
+
+CVE-2022-28223: An issue was discovered in rsync 3.2.0 through 3.2.4. A heap-based buffer over-read can occur in the rsync_read() function in rsync.c when the receiver attempts to read from a sender that provides a specially crafted count value.
+
+CVE-2020-25758: An issue was discovered in rsync 3.2.0 through 3.2.3. A heap-based buffer over-read can occur in the rsync_pre_xfer() function in rsync.c when the receiver attempts to read from a sender that provides a specially crafted filename value.
+
+CVE-2022-22488: An issue was discovered in rsync 3.0.0 through 3.2.4. When used with a malicious server, rsync can write to arbitrary locations via path traversal in the client, due to lack of validation of filenames.
+
+CVE-2018-6303: The web server on Moxa AWK-3131A devices before 1.1 allows remote authenticated users to execute arbitrary OS commands via shell metacharacters in the diagnose/command parameter.
+
+CVE-2024-57728: A vulnerability was discovered in the web interface of Moxa AWK-3131A wireless access points with firmware version 1.1 and earlier. An attacker can inject OS commands by supplying a crafted input to the hostname field.
+
+CVE-2019-1961: An out-of-bounds write vulnerability exists in the handling of image files in rsync 3.1.0 through 3.2.3. This can lead to arbitrary code execution.
+
+CVE-2019-1743: An issue was discovered in rsync 3.0.0 through 3.2.3. A heap-based buffer over-read can occur in the rsync_read() function in rsync.c when the receiver attempts to read from a sender that provides a specially crafted count value.
+
+ 🔍 Fetching CVEs for: VULNERABILITYSCAN (IOT VULNERABILITY SCAN)
+
+   ➤ CVE-2019-2346: Firmware is getting into loop of overwriting memory when scan command is given from host because of improper validation. in Snapdragon Compute, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wired Infrastructure and Networking in IPQ8074, QCA8081, QCS404, QCS405, QCS605, SD 425, SD 427, SD 430, SD 435, SD 450, SD 625, SD 636, SD 712 / SD 710 / SD 670, SD 820, SD 835, SD 845 / SD 850, SD 855, SD 8CX, SDA660, SDM630, SDM660
+   ➤ CVE-2023-34367: Windows 7 is vulnerable to a full blind TCP/IP hijacking attack. The vulnerability exists in Windows 7 (any Windows until Windows 8) and in any implementation of TCP/IP, which is vulnerable to the Idle scan attack (including many IoT devices). NOTE: The vendor considers this a low severity issue.
+   ➤ CVE-2019-10504: Firmware not able to send EXT scan response to host within 1 sec due to resource consumption issue in Snapdragon Auto, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon IoT, Snapdragon Mobile, Snapdragon Wearables in MDM9206, MDM9607, MSM8909W, Qualcomm 215, SD 210/SD 212/SD 205, SD 425, SD 427, SD 430, SD 435, SD 439 / SD 429, SD 450, SD 625, SD 632, SD 636, SD 650/52, SD 665, SD 845 / SD 850, SDA660, SDM439, SDM630, SDM660, Snapdragon_High_Med_2016
+
+ 🔍 Fetching CVEs for: MITM-ARPSPOOFING (IOT MAN IN THE MIDDLE)
+
+   ➤ CVE-2023-50454: Zammad before 6.2.0 SSL/TLS hostname & certificate validation failure
+   ➤ CVE-2022-41540: TP-Link AX10v1 uses hardcoded cryptographic keys
+   ➤ CVE-2014-2522: Curl/libcurl does not verify hostnames in TLS connections
+   ➤ CVE-2013-1651: Open-Xchange Server SSL verification bypass
+   ➤ CVE-2017-9857: SMA Solar Technology vulnerable to MITM, packet injection, and replay attacks
+   ➤ CVE-2015-1027: Percona Toolkit & Xtrabackup HTTP downgrade & MITM vulnerabilities
+   ➤ CVE-2012-3587: APT key import allows installation of Trojan horse packages
+   ➤ CVE-2014-6889: GunBroker.com Android app does not verify SSL certificates
+   ➤ CVE-2022-48307: Magritte-ftp TLS hostname verification failure
+   ➤ CVE-2012-2490: Cisco IP Communicator allows modification of Certificate Trust List
+   ➤ CVE-2020-13946: Apache Cassandra RMI registry manipulation
+   ➤ CVE-2011-0546: Symantec Backup Exec does not validate identity info between media server & remote agent
+   ➤ CVE-2023-38009: IBM Cognos Mobile Client lacks certificate pinning
+   ➤ CVE-2015-7539: Jenkins Plugin Manager does not verify plugin checksums
+   ➤ CVE-2020-1758: Keycloak TLS hostname verification failure in SMTP emails
+   ➤ CVE-2013-0240: Gnome Online Accounts SSL validation failure
+   ➤ CVE-2023-32548: WPS Office OS command injection vulnerability via MITM attack
+   ➤ CVE-2014-4503: sgminer & cgminer vulnerable to MITM causing Denial of Service
+   ➤ CVE-2022-38712: IBM WebSphere SOAPAction spoofing attack
+   ➤ CVE-2024-39604: Wavlink AC3000 MITM leading to command execution
+   ➤ CVE-2021-27499: Ypsomed mylife Cloud weak encryption in communication protocol
+   ➤ CVE-2011-3188: Linux kernel session hijacking via predictable sequence numbers
+   ➤ CVE-2019-3751: Dell EMC eCDM certificate validation failure
+   ➤ CVE-2013-5143: Apple OS X Server RADIUS fallback certificate vulnerability
+   ➤ CVE-2023-31151: SEL RTAC improper certificate validation
+   ➤ CVE-2025-1193: Devolutions Remote Desktop Manager certificate validation failure
+   ➤ CVE-2024-1509: Brocade ASCG lacks HSTS, allowing downgrade and SSL-stripping attacks
+   ➤ CVE-2022-45858: FortiNAC weak cryptographic algorithms increasing MITM risk
+   ➤ CVE-2016-2076: VMware session mishandling allows MITM
+   ➤ CVE-2015-3774: Apple Dictionary app in macOS & iOS transmits data without HTTPS
+   ➤ CVE-2013-1633: Python setuptools HTTP package retrieval lacks integrity checks
+   ➤ CVE-2024-26270: Liferay Portal & DXP embeds user’s hashed password in HTML source
+   ➤ CVE-2017-2838: FreeRDP handling of challenge packets allows MITM denial of service
+   ➤ CVE-2017-14021: Korenix JetNet uses hardcoded cryptographic keys
+   ➤ CVE-2012-5812: ACRA library SSL certificate verification failure
+   ➤ CVE-2016-5284: Mozilla Firefox SSL pinning expiration flaw allows MITM
+   ➤ CVE-2019-11288: Pivotal tc Server RMI registry manipulation for MITM attack
+   ➤ CVE-2018-1999035: Jenkins Inedo BuildMaster Plugin allows MITM impersonation
+   ➤ CVE-2023-34143: Hitachi Device Manager improper certificate validation
+   ➤ CVE-2015-0832: Mozilla Firefox fails to recognize domain equivalence with trailing dot
+   ➤ CVE-2017-1386: IBM API Connect allows policy bypass using MITM techniques
+   ➤ CVE-2022-27048: Moxa MGate vulnerable to MITM attack
+   ➤ CVE-2016-2166: Apache Qpid Proton improperly handles SSL connections
+   ➤ CVE-2023-38352: MiniTool Partition Wizard insecure update mechanism allowing MITM RCE
+   ➤ CVE-2023-31195: ASUS Router session hijacking via unencrypted HTTP login
+   ➤ CVE-2016-0907: EMC Isilon OneFS SMB signing bypass allows MITM
+   ➤ CVE-2021-26561: Synology DSM buffer overflow allows arbitrary code execution via MITM
+   ➤ CVE-2012-6137: Red Hat subscription-manager does not verify Red Hat Network certificates
+   ➤ CVE-2015-1065: Apple iCloud Keychain buffer overflows allow MITM code execution
+   ➤ CVE-2014-0092: GnuTLS improper SSL error handling allows MITM
+   ➤ CVE-2021-32010: Secomea SiteManager weak TLS encryption allows MITM
+   ➤ CVE-2015-5537: Siemens RuggedCom SSL vulnerability enables padding-oracle MITM attack
