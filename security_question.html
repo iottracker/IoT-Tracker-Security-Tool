@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Question</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="wrapper">
+    <form id="securityQuestionForm" method="POST" action="{{ url_for('security_question', email=email) }}">
+      <h2>Security Question</h2>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      <div class="input-field">
+        <p style="color: white;"><strong>Question:</strong> {{ security_question }}</p>
+        <br>
+      </div>
+      <div class="input-field">
+        <input type="text" name="security_answer" required>
+        <label>Enter your answer</label>
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</body>
+</html>

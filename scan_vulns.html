@@ -1,0 +1,3332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Tracker - Vulnerability Scan</title>
+    <!-- Import fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Import Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        :root {
+            /* Primary colors from login screen */
+            --primary: #0F4C75;
+            --primary-light: #3282B8;
+            --primary-dark: #0e3c5c;
+            --secondary: #16a085;
+            --secondary-dark: #138a72;
+            --accent: #1B262C;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+            
+            /* Neutral colors */
+            --background: #f5f7fa;
+            --foreground: #2D3748;
+            --card: #ffffff;
+            --card-foreground: #1A202C;
+            --border: #E2E8F0;
+            --input: #EDF2F7;
+            
+            /* Dark theme colors */
+            --dark-background: #1B262C;
+            --dark-foreground: #f5f7fa;
+            --dark-card: #2E3E4E;
+            --dark-card-foreground: #E2E8F0;
+            --dark-border: #3D4D5C;
+            --dark-input: #2E3E4E;
+            
+            /* Additional styles */
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 6px 12px -2px rgba(0, 0, 0, 0.1), 0 3px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-theme {
+            --background: var(--dark-background);
+            --foreground: var(--dark-foreground);
+            --card: var(--dark-card);
+            --card-foreground: var(--dark-card-foreground);
+            --border: var(--dark-border);
+            --input: var(--dark-input);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.95rem;
+        }
+
+        /* Layout Containers */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 50;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: translateY(-2px);
+}
+
+.logo {
+    height: 2.5rem;
+    width: 2.5rem;
+    filter: drop-shadow(0 0 10px rgba(50, 130, 184, 0.5));
+    transition: all 0.3s ease;
+    border-radius: 50%;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 15px rgba(50, 130, 184, 0.8));
+    transform: rotate(5deg);
+}
+
+.tool-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.tool-name::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3282B8, #16a085);
+    transition: width 0.3s ease;
+}
+
+.logo-container:hover .tool-name::after {
+    width: 100%;
+}
+        #clear-results-button {
+    margin-top: 20px;
+    padding: 10px 15px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#clear-results-button:hover {
+    background-color: #c82333;
+}
+
+
+        .sidebar-content {
+            padding: 1.25rem 0;
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-content {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-dropdown.active .nav-dropdown-content {
+            display: block;
+        }
+
+        .nav-dropdown-item {
+            padding: 0.625rem 1.5rem 0.625rem 3.5rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        .nav-dropdown-toggle {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s ease;
+        }
+
+        .nav-dropdown.active .nav-dropdown-toggle {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-footer img {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .sidebar-footer-info {
+            flex: 1;
+        }
+
+        .sidebar-footer-info span {
+            display: block;
+        }
+
+        .sidebar-footer-info .username {
+            font-weight: 500;
+            color: white;
+        }
+
+        .sidebar-footer-info .role {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: var(--foreground);
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--foreground);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb i {
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+
+        .top-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .nav-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--foreground);
+            cursor: pointer;
+            position: relative;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-action:hover {
+            background-color: var(--input);
+        }
+
+        .nav-action-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.65rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .online-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--foreground);
+        }
+
+        .online-dot {
+            height: 0.625rem;
+            width: 0.625rem;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .online-dot::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+            background-color: var(--success);
+            opacity: 0.4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1.7);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: var(--border-radius);
+        }
+
+        .user-menu-toggle:hover {
+            background-color: var(--input);
+        }
+
+        .user-menu-toggle img {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-menu-toggle i {
+            font-size: 0.8rem;
+            color: var(--foreground);
+            opacity: 0.6;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            min-width: 180px;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--card-foreground);
+            text-decoration: none;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--input);
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-header i {
+            font-size: 1.25rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--card-foreground);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background-color: var(--card);
+            color: var(--card-foreground);
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(50, 130, 184, 0.15);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #a0aec0;
+        }
+
+        .form-text {
+            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        /* Radio Button Styling */
+        .scan-type-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .scan-type-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            background-color: var(--input);
+            border-radius: var(--border-radius);
+            transition: all 0.2s ease;
+        }
+
+        .scan-type-label:hover {
+            background-color: var(--border);
+        }
+
+        .scan-type-label input {
+            margin: 0;
+        }
+
+        .scan-type-label i {
+            color: var(--primary);
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(15, 76, 117, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Input Group Styles */
+        .scan-input-group {
+            display: none;
+        }
+
+        .scan-input-group.active {
+            display: block;
+        }
+
+        /* Info Banner */
+        .info-banner {
+            display: flex;
+            background: linear-gradient(to right, #f1f9ff, #e6f7ff);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .info-banner:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .info-icon {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-icon i {
+            font-size: 2rem;
+        }
+
+        .info-content {
+            padding: 1.5rem;
+            flex: 1;
+        }
+
+        .info-content h3 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .info-content p {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            color: var(--foreground);
+        }
+
+        .info-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .feature i {
+            color: var(--primary);
+        }
+
+        /* Alert Styles */
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .alert-warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            border-left: 4px solid var(--warning);
+            color: var(--warning);
+        }
+
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+        }
+
+        /* Loading Indicator */
+        #loading-indicator {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            height: 0.75rem;
+            background-color: var(--border);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            border-radius: var(--border-radius);
+            transition: width 0.3s ease;
+        }
+
+        #scan-status {
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Loading Messages */
+        .loading-message-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .loading-message {
+            color: var(--primary-light);
+            font-style: italic;
+            animation: fadeInOut 4s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* Server Restart Warning */
+        #server-restart-warning {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+        }
+
+        /* Security Facts Section */
+        .security-facts-section {
+            background: linear-gradient(to right, #e3f2fd, #bbdefb);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .fact-container {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .fact-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .fact-content h4 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .fact-content p {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Background Scan Section */
+        .background-scan-section {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .download-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .download-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .download-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Collapsible Sections */
+        .section-header {
+            background-color: var(--input);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .section-header:hover {
+            background-color: var(--border);
+        }
+
+        .section-header.collapsed .dropdown-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.2s ease;
+        }
+
+        .section-content {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-content.collapsed {
+            display: none;
+        }
+
+        /* Description Container */
+        .description-container {
+            margin-bottom: 1rem;
+        }
+
+        .short-desc {
+            margin-bottom: 0.5rem;
+        }
+
+        .full-desc {
+            padding: 1rem;
+            background-color: var(--input);
+            border-radius: var(--border-radius);
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .read-more {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+        }
+
+        /* Message Box */
+        .message-box {
+            text-align: center;
+            padding: 3rem 2rem;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .message-box i {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .message-box.warning i {
+            color: var(--warning);
+        }
+
+        .message-box.error i {
+            color: var(--danger);
+        }
+
+        .message-box p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Docker Scan Results */
+        .docker-scan-results {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .docker-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .docker-header h3 {
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .vulnerability-summary {
+            margin: 1.5rem 0;
+        }
+
+        .severity-chart {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .severity-bar {
+            flex: 1;
+            min-width: 100px;
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .severity-bar.critical { background-color: var(--danger); }
+        .severity-bar.high { background-color: #fd7e14; }
+        .severity-bar.medium { background-color: var(--warning); }
+        .severity-bar.low { background-color: var(--success); }
+
+        .vulnerability-card {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--border-radius);
+            border-left: 4px solid;
+        }
+
+        .vulnerability-card.critical { border-color: var(--danger); background-color: rgba(231, 76, 60, 0.05); }
+        .vulnerability-card.high { border-color: #fd7e14; background-color: rgba(253, 126, 20, 0.05); }
+        .vulnerability-card.medium { border-color: var(--warning); background-color: rgba(243, 156, 18, 0.05); }
+        .vulnerability-card.low { border-color: var(--success); background-color: rgba(39, 174, 96, 0.05); }
+
+        /* Docker Secrets */
+        .docker-secrets {
+            padding: 1.5rem;
+            background-color: #fff3cd;
+            border-left: 5px solid var(--warning);
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .docker-secrets h3 {
+            color: #856404;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .secret-card {
+            background-color: #fffbe6;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid #ffeeba;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .secret-card.high { border-left: 3px solid var(--danger); }
+        .secret-card.medium { border-left: 3px solid #fd7e14; }
+        .secret-card.low { border-left: 3px solid var(--warning); }
+
+        .secret-card strong {
+            color: var(--foreground);
+        }
+
+        .secret-card div {
+            margin-bottom: 0.5rem;
+        }
+
+        .secret-match {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #fce8b2;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                height: 100vh;
+                z-index: 1000;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .toggle-sidebar {
+                display: block;
+            }
+
+            .info-banner {
+                flex-direction: column;
+            }
+
+            .info-icon {
+                padding: 1rem;
+                width: 100%;
+            }
+
+            .scan-type-selector {
+                flex-direction: column;
+            }
+
+            .download-buttons {
+                flex-direction: column;
+            }
+
+            .download-button {
+                width: 100%;
+            }
+
+            .fact-container {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Dark Theme Adjustments */
+        .dark-theme .card,
+        .dark-theme #loading-indicator,
+        .dark-theme .background-scan-section,
+        .dark-theme .docker-scan-results {
+            background-color: var(--dark-card);
+            border-color: var(--dark-border);
+        }
+
+        .dark-theme .card-header {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+        }
+
+        .dark-theme .form-control {
+            background-color: var(--dark-input);
+            border-color: var(--dark-border);
+            color: var(--dark-foreground);
+        }
+
+        .dark-theme .form-control:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(22, 160, 133, 0.2);
+        }
+
+        .dark-theme .scan-type-label {
+            background-color: var(--dark-input);
+        }
+
+        .dark-theme .scan-type-label:hover {
+            background-color: var(--dark-border);
+        }
+
+        .dark-theme .scan-type-label i {
+            color: var(--secondary);
+        }
+
+        .dark-theme .btn-primary {
+            background-color: var(--secondary);
+        }
+
+        .dark-theme .btn-primary:hover {
+            background-color: var(--secondary-dark);
+            box-shadow: 0 4px 12px rgba(22, 160, 133, 0.3);
+        }
+
+        .dark-theme .info-banner {
+            background: linear-gradient(to right, #2c3e50, #34495e);
+            border-left-color: var(--secondary);
+        }
+
+        .dark-theme .info-icon {
+            background: var(--secondary);
+        }
+
+        .dark-theme .info-content h3 {
+            color: var(--secondary);
+        }
+
+        .dark-theme .feature {
+            background-color: var(--dark-card);
+        }
+
+        .dark-theme .feature i {
+            color: var(--secondary);
+        }
+
+        .dark-theme .progress {
+            background: linear-gradient(to right, var(--secondary), var(--secondary-dark));
+        }
+
+        .dark-theme .loading-message {
+            color: var(--secondary);
+        }
+
+        .dark-theme .security-facts-section {
+            background: linear-gradient(to right, #1a3c5a, #0d2137);
+        }
+
+        .dark-theme .fact-icon {
+            color: var(--secondary);
+        }
+
+        .dark-theme .fact-content h4 {
+            color: var(--secondary);
+        }
+
+        .dark-theme .download-button {
+            background-color: var(--secondary);
+        }
+
+        .dark-theme .download-button:hover {
+            background-color: var(--secondary-dark);
+        }
+
+        .dark-theme .section-header {
+            background-color: var(--dark-input);
+        }
+
+        .dark-theme .section-header:hover {
+            background-color: var(--dark-border);
+        }
+
+        .dark-theme .section-content {
+            border-color: var(--dark-border);
+        }
+
+        .dark-theme .full-desc {
+            background-color: var(--dark-input);
+        }
+
+        .dark-theme .read-more {
+            color: var(--secondary);
+        }
+
+        .dark-theme .docker-secrets {
+            background-color: #382d1a;
+            border-left-color: var(--secondary);
+        }
+
+        .dark-theme .docker-secrets h3 {
+            color: #ffda85;
+        }
+
+        .dark-theme .secret-card {
+            background-color: #2c3e50;
+            border-color: #34495e;
+        }
+
+        .dark-theme .secret-match {
+            background-color: #3d4d5c;
+        }
+    </style>
+</head>
+<body class="{% if session.get('theme') == 'dark' %}dark-theme{% else %}{% endif %}">
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='Untitled design.png') }}" alt="IoT Tracker Logo" class="logo">
+                    <span class="tool-name">IoT<span>TRACKER</span></span>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="nav-section">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">
+                        <i class="fas fa-th-large"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('explorer') }}" class="nav-link">
+                        <i class="fas fa-compass"></i> Explorer
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    
+                    <div class="nav-dropdown" id="devicesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-microchip"></i> Devices
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-wifi"></i> Network Scan
+                            </a>
+                            <a href="{{ url_for('docker_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fab fa-docker"></i> Docker Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-dropdown active" id="vulnerabilitiesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-shield-alt"></i> Vulnerabilities
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan_vulns') }}" class="nav-link nav-dropdown-item active">
+                                <i class="fas fa-search"></i> Live Scan
+                            </a>
+                            <a href="{{ url_for('firmware_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-file-code"></i> Firmware Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('analyze_traffic_route') }}" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Analyze Traffic
+                    </a>
+                    
+                    <a href="{{ url_for('upload_file') }}" class="nav-link">
+                        <i class="fas fa-upload"></i> Upload Data
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="{{ url_for('account') }}" class="nav-link">
+                        <i class="fas fa-user-circle"></i> Account
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="nav-link">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                <div class="sidebar-footer-info">
+                    <span class="username">{{ username }}</span>
+                    <span class="role">Administrator</span>
+                </div>
+                <a href="#" id="logout-button" class="nav-action" data-tooltip="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Top Navigation -->
+            <header class="top-nav">
+                <div class="nav-left">
+                    <button class="toggle-sidebar" id="toggleSidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb">
+                        <span>Home</span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Vulnerabilities</span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Live Scan</span>
+                    </div>
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="online-status">
+                        <span class="online-dot"></span>
+                        <span>Online</span>
+                    </div>
+                    
+                    <button class="nav-action" data-tooltip="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="nav-action-badge">3</span>
+                    </button>
+                    
+                    <div class="user-menu">
+                        <div class="user-menu-toggle" id="userMenuToggle">
+                            <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        
+                        <div class="dropdown-menu" id="userDropdown">
+                            <a href="{{ url_for('account') }}" class="dropdown-item">
+                                <i class="fas fa-user-circle"></i>
+                                <span>Account</span>
+                            </a>
+                            <a href="{{ url_for('settings') }}" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </a>
+                            <a href="#" id="logout-link" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content Area -->
+            <div class="content">
+                <!-- Active scan warning (initially hidden) -->
+                <div id="active-scan-warning" class="alert alert-warning" style="display: none;" role="alert">
+                    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                    <span>There is already an active scan running. Please wait for it to complete or check the status below.</span>
+                </div>
+
+                <!-- Form and Info Section (initially visible) -->
+                <div id="form-info-section">
+                    <!-- Vulnerability Scan Form -->
+                    <div class="card" id="scan-form-section">
+                        <div class="card-header">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Vulnerability Scan - Choose Scan Type</span>
+                        </div>
+                        <div class="card-body">
+                            <form id="scan-form" onsubmit="return startScan();">
+                                <div class="form-group">
+                                    <div class="scan-type-selector">
+                                        <label class="scan-type-label">
+                                            <input type="radio" name="scan_type" value="ip" checked onclick="toggleScanType('ip')">
+                                            <i class="fas fa-network-wired"></i>
+                                            <span>IP Scan</span>
+                                        </label>
+                                        <label class="scan-type-label">
+                                            <input type="radio" name="scan_type" value="docker" onclick="toggleScanType('docker')">
+                                            <i class="fab fa-docker"></i>
+                                            <span>Docker Scan</span>
+                                        </label>
+                                    </div>
+
+                                    <!-- IP Scan Input -->
+                                    <div id="ip-scan-group" class="scan-input-group active">
+                                        <label for="ip" class="form-label">
+                                            <i class="fas fa-network-wired"></i>
+                                            IP Address:
+                                        </label>
+                                        <input type="text" id="ip" name="ip" class="form-control"
+                                            pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+                                            placeholder="Enter target IP (e.g., 192.168.1.1)"
+                                            title="Enter valid IPv4 address (e.g., 192.168.1.1)" 
+                                            required>
+                                        <small id="ip-help" class="form-text">Enter the IP address of the device you want to scan.</small>
+                                    </div>
+
+                                    <!-- Docker Scan Input -->
+                                    <div id="docker-scan-group" class="scan-input-group">
+                                        <label for="container_name" class="form-label">
+                                            <i class="fab fa-docker"></i>
+                                            Container Name:
+                                        </label>
+                                        <input type="text" id="container_name" name="container_name" class="form-control"
+                                            placeholder="Enter container name (e.g., docker-smart-lock)"
+                                            title="Enter valid container name">
+                                        <small id="docker-help" class="form-text">Enter the Docker container name to scan.</small>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fas fa-radar"></i>
+                                    Start Vulnerability Scan
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- About Vulnerability Scanning Info -->
+                    <div class="info-banner" id="info-section">
+                        <div class="info-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="info-content">
+                            <h3>About Vulnerability Scanning</h3>
+                            <p>This tool performs comprehensive security assessments on IoT devices and Docker containers by identifying potential vulnerabilities, misconfigurations, and security weaknesses. Choose a scan type and enter the target to begin scanning.</p>
+                            <div class="info-features">
+                                <div class="feature">
+                                    <i class="fas fa-shield-virus"></i>
+                                    <span>CVE Detection</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-door-open"></i>
+                                    <span>Port Analysis</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-file-code"></i>
+                                    <span>Service Inspection</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span>Detailed Reports</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fab fa-docker"></i>
+                                    <span>Container Scanning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading indicator (initially hidden) -->
+                <div id="loading-indicator" style="display: none;" role="status" aria-live="polite">
+                    <i class="fa fa-spinner fa-spin fa-2x" style="color: var(--primary); margin-bottom: 1rem;"></i>
+                    <h3 id="scan-phase">Scanning for vulnerabilities...</h3>
+                    <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div class="progress" id="scan-progress" style="width: 0%;"></div>
+                    </div>
+                    <div id="scan-status">Initializing vulnerability scan...</div>
+                    <div id="server-restart-warning" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i> Server restarted during scan. Progress will continue automatically.
+                    </div>
+                    <div id="loading-message-container" class="loading-message-container" aria-live="polite">
+                        <div id="loading-message" class="loading-message"></div>
+                    </div>
+                </div>
+
+                <!-- Security Report (displayed when available) -->
+                {% if html_report %}
+                <div class="security-report" id="scan-report">
+                    {{ html_report | safe }}
+                </div>
+                {% endif %}
+                
+                <!-- Secrets Section (displayed when available) -->
+                {% if html_report and 'secrets' in html_report %}
+                <div class="docker-secrets">
+                    <h3>Secrets Detected</h3>
+                    {% for secret in html_report.secrets %}
+                    <div class='secret-card {{ secret.severity | lower }}'>
+                        <div class='secret-target'><strong>File:</strong> {{ secret.target }}</div>
+                        <div class='secret-title'><strong>Type:</strong> {{ secret.title }}</div>
+                        <div class='secret-severity'><strong>Severity:</strong> {{ secret.severity }}</div>
+                        <div class='secret-match'><strong>Match:</strong> <span class='secret-match'>{{ secret.match }}</span></div>
+                        <div class='secret-lines'><strong>Lines:</strong> {{ secret.start_line }} - {{ secret.end_line }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Scan Error Section (initially hidden) -->
+                <div class="scan-error-section message-box error" style="display: none;" role="alert">
+                    <i class="fas fa-times-circle"></i>
+                    <h3>Scan Error</h3>
+                    <div id="scan-error-message"></div>
+                </div>
+
+                <!-- Background Scan Section (initially hidden) -->
+                <div class="background-scan-section" style="display: none;">
+                    <h3>Comprehensive Scan Status</h3>
+                    <div id="background-scan-status" aria-live="polite">No active background scan</div>
+                    <div class="download-buttons">
+                        <button class="download-button" onclick="startDownload('raw')">
+                            <i class="fas fa-file-download"></i> Download Raw Scan Results
+                        </button>
+                        <button class="download-button" onclick="startDownload('enhanced')">
+                            <i class="fas fa-file-alt"></i> Download Enhanced Scan Results
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recommendations Section (displayed when available) -->
+                {% if recommendations %}
+                <div class="recommendations-section card">
+                    <div class="card-body">
+                        {{ recommendations | safe }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Security Facts Section (initially hidden) -->
+                <div id="did-you-know" class="security-facts-section" style="display: none;">
+                    <div class="fact-container">
+                        <div class="fact-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="fact-content">
+                            <h4>Did You Know?</h4>
+                            <p id="security-fact"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clear Results Button (initially hidden) -->
+                <button id="clear-results-button" class="clear-results-button" onclick="clearResults()" style="display: none;">
+                    <i class="fas fa-trash-alt" aria-hidden="true"></i> Clear Results
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// Constants
+const SCAN_STATE_KEY = 'vulnerability_scan_state';
+let activeScanCheckTimer = null;
+let isActiveScan = false;
+let observer = null; // Store MutationObserver reference for cleanup
+let messageInterval = null;
+let isInitializing = false;
+const PHASE_DURATIONS = [3000, 5000, 8000, 10000, 15000, 12000, 8000, 5000];
+const SCAN_PHASES = [
+    "Initializing vulnerability scan...",
+    "Checking target availability...",
+    "Identifying open ports...",
+    "Detecting services and versions...",
+    "Scanning for known vulnerabilities...",
+    "Analyzing security weaknesses...",
+    "Checking for CVE matches...",
+    "Generating security report..."
+];
+
+// Loading messages for scan types
+const IP_LOADING_MESSAGES = [
+    "Scanning open ports...",
+    "Checking for outdated services...",
+    "Analyzing network configuration...",
+    "Testing for common vulnerabilities...",
+    "Scanning for open services...",
+    "Checking for weak encryption...",
+    "Analyzing firmware versions...",
+    "Testing authentication mechanisms...",
+    "Checking for known CVEs..."
+];
+
+const DOCKER_LOADING_MESSAGES = [
+    "Scanning container layers...",
+    "Analyzing Docker image configuration...",
+    "Checking for known vulnerabilities in container packages...",
+    "Scanning for outdated dependencies...",
+    "Analyzing container security settings...",
+    "Checking for insecure container configurations...",
+    "Validating container permissions...",
+    "Scanning for vulnerable packages in container...",
+    "Analyzing container network exposure..."
+];
+
+// Security facts
+const SECURITY_FACTS = [
+    "60% of IoT devices have at least one vulnerability that could compromise your network.",
+    "Changing default passwords on your devices reduces hack attempts by over 80%.",
+    "Regular firmware updates can patch security vulnerabilities before they're exploited.",
+    "Using a separate network for IoT devices can prevent them from accessing sensitive data.",
+    "Many IoT devices continue sending data even when not actively in use.",
+    "The average IoT device is probed by attackers within 5 minutes of connecting to the internet.",
+    "Two-factor authentication can prevent 99.9% of automated attacks.",
+    "Most IoT security breaches occur due to poor password practices.",
+    "Network segmentation is one of the most effective ways to secure IoT devices.",
+    "Disabling unnecessary services on your devices reduces their attack surface."
+];
+
+// Function to clear results and return to form
+function clearResults() {
+    console.log("Clear Results function called");
+    
+    if (!confirm("Are you sure you want to clear all results and stop any active scans?")) {
+        return;
+    }
+
+    // Show loading state
+    const clearButton = document.getElementById('clear-results-button');
+    if (clearButton) {
+        clearButton.disabled = true;
+        clearButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
+    }
+
+    // Send request to clear results and stop scans
+    fetch('/clear_scan_results', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        console.log("Clear results response status:", response.status);
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Clear results response:', data);
+        
+        // Reset local storage and variables
+        localStorage.removeItem(SCAN_STATE_KEY);
+        isActiveScan = false;
+        
+        // Clear any active timers
+        if (activeScanCheckTimer) {
+            clearInterval(activeScanCheckTimer);
+            activeScanCheckTimer = null;
+        }
+        
+        if (messageInterval) {
+            clearInterval(messageInterval);
+            messageInterval = null;
+        }
+        
+        // Refresh the page
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error clearing results:', error);
+        
+        // Re-enable the button
+        if (clearButton) {
+            clearButton.disabled = false;
+            clearButton.innerHTML = '<i class="fas fa-trash-alt"></i> Clear Results';
+        }
+        
+        alert('Failed to clear results: ' + error.message);
+    });
+}
+
+// DOM Content Loaded Handler
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM Content Loaded");
+
+    // Load PDF library explicitly at initialization
+    loadPdfLibrary();
+
+    // Clear any existing scan state
+    localStorage.removeItem(SCAN_STATE_KEY);
+    isActiveScan = false;
+    
+    // Set up sidebar toggle
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (toggleSidebar) {
+        toggleSidebar.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+        });
+    }
+    
+    // Navigation Dropdowns
+    const navDropdowns = document.querySelectorAll('.nav-dropdown');
+    
+    navDropdowns.forEach(dropdown => {
+        const link = dropdown.querySelector('.nav-link');
+        
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdown.classList.toggle('active');
+            
+            // Close other dropdowns
+            navDropdowns.forEach(otherDropdown => {
+                if (otherDropdown !== dropdown && otherDropdown.classList.contains('active')) {
+                    otherDropdown.classList.remove('active');
+                }
+            });
+        });
+    });
+    
+    // User Menu Toggle
+    const userMenuToggle = document.getElementById('userMenuToggle');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    if (userMenuToggle && userDropdown) {
+        userMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (userDropdown.classList.contains('show') && !userMenuToggle.contains(e.target)) {
+                userDropdown.classList.remove('show');
+            }
+        });
+    }
+    
+    // Set up scan type toggle
+    toggleScanType('ip'); // Activate IP scan by default
+    
+    // Logout functionality
+    const logoutLink = document.getElementById('logout-link');
+    const logoutButton = document.getElementById('logout-button');
+    
+    const handleLogout = function(e) {
+        e.preventDefault();
+        
+        fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            }
+        })
+        .catch(error => {
+            console.error('Error logging out:', error);
+        });
+    };
+    
+    if (logoutLink) {
+        logoutLink.addEventListener('click', handleLogout);
+    }
+    
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+    
+    // Show security fact if we have results
+    const securityReport = document.querySelector('.security-report');
+    if (securityReport) {
+        showSecurityFact();
+        setupClearButton();
+    }
+    
+    // Initialize all dropdowns and sections
+    initializeAllDropdowns();
+    
+    // Remove duplicate buttons and fix positioning
+    removeDuplicateButtons();
+    positionClearButton();
+    
+    // Fix Secrets Detected sections
+    hideEmptySecretsSections();
+    
+    // Set up mutation observer to watch for dynamically added content
+    setupMutationObserver();
+    
+    // Setup clear button with a slight delay to ensure DOM is ready
+    setTimeout(() => {
+        if (!isInitializing) {
+            isInitializing = true;
+            setupClearButton();
+            isInitializing = false;
+        }
+    }, 500);
+});
+
+function initializeAllDropdowns() {
+    // Initialize section headers
+    document.querySelectorAll('.section-header').forEach(header => {
+        if (!header.getAttribute('data-listener-added')) {
+            header.setAttribute('data-listener-added', 'true');
+            
+            // Add dropdown arrow if not present
+            if (!header.querySelector('.dropdown-arrow')) {
+                const arrow = document.createElement('span');
+                arrow.className = 'dropdown-arrow';
+                arrow.innerHTML = '▼';
+                header.appendChild(arrow);
+            }
+            
+            header.addEventListener('click', function() {
+                toggleSection(this);
+            });
+        }
+    });
+    
+    // Initialize recommendation sections
+    document.querySelectorAll('[id$="-header"]').forEach(header => {
+        if (!header.getAttribute('data-listener-added')) {
+            header.setAttribute('data-listener-added', 'true');
+            
+            // Add dropdown arrow if not present
+            if (!header.querySelector('.dropdown-arrow')) {
+                const arrow = document.createElement('span');
+                arrow.className = 'dropdown-arrow';
+                arrow.innerHTML = '▼';
+                header.appendChild(arrow);
+            }
+            
+            header.addEventListener('click', function() {
+                toggleSectionById(this);
+            });
+        }
+    });
+}
+
+window.clearResults = function() {
+    console.log("Clear Results function called");
+    
+    if (!confirm("Are you sure you want to clear all results and stop any active scans?")) {
+        return;
+    }
+
+    // Show loading state
+    const clearButton = document.getElementById('clear-results-button');
+    if (clearButton) {
+        clearButton.disabled = true;
+        clearButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
+    }
+
+    // Send request to clear results and stop scans
+    fetch('/clear_scan_results', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        console.log("Clear results response status:", response.status);
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Clear results response:', data);
+        
+        // Reset local storage and variables
+        localStorage.removeItem(SCAN_STATE_KEY);
+        isActiveScan = false;
+        
+        // Clear any active timers
+        if (activeScanCheckTimer) {
+            clearInterval(activeScanCheckTimer);
+            activeScanCheckTimer = null;
+        }
+        
+        if (messageInterval) {
+            clearInterval(messageInterval);
+            messageInterval = null;
+        }
+        
+        // Refresh the page
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error clearing results:', error);
+        
+        // Re-enable the button
+        if (clearButton) {
+            clearButton.disabled = false;
+            clearButton.innerHTML = '<i class="fas fa-trash-alt"></i> Clear Results';
+        }
+        
+        alert('Failed to clear results: ' + error.message);
+    });
+}
+
+// Function to properly setup the clear button
+function setupClearButton() {
+    // Remove any existing duplicates first
+    removeDuplicateButtons();
+    
+    // Find the clear button
+    let clearButton = document.getElementById('clear-results-button');
+    
+    if (!clearButton) {
+        console.log("Clear button not found, creating new one if needed");
+        const securityReport = document.querySelector('.security-report');
+        if (securityReport || isActiveScan) {
+            clearButton = createClearButton();
+        }
+        return;
+    }
+    
+    // Remove inline onclick if it exists
+    clearButton.removeAttribute('onclick');
+    
+    // Add the click event using onclick property
+    clearButton.onclick = function(e) {
+        console.log('Clear button clicked');
+        e.preventDefault();
+        e.stopPropagation();
+        clearResults();
+    };
+    
+    // Show the button if we have results
+    const securityReport = document.querySelector('.security-report');
+    if (securityReport || isActiveScan) {
+        clearButton.style.display = 'block';
+    }
+    
+    console.log("Clear button setup complete");
+}
+
+// Function to create a clear results button if it doesn't exist
+function createClearButton() {
+    const content = document.querySelector('.content');
+    if (!content) return null;
+    
+    console.log("Creating new clear button");
+    const clearButton = document.createElement('button');
+    clearButton.id = 'clear-results-button';
+    clearButton.className = 'btn btn-danger';
+    clearButton.innerHTML = '<i class="fas fa-trash-alt"></i> Clear Results';
+    clearButton.style.display = 'block';
+    
+    // Add click handler directly
+    clearButton.onclick = function(e) {
+        console.log('Clear button clicked (new button)');
+        e.preventDefault();
+        e.stopPropagation();
+        clearResults();
+    };
+    
+    content.appendChild(clearButton);
+    positionClearButton();
+    
+    return clearButton;
+}
+
+
+// Function to remove duplicate Clear Results buttons
+function removeDuplicateButtons() {
+    const clearButtons = document.querySelectorAll('#clear-results-button');
+    
+    if (clearButtons.length > 1) {
+        console.log(`Found ${clearButtons.length} Clear Results buttons - removing duplicates`);
+        
+        // Keep only the first button
+        for (let i = 1; i < clearButtons.length; i++) {
+            clearButtons[i].remove();
+        }
+    }
+}
+
+// Function to position the Clear Results button at the end of content
+function positionClearButton() {
+    const content = document.querySelector('.content');
+    if (!content) return;
+    
+    // Find the clear button
+    const clearButton = document.querySelector('#clear-results-button');
+    if (!clearButton) return;
+    
+    // Move it to the end only if it's not already the last child
+    if (content.lastElementChild !== clearButton) {
+        content.appendChild(clearButton);
+    }
+}
+
+// Continue with the rest of your JavaScript functions below...
+// (Include all the other functions like toggleDetails, toggleHidden, toggleSection, etc.)
+
+// Function to toggle details in UI elements
+function toggleDetails(elementId, buttonElement) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+        buttonElement.innerHTML = '<i class="fas fa-chevron-up"></i>';
+    } else {
+        element.style.display = 'none';
+        buttonElement.innerHTML = '<i class="fas fa-chevron-down"></i>';
+    }
+    
+    // Prevent event propagation
+    if (event) {
+        event.stopPropagation();
+    }
+}
+
+// Function to toggle vulnerability sections
+function toggleHidden(elementId, buttonElement) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const count = buttonElement.getAttribute('data-count');
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+        buttonElement.innerHTML = '<i class="fas fa-chevron-up"></i> Hide ' + count + ' Vulnerabilities';
+    } else {
+        element.style.display = 'none';
+        buttonElement.innerHTML = '<i class="fas fa-chevron-down"></i> Show ' + count + ' More Vulnerabilities';
+    }
+}
+
+// Function to toggle sections
+function toggleSection(headerElement) {
+    const contentId = headerElement.getAttribute('data-content') || 
+                     headerElement.id?.replace('-header', '-content');
+    const contentElement = document.getElementById(contentId);
+    
+    if (contentElement) {
+        const isCollapsed = contentElement.classList.contains('collapsed');
+        contentElement.classList.toggle('collapsed');
+        headerElement.classList.toggle('collapsed');
+        
+        // Update arrow
+        const arrow = headerElement.querySelector('.dropdown-arrow');
+        if (arrow) {
+            arrow.innerHTML = isCollapsed ? '▼' : '▲';
+        }
+        
+        // Ensure visibility
+        if (isCollapsed) {
+            contentElement.style.display = 'block';
+        } else {
+            contentElement.style.display = 'none';
+        }
+    }
+}
+
+function toggleSectionById(headerElement) {
+    const contentId = headerElement.id?.replace('-header', '-content');
+    const contentElement = document.getElementById(contentId);
+    
+    if (contentElement) {
+        const isCollapsed = contentElement.style.display === 'none' || 
+                           contentElement.classList.contains('collapsed');
+        
+        contentElement.classList.toggle('collapsed', !isCollapsed);
+        headerElement.classList.toggle('collapsed', !isCollapsed);
+        
+        // Update arrow
+        const arrow = headerElement.querySelector('.dropdown-arrow');
+        if (arrow) {
+            arrow.innerHTML = isCollapsed ? '▼' : '▲';
+        }
+        
+        // Ensure visibility
+        contentElement.style.display = isCollapsed ? 'block' : 'none';
+    }
+}
+
+
+// Function to hide empty Secrets Detected sections
+function hideEmptySecretsSections() {
+    const secretsSections = document.querySelectorAll('.docker-secrets');
+    
+    secretsSections.forEach(section => {
+        // Check if it's empty (just a header with no content)
+        const secretCards = section.querySelectorAll('.secret-card');
+        if (secretCards.length === 0) {
+            console.log("Hiding empty Secrets Detected section");
+            section.style.display = "none";
+        }
+    });
+}
+
+// Function to load the PDF library explicitly
+function loadPdfLibrary() {
+    // Prevent multiple loading attempts
+    if (window._pdfLibraryLoading) {
+        return;
+    }
+    
+    // Check if already loaded
+    if (typeof html2pdf !== 'undefined') {
+        console.log('PDF library already loaded');
+        return;
+    }
+    
+    console.log('Loading PDF library...');
+    window._pdfLibraryLoading = true;
+    
+    // Create a script element
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    script.async = true;
+    
+    // Add loading status tracking
+    script.onload = function() {
+        console.log('PDF library loaded successfully');
+        window._pdfLibraryLoading = false;
+    };
+    
+    script.onerror = function() {
+        console.error('Failed to load PDF library');
+        window._pdfLibraryLoading = false;
+        
+        // Try alternative CDN
+        const alternativeScript = document.createElement('script');
+        alternativeScript.src = 'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+        alternativeScript.async = true;
+        document.head.appendChild(alternativeScript);
+    };
+    
+    // Add the script to the document
+    document.head.appendChild(script);
+}
+
+// Setup mutation observer to watch for dynamically added content
+function setupMutationObserver() {
+    if (observer) {
+        observer.disconnect();
+    }
+    
+    observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // Element node
+                        // Initialize dropdowns in the newly added content
+                        if (node.querySelector('.section-header') || 
+                            node.querySelector('[id$="-header"]') ||
+                            node.classList.contains('section-header') ||
+                            (node.id && node.id.endsWith('-header'))) {
+                            setTimeout(() => {
+                                initializeDropdownsInNode(node);
+                            }, 100);
+                        }
+                    }
+                });
+            }
+        });
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+// Initialize dropdowns within a specific node/container
+function initializeDropdownsInNode(container) {
+    // Get all section headers in the container
+    const headers = container.querySelectorAll('.section-header, [id$="-header"]');
+    
+    headers.forEach(header => {
+        if (!header.getAttribute('data-listener-added')) {
+            header.setAttribute('data-listener-added', 'true');
+            
+            // Add dropdown arrow if not present
+            if (!header.querySelector('.dropdown-arrow')) {
+                const arrow = document.createElement('span');
+                arrow.className = 'dropdown-arrow';
+                arrow.innerHTML = '▼';
+                header.appendChild(arrow);
+            }
+            
+            header.addEventListener('click', function() {
+                if (this.classList.contains('section-header')) {
+                    toggleSection(this);
+                } else {
+                    toggleSectionById(this);
+                }
+            });
+        }
+    });
+    
+    // Also check if the container itself is a header
+    if ((container.classList.contains('section-header') || 
+         (container.id && container.id.endsWith('-header'))) && 
+        !container.getAttribute('data-listener-added')) {
+        container.setAttribute('data-listener-added', 'true');
+        
+        // Add dropdown arrow if not present
+        if (!container.querySelector('.dropdown-arrow')) {
+            const arrow = document.createElement('span');
+            arrow.className = 'dropdown-arrow';
+            arrow.innerHTML = '▼';
+            container.appendChild(arrow);
+        }
+        
+        container.addEventListener('click', function() {
+            if (this.classList.contains('section-header')) {
+                toggleSection(this);
+            } else {
+                toggleSectionById(this);
+            }
+        });
+    }
+}
+
+window.toggleDetails = function(elementId, buttonElement) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+        buttonElement.innerHTML = '<i class="fas fa-chevron-up"></i>';
+    } else {
+        element.style.display = 'none';
+        buttonElement.innerHTML = '<i class="fas fa-chevron-down"></i>';
+    }
+    
+    if (event) {
+        event.stopPropagation();
+    }
+};
+
+window.toggleHidden = function(elementId, buttonElement) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const count = buttonElement.getAttribute('data-count');
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+        buttonElement.innerHTML = '<i class="fas fa-chevron-up"></i> Hide ' + count + ' Vulnerabilities';
+    } else {
+        element.style.display = 'none';
+        buttonElement.innerHTML = '<i class="fas fa-chevron-down"></i> Show ' + count + ' More Vulnerabilities';
+    }
+};
+
+window.toggleSection = toggleSection;
+window.toggleSectionById = toggleSectionById;
+
+// Function to organize sections in the correct order
+function organizeContentSections() {
+    // Skip if recently reorganized
+    if (window._isReorganizing) return;
+    if (window._lastReorganized && (Date.now() - window._lastReorganized) < 1000) {
+        return;
+    }
+    
+    window._isReorganizing = true;
+    
+    const content = document.querySelector('.content');
+    if (!content) {
+        window._isReorganizing = false;
+        return;
+    }
+    
+    console.log("Organizing content sections");
+    
+    // Define the preferred order of sections
+    const sectionOrder = [
+        '.scan-error-section',
+        '#form-info-section',
+        '#loading-indicator',
+        '#results-section',
+        '.security-report',
+        '.recommendations-section',
+        '.background-scan-section',
+        '#did-you-know'
+    ];
+    
+    // Create a document fragment
+    const fragment = document.createDocumentFragment();
+    const sections = {};
+    
+    // Collect existing sections
+    sectionOrder.forEach(selector => {
+        const element = content.querySelector(selector);
+        if (element) {
+            sections[selector] = element;
+        }
+    });
+    
+    // Append sections in order
+    sectionOrder.forEach(selector => {
+        if (sections[selector]) {
+            fragment.appendChild(sections[selector]);
+        }
+    });
+    
+    // Find the clear button
+    const clearButton = content.querySelector('#clear-results-button');
+    
+    // Append remaining children
+    Array.from(content.children).forEach(child => {
+        if (!Object.values(sections).includes(child) && child.id !== 'clear-results-button') {
+            fragment.appendChild(child);
+        }
+    });
+    
+    // Always add the clear button at the end
+    if (clearButton) {
+        fragment.appendChild(clearButton);
+    }
+    
+    // Update content
+    content.innerHTML = '';
+    content.appendChild(fragment);
+    
+    // Mark reorganization complete
+    window._lastReorganized = Date.now();
+    window._isReorganizing = false;
+    
+    console.log("Content sections reorganized");
+}
+
+// Toggle between IP and Docker scan inputs
+function toggleScanType(scanType) {
+    const ipScanGroup = document.getElementById('ip-scan-group');
+    const dockerScanGroup = document.getElementById('docker-scan-group');
+    const ipInput = document.getElementById('ip');
+    const containerInput = document.getElementById('container_name');
+    
+    if (scanType === 'ip') {
+        ipScanGroup.classList.add('active');
+        dockerScanGroup.classList.remove('active');
+        ipInput.setAttribute('required', '');
+        containerInput.removeAttribute('required');
+    } else if (scanType === 'docker') {
+        ipScanGroup.classList.remove('active');
+        dockerScanGroup.classList.add('active');
+        ipInput.removeAttribute('required');
+        containerInput.setAttribute('required', '');
+    }
+}
+
+// Start loading message animation
+function startLoadingMessages() {
+    const scanType = document.querySelector('input[name="scan_type"]:checked').value;
+    const messages = scanType === 'docker' ? DOCKER_LOADING_MESSAGES : IP_LOADING_MESSAGES;
+    const messageElement = document.getElementById('loading-message');
+    let messageIndex = 0;
+    
+    // Display first message immediately
+    if (messageElement) {
+        messageElement.textContent = messages[0];
+        messageElement.style.opacity = 1;
+    }
+    
+    // Cycle through messages with fade effect
+    return setInterval(() => {
+        if (messageElement) {
+            // Set opacity to 0
+            messageElement.style.opacity = 0;
+            
+            // Wait for fade out, then change text and fade in
+            setTimeout(() => {
+                messageIndex = (messageIndex + 1) % messages.length;
+                messageElement.textContent = messages[messageIndex];
+                messageElement.style.opacity = 1;
+            }, 500);
+        }
+    }, 3000);
+}
+
+// Display a random security fact
+function showSecurityFact() {
+    const factElement = document.getElementById('security-fact');
+    const sectionElement = document.getElementById('did-you-know');
+    
+    if (factElement && sectionElement) {
+        // Pick a random fact
+        const randomFact = SECURITY_FACTS[Math.floor(Math.random() * SECURITY_FACTS.length)];
+        factElement.textContent = randomFact;
+        
+        // Show the section
+        sectionElement.style.display = 'block';
+    }
+}
+
+// Start the vulnerability scan
+function startScan() {
+    console.log("Starting scan");
+    
+    // Check if there's already an active scan
+    if (isActiveScan) {
+        // Show warning and don't start a new scan
+        const activeScanWarning = document.getElementById('active-scan-warning');
+        if (activeScanWarning) {
+            activeScanWarning.style.display = 'block';
+            scrollToIfNeeded(activeScanWarning);
+            return false;
+        }
+    }
+    
+    // Get scan type and validate appropriate input
+    const scanType = document.querySelector('input[name="scan_type"]:checked').value;
+    let inputValue, validationPattern, errorMessage, inputElement;
+    
+    if (scanType === 'ip') {
+        inputElement = document.getElementById('ip');
+        if (!inputElement) {
+            console.error("IP input field not found");
+            return false;
+        }
+        inputValue = inputElement.value;
+        validationPattern = /^([0-9]{1,3}\.){3}[0-9]{1,3}$/;
+        errorMessage = 'Please enter a valid IPv4 address (e.g., 192.168.1.1)';
+    } else {
+        inputElement = document.getElementById('container_name');
+        if (!inputElement) {
+            console.error("Container name input field not found");
+            return false;
+        }
+        inputValue = inputElement.value;
+        validationPattern = /^[a-zA-Z0-9][a-zA-Z0-9_.-]+$/;
+        errorMessage = 'Please enter a valid container name (letters, numbers, underscores, periods, and hyphens)';
+    }
+    
+    // Validate input
+    if (!validationPattern.test(inputValue)) {
+        inputElement.setCustomValidity(errorMessage);
+        inputElement.reportValidity();
+        return false;
+    }
+    
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'block';
+        console.log("Loading indicator displayed");
+        
+        // Start the loading messages
+        messageInterval = startLoadingMessages();
+    }
+    
+    // Hide form and info section
+    const formInfoSection = document.getElementById('form-info-section');
+    if (formInfoSection) {
+        formInfoSection.style.display = 'none';
+        console.log("Form section hidden");
+    }
+    
+    // Hide any previous error messages
+    const errorSection = document.querySelector('.scan-error-section');
+    if (errorSection) {
+        errorSection.style.display = 'none';
+    }
+    
+    // Start the progress animation
+    const startTime = Date.now();
+    updateSavedScanState(startTime, true);
+    
+    // Set up progress interval
+    const progressInterval = setInterval(() => {
+        const progress = calculateProgress(startTime);
+        const phaseIndex = calculatePhaseIndex(startTime);
+        
+        const scanProgress = document.getElementById('scan-progress');
+        const scanStatus = document.getElementById('scan-status');
+        
+        if (scanProgress) {
+            scanProgress.style.width = `${progress}%`;
+            
+            // Update ARIA attributes
+            const progressBar = scanProgress.parentElement;
+            if (progressBar) {
+                progressBar.setAttribute('aria-valuenow', Math.round(progress));
+            }
+        }
+        
+        if (scanStatus) {
+            scanStatus.textContent = `${SCAN_PHASES[phaseIndex]} (${Math.round(progress)}%)`;
+        }
+        
+        if (progress >= 99.5) {
+            clearInterval(progressInterval);
+            if (scanStatus) {
+                scanStatus.textContent = "Scan complete! Processing results...";
+            }
+        }
+    }, 300);
+    
+    // Get form and prepare form data
+    const form = document.getElementById('scan-form');
+    if (!form) {
+        console.error("Scan form not found");
+        return false;
+    }
+    
+    const formData = new FormData(form);
+    formData.append('scan_type', scanType);
+    formData.append('target', inputValue);
+    
+    // Send the scan request
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+        return response.text();
+    })
+    .then(html => {
+        // Parse the HTML response
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Extract the report content
+        const securityReport = doc.querySelector('.security-report');
+        const recommendations = doc.querySelector('.recommendations-section');
+        
+        // Create results section if it doesn't exist
+        let resultsSection = document.getElementById('results-section');
+        if (!resultsSection) {
+            resultsSection = document.createElement('div');
+            resultsSection.id = 'results-section';
+            const mainContent = document.querySelector('.content');
+            if (mainContent) {
+                mainContent.appendChild(resultsSection);
+            } else {
+                console.error("Main content element not found");
+                return;
+            }
+        }
+        
+        // Update our page with the results
+        if (securityReport) {
+            // Update or create the security report
+            const currentReport = document.querySelector('.security-report');
+            if (currentReport) {
+                currentReport.innerHTML = securityReport.innerHTML;
+            } else {
+                const newReport = document.createElement('div');
+                newReport.className = 'security-report';
+                newReport.innerHTML = securityReport.innerHTML;
+                resultsSection.appendChild(newReport);
+            }
+        }
+        
+        if (recommendations) {
+            // Update or create recommendations
+            const currentRecommendations = document.querySelector('.recommendations-section');
+            if (currentRecommendations) {
+                currentRecommendations.innerHTML = recommendations.innerHTML;
+            } else {
+                const newRecommendations = document.createElement('div');
+                newRecommendations.className = 'recommendations-section card';
+                newRecommendations.innerHTML = `
+                    <div class="card-header">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Security Recommendations</span>
+                    </div>
+                    <div class="card-body">
+                        ${recommendations.innerHTML}
+                    </div>
+                `;
+                resultsSection.appendChild(newRecommendations);
+            }
+        }
+        
+        // Show results section
+        resultsSection.style.display = 'block';
+        
+        // Hide loading indicator
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        
+        // Clear the loading messages interval
+        if (messageInterval) {
+            clearInterval(messageInterval);
+            messageInterval = null;
+        }
+        
+        // Show security fact
+        showSecurityFact();
+        
+        // Show clear results button
+        setupClearButton();
+        
+        // Clear the scan state
+        localStorage.removeItem(SCAN_STATE_KEY);
+        
+        // Initialize dropdowns in the newly added content
+        // Initialize dropdowns in the newly added content
+        initializeDropdownsInNode(resultsSection);
+        
+        // Fix any duplicate buttons
+        removeDuplicateButtons();
+        positionClearButton();
+        
+        // Organize the sections in the correct order
+        organizeContentSections();
+        
+        // Start checking scan status
+        checkStatus();
+        
+        // Set up regular status checks
+        if (activeScanCheckTimer) {
+            clearInterval(activeScanCheckTimer);
+        }
+        activeScanCheckTimer = setInterval(checkStatus, 3000);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+
+        // Hide loading indicator
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        
+        // Clear the loading messages interval
+        if (messageInterval) {
+            clearInterval(messageInterval);
+            messageInterval = null;
+        }
+        
+        // Show form again
+        if (formInfoSection) {
+            formInfoSection.style.display = 'block';
+        }
+        
+        // Show error message
+        const errorSection = document.querySelector('.scan-error-section');
+        const errorMessage = document.getElementById('scan-error-message');
+        
+        if (errorSection && errorMessage) {
+            errorMessage.textContent = error.message;
+            errorSection.style.display = 'block';
+        } else {
+            alert('An error occurred during the scan: ' + error.message);
+        }
+        
+        // Clear the scan state
+        localStorage.removeItem(SCAN_STATE_KEY);
+    });
+    
+    return false; // Prevent form submission
+}
+
+// Function to check scan status
+async function checkStatus() {
+    try {
+        const response = await fetch('/check_scan_status', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        });
+        
+        if (response.status === 429) {
+            // Rate limit exceeded - wait longer before trying again
+            console.warn('Rate limit exceeded. Waiting longer before next check.');
+            return; // Don't update UI, just wait for next scheduled check
+        }
+        
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        console.log('Received scan status:', data);
+        
+        // Update UI with status information
+        updateUI(data);
+        
+        // If we have HTML report or recommendations from the server, update the page
+        if (data.html_report || data.recommendations) {
+            // Create results section if needed
+            let resultsSection = document.getElementById('results-section');
+            if (!resultsSection) {
+                resultsSection = document.createElement('div');
+                resultsSection.id = 'results-section';
+                document.querySelector('.content').appendChild(resultsSection);
+            }
+            
+            // Update security report if provided
+            if (data.html_report) {
+                let securityReport = document.querySelector('.security-report');
+                if (!securityReport) {
+                    securityReport = document.createElement('div');
+                    securityReport.className = 'security-report';
+                    resultsSection.appendChild(securityReport);
+                }
+                securityReport.innerHTML = data.html_report;
+                securityReport.style.display = 'block';
+            }
+            
+            // Update recommendations if provided
+            if (data.recommendations) {
+                let recommendationsSection = document.querySelector('.recommendations-section');
+                if (!recommendationsSection) {
+                    recommendationsSection = document.createElement('div');
+                    recommendationsSection.className = 'recommendations-section card';
+                    resultsSection.appendChild(recommendationsSection);
+                }
+                recommendationsSection.innerHTML = `
+                    <div class="card-header">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Security Recommendations</span>
+                    </div>
+                    <div class="card-body">
+                        ${data.recommendations}
+                    </div>
+                `;
+                recommendationsSection.style.display = 'block';
+            }
+            
+            // Initialize dropdowns in the newly added content
+            initializeDropdownsInNode(resultsSection);
+            
+            // Fix duplicate buttons
+            removeDuplicateButtons();
+            positionClearButton();
+            
+            // Organize the sections in the correct order
+            organizeContentSections();
+            
+            // Show a security fact if we have results
+            showSecurityFact();
+            
+            // Make sure clear button is visible
+            setupClearButton();
+            
+            // Hide loading indicator
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+            
+            // Hide form section
+            const formInfoSection = document.getElementById('form-info-section');
+            if (formInfoSection) {
+                formInfoSection.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Status check failed:', error);
+        const statusDiv = document.getElementById('background-scan-status');
+        if (statusDiv) {
+            statusDiv.innerHTML = '⚠️ Failed to check scan status: ' + error.message;
+            statusDiv.setAttribute('aria-label', 'Error: Failed to check scan status');
+        }
+    }
+}
+
+// UI updater function
+function updateUI(data) {
+    try {
+        // Show the background scan section if there's an active scan or completed scan
+        const bgScanSection = document.querySelector('.background-scan-section');
+        if (bgScanSection) {
+            if (data.status === 'scanning' || data.status === 'queued' || data.status === 'completed') {
+                bgScanSection.style.display = 'block';
+            } else if (data.status === 'no_active_scan' || data.status === 'failed') {
+                // Only hide if there's no security report
+                const securityReport = document.querySelector('.security-report');
+                if (!securityReport) {
+                    bgScanSection.style.display = 'none';
+                }
+            }
+        }
+        
+        // Update the status div
+        const statusDiv = document.getElementById('background-scan-status');
+        if (statusDiv) {
+            let statusHTML = '';
+            let statusLabel = '';
+            
+            switch (data.status) {
+                case 'completed': {
+                    statusHTML = '✅ Full scan completed!';
+                    statusLabel = 'Scan completed successfully';
+                    
+                    // Show the download buttons
+                    const downloadButtons = document.querySelector('.download-buttons');
+                    if (downloadButtons) {
+                        downloadButtons.style.display = 'flex';
+                    }
+                    
+                    // Hide any error sections
+                    const errorSection = document.querySelector('.scan-error-section');
+                    if (errorSection) {
+                        errorSection.style.display = 'none';
+                    }
+                    break;
+                }
+                case 'scanning': {
+                    const progressText = `⏳ Scanning (${data.progress || 0}%)...`;
+                    statusHTML = progressText;
+                    statusLabel = progressText;
+                    setTimeout(checkStatus, 2000);
+                    break;
+                }
+                case 'queued': {
+                    statusHTML = '⏳ Scan queued...';
+                    statusLabel = 'Scan is queued and waiting to start';
+                    setTimeout(checkStatus, 3000);
+                    break;
+                }
+                case 'failed': {
+                    statusHTML = '❌ Scan failed';
+                    statusLabel = 'Scan failed with an error';
+                    
+                    // Update error message if provided
+                    const errorMessage = document.getElementById('scan-error-message');
+                    const scanErrorSection = document.querySelector('.scan-error-section');
+                    if (errorMessage && scanErrorSection) {
+                        const errorText = data.error || 'Unknown error';
+                        errorMessage.textContent = errorText;
+                        scanErrorSection.style.display = 'block';
+                    }
+                    
+                    // Hide download buttons
+                    const downloadButtons = document.querySelector('.download-buttons');
+                    if (downloadButtons) {
+                        downloadButtons.style.display = 'none';
+                    }
+                    break;
+                }
+                case 'no_active_scan': {
+                    statusHTML = 'No active scan';
+                    statusLabel = 'No active scan is running';
+                    
+                    // Show download buttons only if we have results
+                    const downloadButtons = document.querySelector('.download-buttons');
+                    if (downloadButtons) {
+                        const securityReport = document.querySelector('.security-report');
+                        downloadButtons.style.display = securityReport ? 'flex' : 'none';
+                    }
+                    break;
+                }
+                default: {
+                    const unknownStatusText = '⚠️ Unknown scan status: ' + data.status;
+                    statusHTML = unknownStatusText;
+                    statusLabel = unknownStatusText;
+                    setTimeout(checkStatus, 5000);
+                }
+            }
+            
+            // Update the status div
+            statusDiv.innerHTML = statusHTML;
+            statusDiv.setAttribute('aria-label', statusLabel);
+        }
+        
+        // Update progress bar if scan is active
+        if (data.status === 'scanning' && data.progress) {
+            const progressBar = document.getElementById('scan-progress');
+            if (progressBar) {
+                const progressValue = Math.min(data.progress, 100);
+                progressBar.style.width = `${progressValue}%`;
+                
+                // Update ARIA attributes
+                const progressBarParent = progressBar.parentElement;
+                if (progressBarParent) {
+                    progressBarParent.setAttribute('aria-valuenow', progressValue);
+                }
+            }
+        }
+        
+        // Update isActiveScan global variable
+        isActiveScan = ['scanning', 'queued'].includes(data.status);
+        
+        // Show/hide active scan warning
+        const activeScanWarning = document.getElementById('active-scan-warning');
+        if (activeScanWarning) {
+            activeScanWarning.style.display = isActiveScan ? 'block' : 'none';
+        }
+        
+        // Update server restart warning
+        const serverRestartWarning = document.getElementById('server-restart-warning');
+        if (serverRestartWarning) {
+            serverRestartWarning.style.display = data.server_restarted ? 'block' : 'none';
+        }
+        
+        // Show/hide clear button based on whether there's a report or active scan
+        const clearButton = document.getElementById('clear-results-button');
+        if (!clearButton && (document.querySelector('.security-report') || isActiveScan)) {
+            createClearButton();
+        } else if (clearButton) {
+            const securityReport = document.querySelector('.security-report');
+            clearButton.style.display = (securityReport || isActiveScan) ? 'block' : 'none';
+        }
+        
+        // After updating UI, make sure sections are in the correct order
+        organizeContentSections();
+        
+        // Make sure there's only one clear button
+        removeDuplicateButtons();
+        positionClearButton();
+    } catch (error) {
+        console.error('Error in updateUI:', error);
+    }
+}
+
+// Enhanced download functionality for vulnerability scan results
+function startDownload(reportType) {
+    // Create a loading indicator to show progress
+    const statusDiv = document.getElementById('background-scan-status');
+    if (statusDiv) {
+        statusDiv.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Preparing ${reportType} scan report for download...`;
+    }
+    
+    // Build the URL with the report type parameter
+    const url = `/download_full_scan/${reportType}`;
+    
+    // Log the download attempt for debugging
+    console.log(`Initiating download from: ${url}`);
+    
+    // Use fetch API to handle the download properly
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'text/plain',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'  // Important for maintaining session state
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+        
+        // Get the filename from the Content-Disposition header if available
+        let filename = 'scan_results.txt';
+        const contentDisposition = response.headers.get('Content-Disposition');
+        if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+            if (filenameMatch && filenameMatch[1]) {
+                filename = filenameMatch[1];
+            }
+        }
+        
+        // Convert response to blob
+        return response.blob().then(blob => ({
+            blob,
+            filename
+        }));
+    })
+    .then(({ blob, filename }) => {
+        // Create a URL for the blob
+        const downloadUrl = window.URL.createObjectURL(blob);
+        
+        // Create a temporary link element and trigger the download
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        window.URL.revokeObjectURL(downloadUrl);
+        document.body.removeChild(a);
+        
+        // Update status message
+        if (statusDiv) {
+            statusDiv.innerHTML = `✅ Download complete!`;
+            setTimeout(() => {
+                statusDiv.innerHTML = 'Full scan completed!';
+            }, 3000);
+        }
+    })
+    .catch(error => {
+        console.error('Download failed:', error);
+        
+        // Show error message
+        if (statusDiv) {
+            statusDiv.innerHTML = `❌ Download failed: ${error.message}. Please try again.`;
+        }
+        
+        // Create retry button
+        const retryButton = document.createElement('button');
+        retryButton.className = 'download-button';
+        retryButton.style.marginLeft = '10px';
+        retryButton.innerHTML = '<i class="fas fa-sync"></i> Retry';
+        retryButton.onclick = () => startDownload(reportType);
+        
+        if (statusDiv && !statusDiv.querySelector('button')) {
+            statusDiv.appendChild(retryButton);
+        }
+    });
+}
+
+// Handle PDF download for both recommendations and security reports
+function handlePdfDownload(e) {
+    e.preventDefault();
+    console.log("PDF button clicked:", this.id);
+    
+    // Check if library is loaded
+    if (typeof html2pdf === 'undefined') {
+        alert('Loading PDF generation library. Please try again in a few seconds.');
+        loadPdfLibrary();
+        return;
+    }
+    
+    // Show loading state
+    this.disabled = true;
+    const originalText = this.innerHTML;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+    
+    try {
+        // Determine if this is a recommendations or report PDF
+        const isRecommendationsPdf = this.id === 'download-recommendations-pdf';
+        
+        // Find the content container
+        let contentContainer;
+        if (isRecommendationsPdf) {
+            // Look for recommendations section
+            contentContainer = document.querySelector('.recommendations-section .card-body');
+            if (!contentContainer) {
+                contentContainer = document.querySelector('.recommendations-section');
+            }
+        } else {
+            // Look for security report
+            contentContainer = document.querySelector('.security-report');
+        }
+            
+        if (!contentContainer) {
+            throw new Error('Content container not found. Please try again.');
+        }
+        
+        // Generate PDF with appropriate options
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const documentType = isRecommendationsPdf ? 'Recommendations' : 'Security-Report';
+        const targetIp = document.getElementById('target-ip')?.textContent || 'unknown';
+        const filename = `IoT-${documentType}-${targetIp}-${timestamp}.pdf`;
+        
+        const options = {
+            margin: [10, 10, 10, 10],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 1, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        // Create a clone for better PDF generation
+        const contentClone = contentContainer.cloneNode(true);
+        
+        // Ensure all collapsed sections are expanded for PDF
+        contentClone.querySelectorAll('.collapsed').forEach(el => {
+            el.classList.remove('collapsed');
+        });
+        
+        // Style the clone for PDF output
+        contentClone.style.backgroundColor = 'white';
+        contentClone.style.color = 'black';
+        contentClone.style.padding = '20px';
+        contentClone.style.maxWidth = 'none';
+        contentClone.style.width = '190mm'; // A4 width minus margins
+        
+        // Create an off-screen container
+        const pdfContainer = document.createElement('div');
+        pdfContainer.style.position = 'absolute';
+        pdfContainer.style.left = '-9999px';
+        pdfContainer.appendChild(contentClone);
+        document.body.appendChild(pdfContainer);
+        
+        // Generate PDF
+        html2pdf()
+            .from(contentClone)
+            .set(options)
+            .save()
+            .then(() => {
+                // Clean up
+                document.body.removeChild(pdfContainer);
+                this.disabled = false;
+                this.innerHTML = originalText;
+            })
+            .catch(error => {
+                console.error('PDF generation error:', error);
+                alert('Error generating PDF: ' + error.message);
+                document.body.removeChild(pdfContainer);
+                this.disabled = false;
+                this.innerHTML = originalText;
+            });
+    } catch (error) {
+        console.error('Error in PDF generation setup:', error);
+        alert('Error: ' + error.message);
+        this.disabled = false;
+        this.innerHTML = originalText;
+    }
+}
+
+// Helper Functions
+function calculatePhaseIndex(startTime) {
+    const elapsed = Date.now() - startTime;
+    let timeSum = 0;
+    for (let i = 0; i < PHASE_DURATIONS.length; i++) {
+        timeSum += PHASE_DURATIONS[i];
+        if (elapsed < timeSum) return i;
+    }
+    return PHASE_DURATIONS.length - 1;
+}
+
+function calculateProgress(startTime) {
+    const totalScanTime = PHASE_DURATIONS.reduce((a, b) => a + b, 0);
+    return Math.min(((Date.now() - startTime) / totalScanTime) * 100, 99.5);
+}
+
+function updateSavedScanState(startTime, active) {
+    localStorage.setItem(SCAN_STATE_KEY, JSON.stringify({
+        startTime,
+        active,
+        lastUpdated: Date.now()
+    }));
+}
+
+function isInViewport(element) {
+    const rect = element.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
+
+function scrollToIfNeeded(element) {
+    if (!isInViewport(element)) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// Enhanced functionality for recommendation PDFs
+function generateEnhancedRecommendationsPdf(e) {
+    e.preventDefault();
+    console.log("Generating enhanced recommendations PDF");
+    
+    // Ensure PDF library is loaded
+    if (typeof html2pdf === 'undefined') {
+        alert('Loading PDF generation library. Please try again in a few seconds.');
+        loadPdfLibrary();
+        return;
+    }
+    
+    // Show loading state
+    this.disabled = true;
+    const originalText = this.innerHTML;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+    
+    try {
+        // Find target IP or other identifier
+        const targetIp = document.getElementById('target-ip')?.textContent || 
+                         document.querySelector('.rec-meta-value')?.textContent || 
+                         'Unknown';
+        
+        // Create a clean document container
+        const pdfDocument = document.createElement('div');
+        pdfDocument.style.fontFamily = 'Inter, Arial, sans-serif';
+        pdfDocument.style.maxWidth = '800px';
+        pdfDocument.style.margin = '0 auto';
+        pdfDocument.style.padding = '20px';
+        pdfDocument.style.backgroundColor = 'white';
+        pdfDocument.style.color = 'black';
+        
+        // Add header section
+        const headerSection = document.createElement('div');
+        headerSection.innerHTML = `
+            <h1 style="color: #0F4C75; margin-bottom: 20px; font-size: 24px; text-align: center;">
+                IoT Security Recommendations
+            </h1>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #E2E8F0; padding-bottom: 10px;">
+                <div><strong>Target IP:</strong> ${targetIp}</div>
+                <div><strong>Generated:</strong> ${new Date().toLocaleString()}</div>
+            </div>
+            <p style="margin-bottom: 20px;">
+                Based on our security assessment, we've identified the following recommendations 
+                to improve your device security. These recommendations are organized by category and
+                should be implemented according to your organization's security policies.
+            </p>
+        `;
+        pdfDocument.appendChild(headerSection);
+        
+        // Collect all recommendation sections
+        const recommendationSections = document.querySelectorAll(
+            '.rec-section-content, ' +
+            '[id^="rec-section-"][id$="-content"], ' + 
+            '[id^="general-recommendations"], ' +
+            '[id^="implementation"], ' +
+            '[id^="port-recommendations"], ' +
+            '[id^="cve-recommendations"]'
+        );
+        
+        // Process each section
+        recommendationSections.forEach(section => {
+            // Get section title from header
+            const headerId = section.id?.replace('-content', '-header');
+            const header = document.getElementById(headerId);
+            let sectionTitle = header?.textContent.trim() || "General Recommendations";
+            
+            // Clean up title (remove toggle icons)
+            sectionTitle = sectionTitle.replace(/[▼▲]/, '').trim();
+            
+            // Create section
+            const pdfSection = document.createElement('div');
+            pdfSection.style.marginBottom = '20px';
+            
+            // Add section header
+            const sectionHeader = document.createElement('div');
+            sectionHeader.style.backgroundColor = '#0F4C75';
+            sectionHeader.style.color = 'white';
+            sectionHeader.style.padding = '10px 15px';
+            sectionHeader.style.borderRadius = '6px';
+            sectionHeader.style.marginBottom = '10px';
+            sectionHeader.style.fontWeight = 'bold';
+            sectionHeader.textContent = sectionTitle;
+            pdfSection.appendChild(sectionHeader);
+            
+            // Add content
+            const sectionContent = document.createElement('div');
+            sectionContent.style.paddingLeft = '15px';
+            
+            // Clone content from the original section to preserve formatting
+            const contentClone = section.cloneNode(true);
+            
+            // Remove any UI-specific elements
+            contentClone.querySelectorAll('.toggle-button, button, .collapsed').forEach(el => {
+                if (el.classList.contains('collapsed')) {
+                    el.classList.remove('collapsed');
+                } else {
+                    el.remove();
+                }
+            });
+            
+            sectionContent.appendChild(contentClone);
+            pdfSection.appendChild(sectionContent);
+            pdfDocument.appendChild(pdfSection);
+        });
+        
+        // Add footer
+        const footer = document.createElement('div');
+        footer.style.marginTop = '30px';
+        footer.style.paddingTop = '10px';
+        footer.style.borderTop = '1px solid #E2E8F0';
+        footer.style.textAlign = 'center';
+        footer.style.color = '#718096';
+        footer.style.fontSize = '12px';
+        footer.innerHTML = `
+            <p>This report is generated by IoT Tracker. For more information, please contact your administrator.</p>
+        `;
+        pdfDocument.appendChild(footer);
+        
+        // Create an offscreen container
+        const container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.appendChild(pdfDocument);
+        document.body.appendChild(container);
+        
+        // Generate PDF
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `IoT-Security-Recommendations-${targetIp}-${timestamp}.pdf`;
+        
+        const options = {
+            margin: [15, 15, 15, 15],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        html2pdf()
+            .from(pdfDocument)
+            .set(options)
+            .save()
+            .then(() => {
+                // Clean up
+                document.body.removeChild(container);
+                this.disabled = false;
+                this.innerHTML = originalText;
+            })
+            .catch(error => {
+                console.error('PDF generation error:', error);
+                alert('Error generating PDF: ' + error.message);
+                document.body.removeChild(container);
+                this.disabled = false;
+                this.innerHTML = originalText;
+            });
+    } catch (error) {
+        console.error('Error in PDF generation setup:', error);
+        alert('Error generating PDF: ' + error.message);
+        this.disabled = false;
+        this.innerHTML = originalText;
+    }
+}
+    </script>
+</body>
+</html>

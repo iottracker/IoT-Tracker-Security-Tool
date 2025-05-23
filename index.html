@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Tracker</title>
+    <!-- Import VT323 font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- Link to CSS -->
+    <link rel="stylesheet" href="../static/webtool.css">
+    <style>
+        /* Custom styles for index.html */
+        body {
+            margin: 0;
+            font-family: 'VT323', monospace; /* Use VT323 font for index.html */
+            background-color: #000; /* Black background for the video container */
+            color: #fff; /* White text color */
+        }
+
+        .main-content {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+        }
+
+        .overlay h1 {
+            font-family: 'VT323', monospace;
+            font-size: 3rem;
+            margin: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end);
+        }
+
+        .overlay p {
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            margin: 10px 0 0;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end) 3s;
+        }
+
+        .get-started-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            font-family: 'VT323', monospace; /* Use VT323 font for the button */
+            color: #003249; /* Dark blue text color */
+            background-color: #CCDBDC; /* Light blue background */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .get-started-btn:hover {
+            background-color: #b0c4c4; /* Slightly darker blue on hover */
+        }
+
+        /* Typing animation */
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Video with Overlay -->
+        <div class="video-container">
+            <video autoplay muted loop>
+                <source src="../static/background.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="overlay">
+                <h1 id="welcome-text"></h1>
+                <p id="intro-text"></p>
+                <!-- "Let's Get Started" Button -->
+                
+                    <a href="{{ url_for('getstarted') }}" style="text-decoration: none;">
+                        <button class="get-started-btn">Let's Get Started</button>
+                    </a>
+
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Link to JavaScript -->
+    <script src="../static/webtool.js"></script>
+</body>
+</html>

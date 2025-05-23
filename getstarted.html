@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - IoT Tracker</title>
+    <!-- Link to the new styleget.css -->
+    <link rel="stylesheet" href="../static/styleget.css">
+    <!-- Import PT Sans font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="container-wrapper">
+        <!-- Left Box: Continue as Guest -->
+        <div class="container" onclick="window.location.href='{{ url_for('guest_login') }}'">
+            <h2>Continue as Guest</h2>
+            <p>Explore the tool without signing in.</p>
+        </div>
+        
+
+        <!-- Right Box: Register -->
+        <div class="container" onclick="window.location.href='{{ url_for('register') }}'">
+            <h2>Register</h2>
+            <p>Create an account to access advanced features.</p>
+        </div>
+    </div>
+</body>
+</html>

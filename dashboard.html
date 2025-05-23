@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Tracker - Dashboard</title>
+    <!-- Import fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Import Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        :root {
+            /* Primary colors from login screen */
+            --primary: #0F4C75;
+            --primary-light: #3282B8;
+            --primary-dark: #0e3c5c;
+            --secondary: #16a085;
+            --secondary-dark: #138a72;
+            --accent: #1B262C;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+            
+            /* Neutral colors */
+            --background: #f5f7fa;
+            --foreground: #2D3748;
+            --card: #ffffff;
+            --card-foreground: #1A202C;
+            --border: #E2E8F0;
+            --input: #EDF2F7;
+            
+            /* Dark theme colors */
+            --dark-background: #1B262C;
+            --dark-foreground: #f5f7fa;
+            --dark-card: #2E3E4E;
+            --dark-card-foreground: #E2E8F0;
+            --dark-border: #3D4D5C;
+            --dark-input: #2E3E4E;
+            
+            /* Additional styles */
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 6px 12px -2px rgba(0, 0, 0, 0.1), 0 3px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-theme {
+            --background: var(--dark-background);
+            --foreground: var(--dark-foreground);
+            --card: var(--dark-card);
+            --card-foreground: var(--dark-card-foreground);
+            --border: var(--dark-border);
+            --input: var(--dark-input);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.95rem;
+        }
+
+        /* Layout Containers */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 50;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: translateY(-2px);
+}
+
+.logo {
+    height: 2.5rem;
+    width: 2.5rem;
+    filter: drop-shadow(0 0 10px rgba(50, 130, 184, 0.5));
+    transition: all 0.3s ease;
+    border-radius: 50%;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 15px rgba(50, 130, 184, 0.8));
+    transform: rotate(5deg);
+}
+
+.tool-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.tool-name::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3282B8, #16a085);
+    transition: width 0.3s ease;
+}
+
+.logo-container:hover .tool-name::after {
+    width: 100%;
+}
+
+        .sidebar-content {
+            padding: 1.25rem 0;
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-content {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-dropdown.active .nav-dropdown-content {
+            display: block;
+        }
+
+        .nav-dropdown-item {
+            padding: 0.625rem 1.5rem 0.625rem 3.5rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        .nav-dropdown-toggle {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s ease;
+        }
+
+        .nav-dropdown.active .nav-dropdown-toggle {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-footer img {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .sidebar-footer-info {
+            flex: 1;
+        }
+
+        .sidebar-footer-info span {
+            display: block;
+        }
+
+        .sidebar-footer-info .username {
+            font-weight: 500;
+            color: white;
+        }
+
+        .sidebar-footer-info .role {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: var(--foreground);
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--foreground);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb i {
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+
+        .top-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .nav-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--foreground);
+            cursor: pointer;
+            position: relative;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-action:hover {
+            background-color: var(--input);
+        }
+
+        .nav-action-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.65rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .online-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--foreground);
+        }
+
+        .online-dot {
+            height: 0.625rem;
+            width: 0.625rem;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .online-dot::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+            background-color: var(--success);
+            opacity: 0.4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1.7);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: var(--border-radius);
+        }
+
+        .user-menu-toggle:hover {
+            background-color: var(--input);
+        }
+
+        .user-menu-toggle img {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-menu-toggle i {
+            font-size: 0.8rem;
+            color: var(--foreground);
+            opacity: 0.6;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            min-width: 180px;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--card-foreground);
+            text-decoration: none;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--input);
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Terminal Window */
+        .terminal {
+            background: var(--accent);
+            border-radius: var(--border-radius);
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .terminal-header {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-button {
+            width: 0.875rem;
+            height: 0.875rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .terminal-button.close {
+            background: var(--danger);
+        }
+
+        .terminal-button.minimize {
+            background: var(--warning);
+        }
+
+        .terminal-button.maximize {
+            background: var(--success);
+        }
+
+        .terminal-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            flex: 1;
+            text-align: center;
+        }
+
+        .terminal-body {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 450px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, var(--accent), #19232d);
+        }
+
+        .terminal-body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: repeating-linear-gradient(
+                to right,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.05) 10px,
+                rgba(255, 255, 255, 0.05) 20px
+            );
+        }
+
+        .terminal-body::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        #welcome-message {
+            font-size: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--primary-light);
+            text-shadow: 0 0 10px rgba(50, 130, 184, 0.5);
+            animation: textGlow 2s infinite alternate;
+        }
+
+        @keyframes textGlow {
+            from { text-shadow: 0 0 5px rgba(50, 130, 184, 0.5); }
+            to { text-shadow: 0 0 15px rgba(50, 130, 184, 0.8), 0 0 30px rgba(50, 130, 184, 0.4); }
+        }
+
+        #system-prompt {
+            font-size: 1.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+        }
+
+        #launch-tutorial {
+            background: var(--primary-light);
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 0.875rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            border-radius: var(--border-radius);
+            display: block;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(50, 130, 184, 0.5);
+        }
+
+        #launch-tutorial::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            to {
+                left: 100%;
+            }
+        }
+
+        #launch-tutorial:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(15, 76, 117, 0.4);
+        }
+
+        #launch-tutorial:active {
+            transform: translateY(1px);
+        }
+
+        /* Tutorial Box */
+        .tutorial-box {
+            position: absolute;
+            background: var(--card);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--card-foreground);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-align: left;
+            white-space: nowrap;
+            z-index: 1001;
+            box-shadow: var(--shadow-lg), 0 0 20px rgba(50, 130, 184, 0.4);
+            animation: pulseBox 2s infinite alternate;
+        }
+
+        @keyframes pulseBox {
+            from { box-shadow: var(--shadow-lg), 0 0 10px rgba(50, 130, 184, 0.4); }
+            to { box-shadow: var(--shadow-lg), 0 0 20px rgba(50, 130, 184, 0.7); }
+        }
+
+        .tutorial-box button {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-box button:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Highlighted Option */
+        .highlighted-option {
+            background-color: rgba(50, 130, 184, 0.1) !important;
+            border-left: 3px solid var(--primary-light) !important;
+            box-shadow: inset 0 0 10px rgba(50, 130, 184, 0.2);
+            color: white !important;
+            font-weight: 600 !important;
+            position: relative;
+            z-index: 1001;
+        }
+
+        .highlighted-option::after {
+            content: '';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            box-shadow: 0 0 15px var(--primary-light);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* System Stats */
+        #system-stats {
+            width: 100%;
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                height: 100vh;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .toggle-sidebar {
+                display: block;
+            }
+
+            .terminal {
+                height: 500px;
+            }
+        }
+        .quick-action-item:hover {
+    transform: translateX(-10px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15) !important;
+}
+
+#fab-trigger:hover {
+    transform: scale(1.1);
+    background: var(--primary-dark);
+}
+
+.activity-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+    </style>
+</head>
+<body class="{% if session.get('theme') == 'dark' %}dark-theme{% else %}{% endif %}">
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='Untitled design.png') }}" alt="IoT Tracker Logo" class="logo">
+                    <span class="tool-name">IoT<span>TRACKER</span></span>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="nav-section">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link active">
+                        <i class="fas fa-th-large"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('explorer') }}" class="nav-link">
+                        <i class="fas fa-compass"></i> Explorer
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    
+                    <div class="nav-dropdown" id="devicesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-microchip"></i> Devices
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-wifi"></i> Network Scan
+                            </a>
+                            <a href="{{ url_for('docker_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fab fa-docker"></i> Docker Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-dropdown" id="vulnerabilitiesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-shield-alt"></i> Vulnerabilities
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan_vulns') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-search"></i> Live Scan
+                            </a>
+                            <a href="{{ url_for('firmware_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-file-code"></i> Firmware Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('analyze_traffic_route') }}" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Analyze Traffic
+                    </a>
+                    
+                    <a href="{{ url_for('upload_file') }}" class="nav-link">
+                        <i class="fas fa-upload"></i> Upload Data
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="{{ url_for('account') }}" class="nav-link">
+                        <i class="fas fa-user-circle"></i> Account
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="nav-link">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                <div class="sidebar-footer-info">
+                    <span class="username">{{ username }}</span>
+                    <span class="role">Administrator</span>
+                </div>
+                <a href="#" id="logout-button" class="nav-action" data-tooltip="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Top Navigation -->
+            <header class="top-nav">
+                <div class="nav-left">
+                    <button class="toggle-sidebar" id="toggleSidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb">
+                        <span>Home</span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Dashboard</span>
+                    </div>
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="online-status">
+                        <span class="online-dot"></span>
+                        <span>Online</span>
+                    </div>
+                    
+                    <button class="nav-action" data-tooltip="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="nav-action-badge">3</span>
+                    </button>
+                    
+                    <div class="user-menu">
+                        <div class="user-menu-toggle" id="userMenuToggle">
+                            <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        
+                        <div class="dropdown-menu" id="userDropdown">
+                            <a href="{{ url_for('account') }}" class="dropdown-item">
+                                <i class="fas fa-user-circle"></i>
+                                <span>Account</span>
+                            </a>
+                            <a href="{{ url_for('settings') }}" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </a>
+                            <a href="#" id="logout-link" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content Area -->
+            <div class="content">
+                <!-- Terminal Window -->
+                <div class="terminal">
+                    <!-- Terminal Header -->
+                    <div class="terminal-header">
+                        <div class="terminal-buttons">
+                            <span class="terminal-button close"></span>
+                            <span class="terminal-button minimize"></span>
+                            <span class="terminal-button maximize"></span>
+                        </div>
+                        <span class="terminal-title"><i class="fas fa-terminal"></i> IoT Tracker Guide</span>
+                    </div>
+                    <!-- Terminal Body -->
+                    <div class="terminal-body">
+                        <div id="welcome-message"></div>
+                        <div id="system-prompt"></div>
+                        <button id="launch-tutorial">[ Start Exploring! ]</button>
+                        
+                        <!-- System Stats (initially hidden) -->
+                        <div id="system-stats" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                                <div style="text-align: center; flex: 1;">
+                                    <div style="font-size: 2.5rem; font-weight: 600; color: var(--primary-light);">12</div>
+                                    <div style="font-size: 1rem; color: rgba(255, 255, 255, 0.7);">Devices Online</div>
+                                </div>
+                                <div style="text-align: center; flex: 1;">
+                                    <div style="font-size: 2.5rem; font-weight: 600; color: var(--warning);">3</div>
+                                    <div style="font-size: 1rem; color: rgba(255, 255, 255, 0.7);">Vulnerabilities</div>
+                                </div>
+                                <div style="text-align: center; flex: 1;">
+                                    <div style="font-size: 2.5rem; font-weight: 600; color: var(--secondary);">98%</div>
+                                    <div style="font-size: 1rem; color: rgba(255, 255, 255, 0.7);">System Health</div>
+                                </div>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.2); border-radius: var(--border-radius); padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.5; color: rgba(255, 255, 255, 0.9);">
+                                <div style="margin-bottom: 0.5rem;">$ <span style="color: var(--primary-light);">system</span> --status</div>
+                                <div>→ Network scanning service: <span style="color: var(--success);">ACTIVE</span></div>
+                                <div>→ Vulnerability detection: <span style="color: var(--success);">ACTIVE</span></div>
+                                <div>→ Traffic analysis: <span style="color: var(--success);">ACTIVE</span></div>
+                                <div>→ Last system update: <span style="color: rgba(255, 255, 255, 0.7);">2023-04-30 08:15:22</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quick-actions-panel" style="display: none; position: fixed; bottom: 2rem; right: 2rem; z-index: 1000;">
+                    <!-- Floating Action Button -->
+                    <div id="fab-trigger" style="width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s ease;">
+                        <i class="fas fa-bolt" style="font-size: 1.5rem; color: white;"></i>
+                    </div>
+                    
+                    <!-- Quick Actions Menu -->
+                    <div id="quick-actions-menu" style="position: absolute; bottom: 80px; right: 0; display: none; flex-direction: column; gap: 1rem;">
+                        <div class="quick-action-item" onclick="window.location.href='/scan'" style="display: flex; align-items: center; gap: 1rem; background: white; padding: 0.75rem 1.5rem; border-radius: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; white-space: nowrap; transition: all 0.3s ease;">
+                            <div style="width: 40px; height: 40px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-radar" style="color: white;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: var(--foreground);">Quick Scan</div>
+                                <div style="font-size: 0.8rem; color: var(--foreground); opacity: 0.7;">Discover devices now</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-action-item" onclick="window.location.href='/scan_vulns'" style="display: flex; align-items: center; gap: 1rem; background: white; padding: 0.75rem 1.5rem; border-radius: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; white-space: nowrap; transition: all 0.3s ease;">
+                            <div style="width: 40px; height: 40px; background: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-shield-virus" style="color: white;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: var(--foreground);">Security Check</div>
+                                <div style="font-size: 0.8rem; color: var(--foreground); opacity: 0.7;">Find vulnerabilities</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-action-item" onclick="window.location.href='/analyze_traffic_route'" style="display: flex; align-items: center; gap: 1rem; background: white; padding: 0.75rem 1.5rem; border-radius: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; white-space: nowrap; transition: all 0.3s ease;">
+                            <div style="width: 40px; height: 40px; background: var(--warning); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-chart-network" style="color: white;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: var(--foreground);">Monitor Traffic</div>
+                                <div style="font-size: 0.8rem; color: var(--foreground); opacity: 0.7;">Analyze patterns</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="activity-ticker" style="display: none; position: fixed; top: 5rem; right: 2rem; width: 300px; background: var(--card); border-radius: var(--border-radius); box-shadow: var(--shadow-lg); border: 1px solid var(--border); overflow: hidden; z-index: 999;">
+                    <div style="background: var(--primary); color: white; padding: 0.75rem 1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite;"></div>
+                        Live Activity
+                    </div>
+                    <div id="activity-feed" style="max-height: 200px; overflow-y: auto;">
+                        <!-- Activity items will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Box -->
+    <div id="tutorial-box" class="tutorial-box" style="display: none;"></div>
+    
+    <script>
+        let tutorialStep = 0;
+        const tutorialConfig = [
+            { 
+                element: 'button[data-tab="devices"]', 
+                content: "<i class='fas fa-microchip'></i> DEVICE SCANNER: Locate All Connected IoT Devices", 
+                pos: { x: 30, y: 0 }
+            },
+            { 
+                element: 'button[data-tab="vulnerabilities"]', 
+                content: "<i class='fas fa-shield-alt'></i> VULNERABILITY AUDIT: Detect Security Weaknesses", 
+                pos: { x: 30, y: 0 }
+            },
+            { 
+                element: 'button[data-tab="traffic"]', 
+                content: "<i class='fas fa-chart-line'></i> TRAFFIC ANALYSIS: Monitor Network Patterns", 
+                pos: { x: 30, y: 0 }
+            },
+            { 
+                element: 'button[data-tab="upload"]', 
+                content: "<i class='fas fa-upload'></i> DATA UPLOAD: Process & Analyze Network Data", 
+                pos: { x: 30, y: 0}
+            }
+        ];
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = "{{ username }}" || "Guest";
+            
+            // Show welcome message first, then system prompt
+            typeEffect('welcome-message', `WELCOME ${username}! , ⁂ ROOT ACCESS GRANTED `, 70, () => {
+                // After welcome finishes, show system prompt
+                setTimeout(() => {
+                    typeEffect('system-prompt', 'ACTION REQUIRED : ACTIVATE GUIDE TO UNLOCK TOOL CAPABILITIES', 50, () => {
+                        // Add a cursor blinking effect after typing completes
+                        document.getElementById('system-prompt').innerHTML += '<span class="cursor" style="display:inline-block;width:10px;height:20px;background:var(--primary-light);margin-left:5px;animation:blink 1s infinite"></span>';
+                    });
+                }, 1000);
+            });
+    
+            document.getElementById('launch-tutorial').addEventListener('click', () => {
+                document.getElementById('tutorial-box').style.display = 'block';
+                showTutorialStep(0);
+            });
+
+            // Add tab button attributes for the tutorial
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                if (link.querySelector('i.fa-microchip') && !link.getAttribute('data-tab')) {
+                    link.setAttribute('data-tab', 'devices');
+                } else if (link.querySelector('i.fa-shield-alt') && !link.getAttribute('data-tab')) {
+                    link.setAttribute('data-tab', 'vulnerabilities');
+                } else if (link.querySelector('i.fa-chart-line') && !link.getAttribute('data-tab')) {
+                    link.setAttribute('data-tab', 'traffic');
+                } else if (link.querySelector('i.fa-upload') && !link.getAttribute('data-tab')) {
+                    link.setAttribute('data-tab', 'upload');
+                }
+            });
+
+            // Avatar dropdown functionality
+            const userMenuToggle = document.getElementById('userMenuToggle');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (userMenuToggle && userDropdown) {
+                userMenuToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (userDropdown.classList.contains('show') && !userMenuToggle.contains(e.target)) {
+                        userDropdown.classList.remove('show');
+                    }
+                });
+            }
+            
+            // Sidebar toggle for mobile
+            const toggleSidebar = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (toggleSidebar) {
+                toggleSidebar.addEventListener('click', function() {
+                    sidebar.classList.toggle('open');
+                });
+            }
+            
+            // Navigation Dropdowns
+            const navDropdowns = document.querySelectorAll('.nav-dropdown');
+            
+            navDropdowns.forEach(dropdown => {
+                const link = dropdown.querySelector('.nav-link');
+                
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    dropdown.classList.toggle('active');
+                    
+                    // Close other dropdowns
+                    navDropdowns.forEach(otherDropdown => {
+                        if (otherDropdown !== dropdown && otherDropdown.classList.contains('active')) {
+                            otherDropdown.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            // Logout functionality
+            const logoutLink = document.getElementById('logout-link');
+            const logoutButton = document.getElementById('logout-button');
+            
+            const handleLogout = function(e) {
+                e.preventDefault();
+                
+                fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error logging out:', error);
+                });
+            };
+            
+            if (logoutLink) {
+                logoutLink.addEventListener('click', handleLogout);
+            }
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', handleLogout);
+            }
+        });
+    
+        function showTutorialStep(step) {
+            const current = tutorialConfig[step];
+            const target = document.querySelector(`[data-tab="${current.element.replace('button[data-tab="', '').replace('"]', '')}"]`);
+    
+            document.querySelectorAll('.nav-link').forEach(btn => {
+                btn.classList.remove('highlighted-option');
+            });
+    
+            if (target) {
+                target.classList.add('highlighted-option');
+                
+                const box = document.getElementById('tutorial-box');
+                const rect = target.getBoundingClientRect();
+                
+                box.style.top = `${rect.top + current.pos.y}px`;
+                box.style.left = `${rect.left + rect.width + current.pos.x}px`;
+                
+                // Clear existing content
+                box.innerHTML = '';
+                
+                // Add cool pre-typing effect
+                box.dataset.content = current.content;
+                box.dataset.index = '0';
+                
+                typeBoxEffect(box);
+            }
+        }
+        
+        function typeBoxEffect(element) {
+            const content = element.dataset.content;
+            const index = parseInt(element.dataset.index);
+            
+            if (index < content.length) {
+                element.innerHTML = content.substring(0, index + 1);
+                element.dataset.index = (index + 1).toString();
+                setTimeout(() => typeBoxEffect(element), 30);
+            } else {
+                // When typing is complete, add the button
+                addNavigation(tutorialStep);
+            }
+        }
+    
+        function getTextWidth(text, font) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            context.font = font;
+            return context.measureText(text).width;
+        }
+    
+        function typeEffect(targetId, text, speed, callback) {
+            let i = 0;
+            const el = document.getElementById(targetId);
+            el.innerHTML = '';
+            
+            function type() {
+                if (i < text.length) {
+                    el.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else if (callback) {
+                    callback();
+                }
+            }
+            
+            type();
+        }
+    
+        function addNavigation(step) {
+            const box = document.getElementById('tutorial-box');
+            const btn = document.createElement('button');
+            btn.textContent = step === tutorialConfig.length-1 ? 'FINISH' : 'NEXT';
+            btn.classList.add('next-btn');
+            
+            // Add hover effects
+            btn.style.position = 'relative';
+            btn.style.overflow = 'hidden';
+            
+            if (box.querySelector('button')) {
+                box.querySelector('button').remove();
+            }
+            
+            btn.onclick = () => {
+    if (step === tutorialConfig.length-1) {
+        document.getElementById('tutorial-box').style.display = 'none';
+        tutorialStep = 0;
+        document.querySelectorAll('.nav-link').forEach(btn => {
+            btn.classList.remove('highlighted-option');
+        });
+        
+        setTimeout(() => {
+            document.getElementById('welcome-message').innerHTML = "SYSTEM STATUS: <span style='color: var(--success)'>OPERATIONAL</span>";
+            document.getElementById('system-prompt').style.display = 'none';
+            document.getElementById('launch-tutorial').style.display = 'none';
+            document.getElementById('system-stats').style.display = 'block';
+            
+            // Show exciting elements
+            document.getElementById('quick-actions-panel').style.display = 'block';
+            document.getElementById('activity-ticker').style.display = 'block';
+            
+            // Initialize them with a slight delay to ensure DOM is ready
+            setTimeout(() => {
+                initializeQuickActions();
+                initializeActivityTicker();
+            }, 100);
+            
+            // Animate entrance
+            document.getElementById('quick-actions-panel').style.animation = 'slideInRight 0.5s ease-out';
+            document.getElementById('activity-ticker').style.animation = 'slideInRight 0.5s ease-out 0.2s';
+        }, 500);
+    } else {
+        tutorialStep++;
+        showTutorialStep(tutorialStep);
+    }
+};
+            
+            box.appendChild(btn);
+        }
+
+        // Add cursor blink animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Alt+D for Dashboard
+            if (e.altKey && e.key === 'd') {
+                window.location.href = '/dashboard';
+            }
+            // Alt+E for Explorer
+            else if (e.altKey && e.key === 'e') {
+                window.location.href = '/explorer';
+            }
+            // Alt+S for Scan
+            else if (e.altKey && e.key === 's') {
+                window.location.href = '/scan';
+            }
+            // Alt+V for Vulnerabilities
+            else if (e.altKey && e.key === 'v') {
+                document.querySelector('[data-tab="vulnerabilities"]').click();
+            }
+            // Alt+T for Traffic
+            else if (e.altKey && e.key === 't') {
+                window.location.href = '/analyze_traffic_route';
+            }
+            // Alt+U for Upload
+            else if (e.altKey && e.key === 'u') {
+                window.location.href = '/upload_file';
+            }
+            // Alt+H to show keyboard shortcuts help
+            else if (e.altKey && e.key === 'h') {
+                showKeyboardShortcutsHelp();
+            }
+        });
+        
+        function initializeQuickActions() {
+    const fabTrigger = document.getElementById('fab-trigger');
+    const quickActionsMenu = document.getElementById('quick-actions-menu');
+    
+    console.log('Initializing quick actions...'); // Debug log
+    console.log('fabTrigger:', fabTrigger); // Check if element exists
+    console.log('quickActionsMenu:', quickActionsMenu); // Check if element exists
+    
+    if (!fabTrigger || !quickActionsMenu) {
+        console.error('Required elements not found!');
+        return;
+    }
+    
+    let isMenuOpen = false;
+    
+    fabTrigger.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        console.log('FAB clicked, current state:', isMenuOpen); // Debug log
+        
+        isMenuOpen = !isMenuOpen;
+        quickActionsMenu.style.display = isMenuOpen ? 'flex' : 'none';
+        fabTrigger.innerHTML = isMenuOpen ? 
+            '<i class="fas fa-times" style="font-size: 1.5rem; color: white;"></i>' : 
+            '<i class="fas fa-bolt" style="font-size: 1.5rem; color: white;"></i>';
+        
+        // Animate menu items
+        if (isMenuOpen) {
+            const items = quickActionsMenu.children;
+            Array.from(items).forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.3s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!fabTrigger.contains(e.target) && !quickActionsMenu.contains(e.target) && isMenuOpen) {
+            console.log('Closing menu - clicked outside'); // Debug log
+            isMenuOpen = false;
+            quickActionsMenu.style.display = 'none';
+            fabTrigger.innerHTML = '<i class="fas fa-bolt" style="font-size: 1.5rem; color: white;"></i>';
+        }
+    });
+}
+
+function initializeActivityTicker() {
+    const activityFeed = document.getElementById('activity-feed');
+    const activities = [
+        { icon: 'fa-wifi', color: 'primary-light', text: 'Network scan available' },
+        { icon: 'fa-shield-check', color: 'success', text: 'Security systems active' },
+        { icon: 'fa-exclamation-triangle', color: 'warning', text: '3 devices need attention' },
+        { icon: 'fa-chart-line', color: 'primary', text: 'Traffic analysis ready' },
+        { icon: 'fa-microchip', color: 'secondary', text: 'Firmware updates detected' }
+    ];
+    
+    function addActivity() {
+        const activity = activities[Math.floor(Math.random() * activities.length)];
+        const item = document.createElement('div');
+        item.className = 'activity-item';
+        item.innerHTML = `
+            <i class="fas ${activity.icon}" style="color: var(--${activity.color});"></i>
+            <span style="color: var(--foreground); font-size: 0.9rem;">${activity.text}</span>
+            <span style="color: var(--foreground); opacity: 0.5; font-size: 0.8rem; margin-left: auto;">just now</span>
+        `;
+        
+        activityFeed.insertBefore(item, activityFeed.firstChild);
+        
+        // Remove old items
+        if (activityFeed.children.length > 5) {
+            activityFeed.removeChild(activityFeed.lastChild);
+        }
+    }
+    
+    // Add initial activities
+    addActivity();
+    setTimeout(addActivity, 1000);
+    setTimeout(addActivity, 2000);
+    
+    // Add new activity every 5-10 seconds
+    setInterval(() => {
+        addActivity();
+    }, Math.random() * 5000 + 5000);
+}
+        // Create help overlay for keyboard shortcuts
+        function showKeyboardShortcutsHelp() {
+            // Create overlay if it doesn't exist
+            let helpOverlay = document.getElementById('keyboard-shortcuts-help');
+            if (!helpOverlay) {
+                helpOverlay = document.createElement('div');
+                helpOverlay.id = 'keyboard-shortcuts-help';
+                helpOverlay.style.position = 'fixed';
+                helpOverlay.style.top = '0';
+                helpOverlay.style.left = '0';
+                helpOverlay.style.width = '100%';
+                helpOverlay.style.height = '100%';
+                helpOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                helpOverlay.style.zIndex = '9999';
+                helpOverlay.style.display = 'flex';
+                helpOverlay.style.alignItems = 'center';
+                helpOverlay.style.justifyContent = 'center';
+                helpOverlay.style.opacity = '0';
+                helpOverlay.style.transition = 'opacity 0.3s ease';
+                
+                const helpContent = document.createElement('div');
+                helpContent.style.backgroundColor = 'var(--card)';
+                helpContent.style.borderRadius = 'var(--border-radius)';
+                helpContent.style.padding = '2rem';
+                helpContent.style.maxWidth = '600px';
+                helpContent.style.width = '90%';
+                helpContent.style.boxShadow = 'var(--shadow-lg)';
+                
+                helpContent.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="font-size: 1.5rem; color: var(--primary); margin: 0;">Keyboard Shortcuts</h2>
+                        <button id="close-help" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--gray-500);">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.75rem 1.5rem; align-items: center;">
+                        <div style="font-family: 'JetBrains Mono', monospace; background: var(--accent); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; text-align: center;">Alt + D</div>
+                        <div>Dashboard</div>
+                        
+                        <div style="font-family: 'JetBrains Mono', monospace; background: var(--accent); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; text-align: center;">Alt + E</div>
+                        <div>Explorer</div>
+                        
+                        <div style="font-family: 'JetBrains Mono', monospace; background: var(--accent); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; text-align: center;">Alt + S</div>
+                        <div>Scan Devices</div>
+                        
+                        <div style="font-family: 'JetBrains Mono', monospace; background: var(--accent); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; text-align: center;">Alt + V</div>
+                        <div>Vulnerabilities</div>
+                        
+                        <div style="font-family: 'JetBrains Mono', monospace; background: var(--accent); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; text-align: center;">Alt + T</div>
+                        <div>Traffic Analysis</div>
+                        
+                        <div style="font-family: 'JetBrains Mono', monospace; background: var(--accent); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; text-align: center;">Alt + U</div>
+                        <div>Upload Data</div>
+                        
+                        <div style="font-family: 'JetBrains Mono', monospace; background: var(--accent); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; text-align: center;">Alt + H</div>
+                        <div>Show/Hide this help</div>
+                    </div>
+                    <div style="margin-top: 1.5rem; font-size: 0.875rem; color: var(--foreground); opacity: 0.7; text-align: center;">
+                        Press any key to close
+                    </div>
+                `;
+                
+                helpOverlay.appendChild(helpContent);
+                document.body.appendChild(helpOverlay);
+                
+                // Close on button click
+                document.getElementById('close-help').addEventListener('click', () => {
+                    helpOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        helpOverlay.style.display = 'none';
+                    }, 300);
+                });
+                
+                // Close on any key press
+                document.addEventListener('keydown', function closeHelp() {
+                    helpOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        helpOverlay.style.display = 'none';
+                    }, 300);
+                    document.removeEventListener('keydown', closeHelp);
+                }, { once: true });
+                
+                // Close on click outside content
+                helpOverlay.addEventListener('click', (e) => {
+                    if (e.target === helpOverlay) {
+                        helpOverlay.style.opacity = '0';
+                        setTimeout(() => {
+                            helpOverlay.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            }
+            
+            // Show the overlay
+            helpOverlay.style.display = 'flex';
+            setTimeout(() => {
+                helpOverlay.style.opacity = '1';
+            }, 10);
+        }
+        
+        // Add a small welcome animation sequence
+        setTimeout(() => {
+            // Subtle pulse animation for sidebar buttons
+            document.querySelectorAll('.nav-link').forEach((btn, index) => {
+                setTimeout(() => {
+                    btn.style.transition = 'all 0.3s ease';
+                    btn.style.transform = 'scale(1.05)';
+                    btn.style.borderLeftColor = 'var(--secondary)';
+                    
+                    setTimeout(() => {
+                        btn.style.transform = 'scale(1)';
+                        btn.style.borderLeftColor = 'transparent';
+                    }, 300);
+                }, index * 100);
+            });
+        }, 4000);
+
+        // Add help icon
+        const helpIcon = document.createElement('div');
+        helpIcon.innerHTML = '<i class="fas fa-keyboard"></i>';
+        helpIcon.style.position = 'fixed';
+        helpIcon.style.bottom = '20px';
+        helpIcon.style.left = '20px';
+        helpIcon.style.backgroundColor = 'var(--primary)';
+        helpIcon.style.color = 'white';
+        helpIcon.style.width = '40px';
+        helpIcon.style.height = '40px';
+        helpIcon.style.borderRadius = '50%';
+        helpIcon.style.display = 'flex';
+        helpIcon.style.alignItems = 'center';
+        helpIcon.style.justifyContent = 'center';
+        helpIcon.style.boxShadow = 'var(--shadow)';
+        helpIcon.style.cursor = 'pointer';
+        helpIcon.style.zIndex = '999';
+        helpIcon.title = 'Keyboard Shortcuts (Alt+H)';
+        helpIcon.addEventListener('click', showKeyboardShortcutsHelp);
+        document.body.appendChild(helpIcon);
+    </script>
+</body>
+</html>

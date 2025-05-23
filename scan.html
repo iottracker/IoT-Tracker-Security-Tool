@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Tracker - Network Scan</title>
+    <!-- Import fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Import Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        :root {
+            /* Primary colors from login screen */
+            --primary: #0F4C75;
+            --primary-light: #3282B8;
+            --primary-dark: #0e3c5c;
+            --secondary: #16a085;
+            --secondary-dark: #138a72;
+            --accent: #1B262C;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+            
+            /* Neutral colors */
+            --background: #f5f7fa;
+            --foreground: #2D3748;
+            --card: #ffffff;
+            --card-foreground: #1A202C;
+            --border: #E2E8F0;
+            --input: #EDF2F7;
+            
+            /* Dark theme colors */
+            --dark-background: #1B262C;
+            --dark-foreground: #f5f7fa;
+            --dark-card: #2E3E4E;
+            --dark-card-foreground: #E2E8F0;
+            --dark-border: #3D4D5C;
+            --dark-input: #2E3E4E;
+            
+            /* Additional styles */
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 6px 12px -2px rgba(0, 0, 0, 0.1), 0 3px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-theme {
+            --background: var(--dark-background);
+            --foreground: var(--dark-foreground);
+            --card: var(--dark-card);
+            --card-foreground: var(--dark-card-foreground);
+            --border: var(--dark-border);
+            --input: var(--dark-input);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.95rem;
+        }
+
+        /* Layout Containers */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 50;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: translateY(-2px);
+}
+
+.logo {
+    height: 2.5rem;
+    width: 2.5rem;
+    filter: drop-shadow(0 0 10px rgba(50, 130, 184, 0.5));
+    transition: all 0.3s ease;
+    border-radius: 50%;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 15px rgba(50, 130, 184, 0.8));
+    transform: rotate(5deg);
+}
+
+.tool-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.tool-name::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3282B8, #16a085);
+    transition: width 0.3s ease;
+}
+
+.logo-container:hover .tool-name::after {
+    width: 100%;
+}
+
+        .sidebar-content {
+            padding: 1.25rem 0;
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-content {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-dropdown.active .nav-dropdown-content {
+            display: block;
+        }
+
+        .nav-dropdown-item {
+            padding: 0.625rem 1.5rem 0.625rem 3.5rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        .nav-dropdown-toggle {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s ease;
+        }
+
+        .nav-dropdown.active .nav-dropdown-toggle {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-footer img {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .sidebar-footer-info {
+            flex: 1;
+        }
+
+        .sidebar-footer-info span {
+            display: block;
+        }
+
+        .sidebar-footer-info .username {
+            font-weight: 500;
+            color: white;
+        }
+
+        .sidebar-footer-info .role {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: var(--foreground);
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--foreground);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb i {
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+
+        .top-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .nav-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--foreground);
+            cursor: pointer;
+            position: relative;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-action:hover {
+            background-color: var(--input);
+        }
+
+        .nav-action-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.65rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .online-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--foreground);
+        }
+
+        .online-dot {
+            height: 0.625rem;
+            width: 0.625rem;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .online-dot::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+            background-color: var(--success);
+            opacity: 0.4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1.7);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: var(--border-radius);
+        }
+
+        .user-menu-toggle:hover {
+            background-color: var(--input);
+        }
+
+        .user-menu-toggle img {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-menu-toggle i {
+            font-size: 0.8rem;
+            color: var(--foreground);
+            opacity: 0.6;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            min-width: 180px;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--card-foreground);
+            text-decoration: none;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--input);
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-header i {
+            font-size: 1.25rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Info Banner */
+        .info-banner {
+            display: flex;
+            background: linear-gradient(to right, #f1f9ff, #e6f7ff);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .info-banner:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .info-icon {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-icon i {
+            font-size: 2rem;
+        }
+
+        .info-content {
+            padding: 1.5rem;
+            flex: 1;
+        }
+
+        .info-content h3 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .info-content p {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            color: var(--foreground);
+        }
+
+        .info-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .feature i {
+            color: var(--primary);
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--card-foreground);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background-color: var(--card);
+            color: var(--card-foreground);
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(50, 130, 184, 0.15);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #a0aec0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(15, 76, 117, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Loading Indicator */
+        .loading-container {
+            padding: 2rem;
+            text-align: center;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            height: 0.75rem;
+            background-color: var(--border);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            border-radius: var(--border-radius);
+            transition: width 0.3s ease;
+        }
+
+        .status-text {
+            margin: 0.5rem 0;
+            font-weight: 500;
+            color: var(--card-foreground);
+        }
+
+        /* Devices Grid */
+        .devices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .device-card {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .device-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .device-header {
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent), #2a3f4d);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 0.35rem;
+        }
+
+        .terminal-button {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+        }
+
+        .terminal-button:nth-child(1) {
+            background-color: var(--danger);
+        }
+
+        .terminal-button:nth-child(2) {
+            background-color: var(--warning);
+        }
+
+        .terminal-button:nth-child(3) {
+            background-color: var(--success);
+        }
+
+        .device-body {
+            padding: 1.25rem;
+        }
+
+        .device-info {
+            list-style: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 0.75rem;
+            align-items: center;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            width: 140px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .info-value {
+            flex: 1;
+        }
+
+        .port-tag {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 0.35rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 0.625rem;
+            height: 0.625rem;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .online {
+            background-color: var(--success);
+            box-shadow: 0 0 5px rgba(39, 174, 96, 0.5);
+        }
+
+        .offline {
+            background-color: var(--primary-light);
+            box-shadow: 0 0 5px rgba(50, 130, 184, 0.5);
+        }
+
+        /* Error and Empty State Messages */
+        .message-box {
+            text-align: center;
+            padding: 3rem 2rem;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-top: 1.5rem;
+        }
+
+        .message-box i {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .message-box.warning i {
+            color: var(--warning);
+        }
+
+        .message-box.error i {
+            color: var(--danger);
+        }
+
+        .message-box p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                height: 100vh;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .toggle-sidebar {
+                display: block;
+            }
+
+            .devices-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-banner {
+                flex-direction: column;
+            }
+
+            .info-icon {
+                padding: 1rem;
+                width: 100%;
+            }
+        }
+
+        /* Dark Theme Adjustments */
+        .dark-theme .card, 
+        .dark-theme .device-card,
+        .dark-theme .message-box,
+        .dark-theme .loading-container {
+            background-color: var(--dark-card);
+            border-color: var(--dark-border);
+        }
+
+        .dark-theme .info-banner {
+            background: linear-gradient(to right, #2c3e50, #34495e);
+            border-left-color: var(--secondary);
+        }
+
+        .dark-theme .info-icon {
+            background: var(--secondary);
+        }
+
+        .dark-theme .info-content h3 {
+            color: var(--secondary);
+        }
+
+        .dark-theme .feature {
+            background-color: var(--dark-card);
+        }
+
+        .dark-theme .feature i {
+            color: var(--secondary);
+        }
+
+        .dark-theme .btn-primary {
+            background-color: var(--secondary);
+        }
+
+        .dark-theme .btn-primary:hover {
+            background-color: var(--secondary-dark);
+            box-shadow: 0 4px 12px rgba(22, 160, 133, 0.3);
+        }
+
+        .dark-theme .progress-fill {
+            background: linear-gradient(to right, var(--secondary), var(--secondary-dark));
+        }
+
+        .dark-theme .form-control {
+            background-color: var(--dark-input);
+            border-color: var(--dark-border);
+            color: var(--dark-foreground);
+        }
+
+        .dark-theme .form-control:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(22, 160, 133, 0.2);
+        }
+
+        .dark-theme .card-header {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+        }
+    </style>
+</head>
+<body class="{% if session.get('theme') == 'dark' %}dark-theme{% else %}{% endif %}">
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='Untitled design.png') }}" alt="IoT Tracker Logo" class="logo">
+                    <span class="tool-name">IoT<span>TRACKER</span></span>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="nav-section">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">
+                        <i class="fas fa-th-large"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('explorer') }}" class="nav-link active">
+                        <i class="fas fa-compass"></i> Explorer
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    
+                    <div class="nav-dropdown" id="devicesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-microchip"></i> Devices
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-wifi"></i> Network Scan
+                            </a>
+                            <a href="{{ url_for('docker_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fab fa-docker"></i> Docker Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-dropdown" id="vulnerabilitiesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-shield-alt"></i> Vulnerabilities
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan_vulns') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-search"></i> Live Scan
+                            </a>
+                            <a href="{{ url_for('firmware_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-file-code"></i> Firmware Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('analyze_traffic_route') }}" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Analyze Traffic
+                    </a>
+                    
+                    <a href="{{ url_for('upload_file') }}" class="nav-link">
+                        <i class="fas fa-upload"></i> Upload Data
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="{{ url_for('account') }}" class="nav-link">
+                        <i class="fas fa-user-circle"></i> Account
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="nav-link">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                <div class="sidebar-footer-info">
+                    <span class="username">{{ username }}</span>
+                    <span class="role">Administrator</span>
+                </div>
+                <a href="#" id="logout-button" class="nav-action" data-tooltip="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Top Navigation -->
+<!-- Replace the existing top-nav div with this updated version -->
+<header class="top-nav">
+    <div class="nav-left">
+        <button class="toggle-sidebar" id="toggleSidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="breadcrumb">
+            <!-- Breadcrumb content will be dynamically inserted by JavaScript -->
+        </div>
+    </div>
+    
+    <div class="top-nav-actions">
+        <div class="online-status">
+            <span class="online-dot"></span>
+            <span>Online</span>
+        </div>
+        
+        <div class="user-menu">
+            <div class="user-menu-toggle" id="userMenuToggle">
+                <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            
+            <div class="dropdown-menu" id="userDropdown">
+                <a href="{{ url_for('account') }}" class="dropdown-item">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Account</span>
+                </a>
+                <a href="{{ url_for('settings') }}" class="dropdown-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="#" id="logout-link" class="dropdown-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+            
+            <!-- Main Content Area -->
+            <div class="content">
+                {% if request.path == url_for('scan') %}
+
+                <!-- Network Scan Form -->
+                <div class="card" id="scan-form-section">
+                    <div class="card-header">
+                        <i class="fas fa-network-wired"></i>
+                        <span>Scan Network for Devices</span>
+                    </div>
+                    <div class="card-body">
+                        <form id="scan-form" onsubmit="startScan(event)">
+                            <div class="form-group">
+                                <label for="network" class="form-label">
+                                    <i class="fas fa-globe"></i>
+                                    Network Range:
+                                </label>
+                                <input type="text" id="network" class="form-control" 
+                                    pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                                    placeholder="Enter network range (e.g., 192.168.1.0/24)"
+                                    title="Enter a valid CIDR network range (e.g., 192.168.1.0/24)" 
+                                    required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                                Start Network Scan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                                
+                <!-- About Network Scanning Info Banner -->
+                <div class="info-banner" id="info-section">
+                    <div class="info-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>About Network Scanning</h3>
+                        <p>This tool scans your network to identify connected IoT devices, detect their statuses, and analyze open ports and device manufacturers. Enter a network range below to start scanning.</p>
+                        <div class="info-features">
+                            <div class="feature">
+                                <i class="fas fa-network-wired"></i>
+                                <span>Device Discovery</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-server"></i>
+                                <span>Open Port Detection</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-microchip"></i>
+                                <span>Manufacturer Identification</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Comprehensive Reports</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <!-- Loading Indicator (initially hidden) -->
+                <div class="loading-container" id="loading-indicator" style="display: none;">
+                    <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary); margin-bottom: 1rem;"></i>
+                    <h3 class="status-phase" id="scan-phase">Scanning network...</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="scan-progress" style="width: 0%;"></div>
+                    </div>
+                    <div class="status-text" id="scan-status">Initializing scan...</div>
+                </div>
+                
+                <!-- Scan Results (initially hidden) -->
+                <div class="card" id="discovered-devices" style="display: none;">
+                    <div class="card-header">
+                        <i class="fas fa-server"></i>
+                        <span>Discovered Devices</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="devices-grid" id="devices-list"></div>
+                        <button id="clear-results-button" class="btn btn-danger" style="margin-top: 1.5rem;">
+                            <i class="fas fa-trash"></i>
+                            Clear Results
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if request.path == url_for('docker_scan') %}
+                <!-- Docker Containers -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fab fa-docker"></i>
+                        <span>Docker Containers</span>
+                    </div>
+                    <div class="card-body">
+                        {% if containers %}
+                        <div class="devices-grid" id="docker-list">
+                            {% for container in containers %}
+                            <div class="device-card">
+                                <div class="device-header">
+                                    <div class="terminal-buttons">
+                                        <div class="terminal-button"></div>
+                                        <div class="terminal-button"></div>
+                                        <div class="terminal-button"></div>
+                                    </div>
+                                </div>
+                                <div class="device-body">
+                                    <ul class="device-info">
+                                        <li class="info-row">
+                                            <span class="info-label">Name:</span>
+                                            <span class="info-value">{{ container.name }}</span>
+                                        </li>
+                                        <li class="info-row">
+                                            <span class="info-label">ID:</span>
+                                            <span class="info-value">{{ container.id }}</span>
+                                        </li>
+                                        <li class="info-row">
+                                            <span class="info-label">Image:</span>
+                                            <span class="info-value">{{ container.image }}</span>
+                                        </li>
+                                        <li class="info-row">
+                                            <span class="info-label">IP Address:</span>
+                                            <span class="info-value">{{ container.ip }}</span>
+                                        </li>
+                                        <li class="info-row">
+                                            <span class="info-label">Status:</span>
+                                            <span class="info-value">{{ container.status }}</span>
+                                        </li>
+                                        <li class="info-row">
+                                            <span class="info-label">Open Ports:</span>
+                                            <span class="info-value">
+                                                {% if container.open_ports %}
+                                                    {% for port, binding in container.open_ports.items() %}
+                                                        <span class="port-tag">{{ port }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    None
+                                                {% endif %}
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="message-box warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>No Docker containers found.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            updateBreadcrumbs();
+            updateActiveNavItem();
+            // Sidebar toggle for mobile
+            const toggleSidebar = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (toggleSidebar) {
+                toggleSidebar.addEventListener('click', function() {
+                    sidebar.classList.toggle('open');
+                });
+            }
+            
+            // Navigation Dropdowns
+            const navDropdowns = document.querySelectorAll('.nav-dropdown');
+            
+            navDropdowns.forEach(dropdown => {
+                const link = dropdown.querySelector('.nav-link');
+                
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    dropdown.classList.toggle('active');
+                    
+                    // Close other dropdowns
+                    navDropdowns.forEach(otherDropdown => {
+                        if (otherDropdown !== dropdown && otherDropdown.classList.contains('active')) {
+                            otherDropdown.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            // User Menu Toggle
+            const userMenuToggle = document.getElementById('userMenuToggle');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (userMenuToggle && userDropdown) {
+                userMenuToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (userDropdown.classList.contains('show') && !userMenuToggle.contains(e.target)) {
+                        userDropdown.classList.remove('show');
+                    }
+                });
+            }
+            
+            // Clear Results Button
+            const clearButton = document.getElementById('clear-results-button');
+            if (clearButton) {
+                clearButton.addEventListener('click', clearResults);
+            }
+            
+            // Network scan form submission
+            const scanForm = document.getElementById('scan-form');
+            if (scanForm) {
+                scanForm.addEventListener('submit', function(event) {
+                    startScan(event);
+                });
+            }
+            
+            // Logout functionality
+            const logoutLink = document.getElementById('logout-link');
+            const logoutButton = document.getElementById('logout-button');
+            
+            const handleLogout = function(e) {
+                e.preventDefault();
+                
+                fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error logging out:', error);
+                });
+            };
+            
+            if (logoutLink) {
+                logoutLink.addEventListener('click', handleLogout);
+            }
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', handleLogout);
+            }
+        });
+
+        function updateBreadcrumbs() {
+    const breadcrumbContainer = document.querySelector('.breadcrumb');
+    if (!breadcrumbContainer) return;
+    
+    // Get the current path and convert to readable format
+    const currentPath = window.location.pathname;
+    
+    // Clear existing breadcrumbs
+    breadcrumbContainer.innerHTML = '';
+    
+    // Always add Home as first item
+    const homeSpan = document.createElement('span');
+    homeSpan.textContent = 'Home';
+    breadcrumbContainer.appendChild(homeSpan);
+    
+    // Create the breadcrumb path based on current URL
+    const pathSegments = [];
+    
+    // Map routes to readable names
+    if (currentPath.includes('/explorer')) {
+        pathSegments.push('Explorer');
+    }
+    
+    if (currentPath.includes('/scan')) {
+        pathSegments.push('Devices');
+        pathSegments.push('Network Scan');
+    } else if (currentPath.includes('/docker_scan')) {
+        pathSegments.push('Devices');
+        pathSegments.push('Docker Scan');
+    } else if (currentPath.includes('/scan_vulns')) {
+        pathSegments.push('Vulnerabilities');
+        pathSegments.push('Live Scan');
+    } else if (currentPath.includes('/firmware_scan')) {
+        pathSegments.push('Vulnerabilities');
+        pathSegments.push('Firmware Scan');
+    } else if (currentPath.includes('/analyze_traffic')) {
+        pathSegments.push('Analyze Traffic');
+    } else if (currentPath.includes('/upload_file')) {
+        pathSegments.push('Upload Data');
+    } else if (currentPath.includes('/account')) {
+        pathSegments.push('Account');
+    } else if (currentPath.includes('/settings')) {
+        pathSegments.push('Settings');
+    } else if (currentPath.includes('/dashboard')) {
+        // Just Home is enough
+    }
+    
+    // Add each segment with chevron separators
+    pathSegments.forEach((segment, index) => {
+        // Add chevron separator
+        const chevron = document.createElement('i');
+        chevron.className = 'fas fa-chevron-right';
+        breadcrumbContainer.appendChild(chevron);
+        
+        // Add segment
+        const segmentSpan = document.createElement('span');
+        segmentSpan.textContent = segment;
+        breadcrumbContainer.appendChild(segmentSpan);
+    });
+}
+
+function updateActiveNavItem() {
+    // Clear all active classes from nav links
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Get current path
+    const currentPath = window.location.pathname;
+    
+    // Set active class based on current path
+    if (currentPath.includes('/dashboard')) {
+        setActiveNavItem('Dashboard');
+    } else if (currentPath.includes('/explorer')) {
+        setActiveNavItem('Explorer');
+    } else if (currentPath.includes('/scan')) {
+        // Open devices dropdown and highlight Network Scan
+        const deviceDropdown = document.getElementById('devicesDropdown');
+        if (deviceDropdown) {
+            deviceDropdown.classList.add('active');
+            setActiveNavItemByText('Network Scan');
+        }
+    } else if (currentPath.includes('/docker_scan')) {
+        // Open devices dropdown and highlight Docker Scan
+        const deviceDropdown = document.getElementById('devicesDropdown');
+        if (deviceDropdown) {
+            deviceDropdown.classList.add('active');
+            setActiveNavItemByText('Docker Scan');
+        }
+    } else if (currentPath.includes('/scan_vulns')) {
+        // Open vulnerabilities dropdown and highlight Live Scan
+        const vulnDropdown = document.getElementById('vulnerabilitiesDropdown');
+        if (vulnDropdown) {
+            vulnDropdown.classList.add('active');
+            setActiveNavItemByText('Live Scan');
+        }
+    } else if (currentPath.includes('/firmware_scan')) {
+        // Open vulnerabilities dropdown and highlight Firmware Scan
+        const vulnDropdown = document.getElementById('vulnerabilitiesDropdown');
+        if (vulnDropdown) {
+            vulnDropdown.classList.add('active');
+            setActiveNavItemByText('Firmware Scan');
+        }
+    } else if (currentPath.includes('/analyze_traffic')) {
+        setActiveNavItemByText('Analyze Traffic');
+    } else if (currentPath.includes('/upload_file')) {
+        setActiveNavItemByText('Upload Data');
+    } else if (currentPath.includes('/account')) {
+        setActiveNavItemByText('Account');
+    } else if (currentPath.includes('/settings')) {
+        setActiveNavItemByText('Settings');
+    }
+}
+
+// Helper function to set active class by nav item text
+function setActiveNavItemByText(text) {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        if (link.textContent.trim() === text) {
+            link.classList.add('active');
+        }
+    });
+}
+
+// Helper function to set active class by item name
+function setActiveNavItem(name) {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        if (link.textContent.trim() === name) {
+            link.classList.add('active');
+        }
+    });
+}
+
+        function startScan(event) {
+            // Prevent the default form submission
+            if (event) {
+                event.preventDefault();
+            }
+
+            const scanFormSection = document.getElementById("scan-form-section");
+            const infoSection = document.getElementById("info-section");
+            const loadingIndicator = document.getElementById("loading-indicator");
+            const scanProgress = document.getElementById("scan-progress");
+            const scanStatus = document.getElementById("scan-status");
+            const discoveredDevices = document.getElementById("discovered-devices");
+            const devicesContainer = document.getElementById("devices-list");
+
+            const networkRange = document.getElementById("network").value;
+
+            if (!networkRange) {
+                alert("Please enter a valid network range.");
+                return;
+            }
+
+            // Hide UI elements and reset state
+            scanFormSection.style.display = "none";
+            infoSection.style.display = "none";
+            loadingIndicator.style.display = "block";
+            discoveredDevices.style.display = "none";
+            devicesContainer.innerHTML = "";
+
+            // Progress animation setup
+            let progress = 0;
+            let phaseIndex = 0;
+            const scanPhases = [
+                "Initializing scan...",
+                "Discovering devices...",
+                "Identifying hosts...",
+                "Checking device status...",
+                "Scanning for open ports...",
+                "Gathering device information...",
+                "Finalizing results..."
+            ];
+
+            // Update progress function
+            function updateProgress() {
+                progress = Math.min(progress + (Math.random() * 1 + 0.3), 100);
+                scanProgress.style.width = `${progress}%`;
+                
+                // Calculate phase progress safely
+                const phaseProgress = Math.min(
+                    Math.floor((progress / 100) * scanPhases.length),
+                    scanPhases.length - 1
+                );
+                
+                if (phaseIndex !== phaseProgress) {
+                    phaseIndex = phaseProgress;
+                    scanStatus.textContent = `${scanPhases[phaseIndex]} (${Math.round(progress)}%)`;
+                }
+
+                if (progress < 100) {
+                    // Maintain consistent timing mechanism
+                    setTimeout(updateProgress, 100);
+                } else {
+                    scanStatus.textContent = "Scan complete!";
+                }
+            }
+
+            // Start the animation with setTimeout
+            setTimeout(updateProgress, 100);
+
+            // Execute scan with proper headers
+            fetch("/scan", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ network: networkRange })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || `HTTP error! Status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Complete progress bar
+                scanProgress.style.width = "100%";
+                scanStatus.textContent = "Scan complete!";
+
+                // Clear previous results
+                devicesContainer.innerHTML = "";
+
+                if (data.devices && data.devices.length > 0) {
+                    // Build all device HTML at once
+                    const deviceHTML = data.devices.map(device => `
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="terminal-buttons">
+                                <div class="terminal-button"></div>
+                                <div class="terminal-button"></div>
+                                <div class="terminal-button"></div>
+                            </div>
+                        </div>
+                        <div class="device-body">
+                            <ul class="device-info">
+                                <li class="info-row">
+                                    <span class="info-label">IP:</span>
+                                    <span class="info-value">${device.ip}</span>
+                                </li>
+                                <li class="info-row">
+                                    <span class="info-label">MAC:</span>
+                                    <span class="info-value">${device.mac}</span>
+                                </li>
+                                <li class="info-row">
+                                    <span class="info-label">Manufacturer:</span>
+                                    <span class="info-value">${device.manufacturer || "Unknown"}</span>
+                                </li>
+                                <li class="info-row">
+                                    <span class="info-label">Open Ports:</span>
+                                    <span class="info-value">
+                                        ${device.open_ports && device.open_ports.length > 0 ? 
+                                            device.open_ports.map(port => `
+                                                <span class="port-tag">${port}</span>
+                                            `).join("") : "None"}
+                                    </span>
+                                </li>
+                                <li class="info-row">
+                                    <span class="info-label">Status:</span>
+                                    <span class="info-value">
+                                        <span class="status-indicator ${device.status === 'online' ? 'online' : 'offline'}"></span>
+                                        ${device.status === 'online' ? "Online" : "Offline"}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    `).join("");
+
+                    devicesContainer.innerHTML = deviceHTML;
+                } else {
+                    // Show no devices message
+                    devicesContainer.innerHTML = `
+                        <div class="message-box warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>No devices found. Try a different network range.</p>
+                        </div>
+                    `;
+                }
+
+                discoveredDevices.style.display = "block";
+            })
+            .catch(error => {
+                console.error("Scan error:", error);
+                scanStatus.textContent = "Scan failed. Please try again.";
+                devicesContainer.innerHTML = `
+                    <div class="message-box error">
+                        <i class="fas fa-times-circle"></i>
+                        <p>Scan failed: ${error.message}</p>
+                    </div>
+                `;
+                discoveredDevices.style.display = "block";
+            })
+            .finally(() => {
+                loadingIndicator.style.display = "none";
+            });
+        }
+
+        function clearResults() {
+    // Option 1: Full page refresh (simplest approach)
+    window.location.reload();
+    
+    // Option 2: Manual reset without page refresh
+    // Uncomment this block and comment out the window.location.reload() 
+    // above if you prefer to reset without a full page refresh
+    
+    // Get all relevant elements
+    const discoveredDevices = document.getElementById("discovered-devices");
+    const devicesContainer = document.getElementById("devices-list");
+    const scanFormSection = document.getElementById("scan-form-section");
+    const infoSection = document.getElementById("info-section");
+    const networkInput = document.getElementById("network");
+    const loadingIndicator = document.getElementById("loading-indicator");
+    
+    // Hide results and loading indicator
+    discoveredDevices.style.display = "none";
+    loadingIndicator.style.display = "none";
+    
+    // Clear the devices list
+    devicesContainer.innerHTML = "";
+    
+    // Show form and info section
+    scanFormSection.style.display = "block";
+    infoSection.style.display = "block";
+    
+    // Reset the form input
+    if (networkInput) {
+        networkInput.value = "";
+    }
+    
+    // Reset scan progress and status text if they exist
+    const scanProgress = document.getElementById("scan-progress");
+    const scanStatus = document.getElementById("scan-status");
+    
+    if (scanProgress) {
+        scanProgress.style.width = "0%";
+    }
+    
+    if (scanStatus) {
+        scanStatus.textContent = "Initializing scan...";
+    }
+    
+}
+    </script>
+</body>
+</html>

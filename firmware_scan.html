@@ -1,0 +1,3654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Tracker - Firmware Vulnerability Scan</title>
+    <!-- Import fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Import Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        :root {
+            /* Primary colors from login screen */
+            --primary: #0F4C75;
+            --primary-light: #3282B8;
+            --primary-dark: #0e3c5c;
+            --secondary: #16a085;
+            --secondary-dark: #138a72;
+            --accent: #1B262C;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+            
+            /* Neutral colors */
+            --background: #f5f7fa;
+            --foreground: #2D3748;
+            --card: #ffffff;
+            --card-foreground: #1A202C;
+            --border: #E2E8F0;
+            --input: #EDF2F7;
+            
+            /* Dark theme colors */
+            --dark-background: #1B262C;
+            --dark-foreground: #f5f7fa;
+            --dark-card: #2E3E4E;
+            --dark-card-foreground: #E2E8F0;
+            --dark-border: #3D4D5C;
+            --dark-input: #2E3E4E;
+            
+            /* Additional styles */
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 6px 12px -2px rgba(0, 0, 0, 0.1), 0 3px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-theme {
+            --background: var(--dark-background);
+            --foreground: var(--dark-foreground);
+            --card: var(--dark-card);
+            --card-foreground: var(--dark-card-foreground);
+            --border: var(--dark-border);
+            --input: var(--dark-input);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.95rem;
+        }
+
+        /* Layout Containers */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 50;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: translateY(-2px);
+}
+
+.logo {
+    height: 2.5rem;
+    width: 2.5rem;
+    filter: drop-shadow(0 0 10px rgba(50, 130, 184, 0.5));
+    transition: all 0.3s ease;
+    border-radius: 50%;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 15px rgba(50, 130, 184, 0.8));
+    transform: rotate(5deg);
+}
+
+.tool-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.tool-name::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3282B8, #16a085);
+    transition: width 0.3s ease;
+}
+
+.logo-container:hover .tool-name::after {
+    width: 100%;
+}
+
+        .sidebar-content {
+            padding: 1.25rem 0;
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-content {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-dropdown.active .nav-dropdown-content {
+            display: block;
+        }
+
+        .nav-dropdown-item {
+            padding: 0.625rem 1.5rem 0.625rem 3.5rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        .nav-dropdown-toggle {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s ease;
+        }
+
+        .nav-dropdown.active .nav-dropdown-toggle {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-footer img {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .sidebar-footer-info {
+            flex: 1;
+        }
+
+        .sidebar-footer-info span {
+            display: block;
+        }
+
+        .sidebar-footer-info .username {
+            font-weight: 500;
+            color: white;
+        }
+
+        .sidebar-footer-info .role {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #scan-progress {
+        background: linear-gradient(to right, #0F4C75, #3282B8) !important;
+        height: 100% !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        transition: width 0.3s ease !important;
+    }
+    
+    .progress-bar {
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: var(--foreground);
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--foreground);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb i {
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+
+        .top-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .nav-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--foreground);
+            cursor: pointer;
+            position: relative;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-action:hover {
+            background-color: var(--input);
+        }
+
+        .nav-action-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.65rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .online-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--foreground);
+        }
+
+        .online-dot {
+            height: 0.625rem;
+            width: 0.625rem;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .online-dot::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+            background-color: var(--success);
+            opacity: 0.4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1.7);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: var(--border-radius);
+        }
+
+        .user-menu-toggle:hover {
+            background-color: var(--input);
+        }
+
+        .user-menu-toggle img {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-menu-toggle i {
+            font-size: 0.8rem;
+            color: var(--foreground);
+            opacity: 0.6;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            min-width: 180px;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--card-foreground);
+            text-decoration: none;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--input);
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-header i {
+            font-size: 1.25rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--card-foreground);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background-color: var(--card);
+            color: var(--card-foreground);
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(50, 130, 184, 0.15);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #a0aec0;
+        }
+
+        .form-text {
+            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(15, 76, 117, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Info Banner */
+        .info-banner {
+            display: flex;
+            background: linear-gradient(to right, #f1f9ff, #e6f7ff);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .info-banner:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .info-icon {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-icon i {
+            font-size: 2rem;
+        }
+
+        .info-content {
+            padding: 1.5rem;
+            flex: 1;
+        }
+
+        .info-content h3 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .info-content p {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            color: var(--foreground);
+        }
+
+        .info-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .feature i {
+            color: var(--primary);
+        }
+
+        /* Alert Styles */
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .alert-warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            border-left: 4px solid var(--warning);
+            color: var(--warning);
+        }
+
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+        }
+
+        /* Loading Indicator */
+        #loading-indicator {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            height: 0.75rem;
+            background-color: var(--border);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            border-radius: var(--border-radius);
+            transition: width 0.3s ease;
+        }
+
+        #scan-status {
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Loading Messages */
+        .loading-message-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .loading-message {
+            color: var(--primary-light);
+            font-style: italic;
+            animation: fadeInOut 4s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* Server Restart Warning */
+        #server-restart-warning {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+        }
+
+        /* Firmware Scan Specific Styles */
+        .firmware-scan-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 0;
+        }
+
+        .scan-form-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .scan-form-container .form-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .scan-form-container .form-body {
+            background-color: var(--card);
+            padding: 1.5rem;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            border: 1px solid var(--border);
+            border-top: none;
+            box-shadow: var(--shadow);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .scan-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .scan-button:hover {
+            background-color: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(15, 76, 117, 0.3);
+        }
+
+        /* Loading Indicator */
+        #firmware-loading {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .loading-indicator i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .analysis-stage {
+            background-color: rgba(15, 76, 117, 0.1);
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        .stage-icon {
+            margin-right: 0.5rem;
+        }
+
+        .stage-details {
+            display: block;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        /* Risk Visualization */
+        .risk-visualization {
+            background-color: var(--card);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .risk-meter {
+            height: 2rem;
+            background-color: var(--border);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .risk-level {
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: linear-gradient(90deg, 
+                var(--success) 0%, 
+                var(--warning) 50%, 
+                var(--danger) 100%);
+            transition: width 1s ease;
+        }
+
+        .risk-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .risk-legend {
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .risk-legend span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .risk-legend .critical i { color: var(--danger); }
+        .risk-legend .high i { color: #ff9800; }
+        .risk-legend .medium i { color: var(--warning); }
+        .risk-legend .low i { color: var(--success); }
+
+        /* Results Section Styling */
+        .result-section {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .section-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .section-header:hover {
+            background-color: var(--input);
+        }
+
+        .section-content {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .result-section.critical .section-header {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .result-section.high .section-header {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+        }
+
+        .result-section.medium .section-header {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .result-section.warning .section-header {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .result-section.info .section-header {
+            background-color: rgba(41, 128, 185, 0.1);
+            color: #2980b9;
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .section-header.collapsed .dropdown-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .section-content.collapsed {
+            display: none;
+        }
+
+        /* Result Grid */
+        .result-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        .result-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+        .result-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Severity Badges */
+        .severity-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--border-radius);
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .severity-badge.critical {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .severity-badge.high {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .severity-badge.medium {
+            background-color: var(--warning);
+            color: black;
+        }
+
+        .severity-badge.warning {
+            background-color: var(--warning);
+            color: black;
+        }
+
+        .severity-badge.low {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .severity-badge.info {
+            background-color: #2980b9;
+            color: white;
+        }
+
+        /* File Visualization */
+        .file-visualization {
+            background-color: var(--input);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .file-map {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .file-tree-line {
+            white-space: pre;
+        }
+
+        .file-tree-line.warning {
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        /* Additional Content Styling */
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .meta-item:last-child {
+            border-bottom: none;
+        }
+
+        .meta-label {
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .meta-value {
+            color: var(--primary);
+        }
+
+        .cve-id a {
+            color: var(--danger);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .cve-id a:hover {
+            text-decoration: underline;
+        }
+
+        .cve-summary {
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+
+        .cve-score {
+            font-weight: 500;
+        }
+
+        .file-path {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--foreground);
+        }
+
+        .matched-content {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--input);
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+        }
+
+        .crypto-algorithm {
+            color: var(--danger);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .lib-path {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .lib-info {
+            color: var(--foreground);
+            font-size: 0.9rem;
+        }
+
+        .lib-info .version {
+            color: var(--primary);
+            margin-left: 0.5rem;
+        }
+
+        /* Priority Actions Section */
+        .priority-actions {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .priority-actions h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--border-radius);
+            border-left: 4px solid;
+            background-color: var(--input);
+        }
+
+        .action-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .action-item i {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .action-item span {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .action-item.critical {
+            border-color: var(--danger);
+            background-color: rgba(231, 76, 60, 0.05);
+        }
+
+        .action-item.critical i {
+            color: var(--danger);
+        }
+
+        .action-item.high {
+            border-color: #ff9800;
+            background-color: rgba(255, 152, 0, 0.05);
+        }
+
+        .action-item.high i {
+            color: #ff9800;
+        }
+
+        .action-item.warning {
+            border-color: var(--warning);
+            background-color: rgba(243, 156, 18, 0.05);
+        }
+
+        .action-item.warning i {
+            color: var(--warning);
+        }
+
+        .action-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-button:hover {
+            background-color: var(--primary-dark);
+            box-shadow: var(--shadow);
+        }
+
+        /* Plain Language Styling */
+        .plain-language {
+    display: flex;
+    width: 100%;
+    margin: 0.75rem 0;
+    line-height: 1.5;
+}
+
+/* Restructure the plain-language container */
+.plain-language i {
+    color: var(--primary);
+    margin-right: 0.75rem;
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+}
+
+.plain-language-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.plain-language strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.plain-language span {
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+        .user-guidance {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .guidance-button {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .guidance-button:hover {
+            background-color: #219653;
+            box-shadow: var(--shadow);
+        }
+
+        /* Report Header with Download Button */
+        .report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.report-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.download-button {
+    background-color: var(--success);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.download-button:hover {
+    background-color: #219653;
+    box-shadow: var(--shadow);
+    color: white;
+}
+
+.download-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Style for PDF button to differentiate */
+.download-button.pdf-button {
+    background-color: var(--primary);
+}
+
+.download-button.pdf-button:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .report-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .report-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .download-button {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+        /* Security Guides */
+        .security-guides {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .security-guides h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .guide {
+            display: none;
+            background-color: var(--input);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .guide.visible {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .guide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .guide-header h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .close-guide {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--foreground);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+
+        .close-guide:hover {
+            opacity: 1;
+        }
+
+        .guide ol {
+            padding-left: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .guide li {
+            margin-bottom: 1rem;
+        }
+
+        .guide li strong {
+            display: block;
+            margin-bottom: 0.25rem;
+            color: var(--foreground);
+        }
+
+        .guide li p {
+            margin: 0.25rem 0;
+        }
+
+        .code-example {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--card);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+
+        /* Clear Results Button */
+        .clear-results-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .clear-results-button {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .clear-results-button:hover {
+            background-color: #c0392b;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Error Section */
+        .scan-error-section {
+            background-color: rgba(231, 76, 60, 0.05);
+            border-left: 4px solid var(--danger);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .scan-error-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .error-content {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .error-guidance {
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        /* Dark Theme Adjustments */
+        .dark-theme .info-banner {
+            background: linear-gradient(to right, #1a3c5a, #0d2137);
+        }
+
+        .dark-theme .feature {
+            background-color: var(--dark-card);
+        }
+
+        .dark-theme .scan-error-section {
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        .dark-theme .result-section.critical .section-header {
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+
+        .dark-theme .result-section.warning .section-header {
+            background-color: rgba(243, 156, 18, 0.2);
+        }
+
+        .dark-theme .result-section.info .section-header {
+            background-color: rgba(41, 128, 185, 0.2);
+        }
+
+        .dark-theme .action-item.critical {
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        .dark-theme .action-item.high {
+            background-color: rgba(255, 152, 0, 0.1);
+        }
+
+        .dark-theme .action-item.warning {
+            background-color: rgba(243, 156, 18, 0.1);
+        }
+
+        .dark-theme .matched-content,
+        .dark-theme .code-example {
+            background-color: var(--dark-input);
+        }
+
+        .dark-theme .guide {
+            background-color: var(--dark-input);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                height: 100vh;
+                z-index: 1000;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .toggle-sidebar {
+                display: block;
+            }
+
+            .info-banner {
+                flex-direction: column;
+            }
+
+            .info-icon {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+                padding: 1rem;
+            }
+
+            .action-button {
+                margin-top: 0.5rem;
+            }
+
+            .report-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body class="{% if session.get('theme') == 'dark' %}dark-theme{% else %}{% endif %}">
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='Untitled design.png') }}" alt="IoT Tracker Logo" class="logo">
+                    <span class="tool-name">IoT<span>TRACKER</span></span>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="nav-section">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">
+                        <i class="fas fa-th-large"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('explorer') }}" class="nav-link">
+                        <i class="fas fa-compass"></i> Explorer
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    
+                    <div class="nav-dropdown" id="devicesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-microchip"></i> Devices
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-wifi"></i> Network Scan
+                            </a>
+                            <a href="{{ url_for('docker_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fab fa-docker"></i> Docker Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-dropdown active" id="vulnerabilitiesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-shield-alt"></i> Vulnerabilities
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan_vulns') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-search"></i> Live Scan
+                            </a>
+                            <a href="{{ url_for('firmware_scan') }}" class="nav-link nav-dropdown-item active">
+                                <i class="fas fa-file-code"></i> Firmware Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('analyze_traffic_route') }}" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Analyze Traffic
+                    </a>
+                    
+                    <a href="{{ url_for('upload_file') }}" class="nav-link">
+                        <i class="fas fa-upload"></i> Upload Data
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="{{ url_for('account') }}" class="nav-link">
+                        <i class="fas fa-user-circle"></i> Account
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="nav-link">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                <div class="sidebar-footer-info">
+                    <span class="username">{{ username }}</span>
+                    <span class="role">Administrator</span>
+                </div>
+                <a href="#" id="logout-button" class="nav-action" data-tooltip="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Top Navigation -->
+            <header class="top-nav">
+                <div class="nav-left">
+                    <button class="toggle-sidebar" id="toggleSidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb">
+                        <span>Home</span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Vulnerabilities</span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Firmware Scan</span>
+                    </div>
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="online-status">
+                        <span class="online-dot"></span>
+                        <span>Online</span>
+                    </div>
+                    
+                    <button class="nav-action" data-tooltip="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="nav-action-badge">3</span>
+                    </button>
+                    
+                    <div class="user-menu">
+                        <div class="user-menu-toggle" id="userMenuToggle">
+                            <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        
+                        <div class="dropdown-menu" id="userDropdown">
+                            <a href="{{ url_for('account') }}" class="dropdown-item">
+                                <i class="fas fa-user-circle"></i>
+                                <span>Account</span>
+                            </a>
+                            <a href="{{ url_for('settings') }}" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </a>
+                            <a href="#" id="logout-link" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content Area -->
+            <div class="content">
+                <div class="firmware-scan-container" id="main-container">
+                    {% set results = results or {} %}
+                    {% set risk = {'percentage': risk_percentage} if risk_percentage else {} %}
+                    {% set critical_count = critical_count or 0 %}
+                    {% set high_count = high_count or 0 %}
+                    {% set medium_count = medium_count or 0 %}
+                    {% set low_count = low_count or 0 %}
+                    
+                    <!-- Error Section -->
+                    <div id="firmware-error" class="scan-error-section" style="display: none;" role="alert">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Analysis Error</h3>
+                        <div class="error-content" id="firmware-error-message"></div>
+                        <div class="error-guidance" id="firmware-error-guidance"></div>
+                    </div>
+                    
+                    <!-- Error Message from Server -->
+                    {% if error %}
+                    <div class="scan-error-section" role="alert">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Analysis Error</h3>
+                        <div class="error-content">{{ error }}</div>
+                        <div class="error-guidance">
+                            Please ensure your firmware file is valid and try again. 
+                            If the problem persists, contact support.
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- File Upload Form -->
+                    <div class="scan-form-container">
+                        <form method="POST" enctype="multipart/form-data" id="firmware-form" 
+                              onsubmit="event.preventDefault(); submitFirmwareForm(this);">
+                            <div class="form-header">
+                                <i class="fas fa-file-archive"></i>
+                                <span>Firmware Vulnerability Analysis - Upload Firmware for Analysis</span>
+                            </div>
+                            
+                            <div class="form-body">
+                                <div class="input-group">
+                                    <label for="firmware-file">
+                                        <i class="fas fa-microchip"></i>
+                                        <span>Select Firmware File:</span>
+                                    </label>
+                                    <input type="file" 
+                                           id="firmware-file" 
+                                           name="firmware" 
+                                           accept=".bin,.img,.hex,.rom,.zip"
+                                           required
+                                           aria-describedby="file-help">
+                                    <small id="file-help" class="form-text">
+                                        Supported formats: BIN, IMG, HEX, ROM, ZIP (Max 500MB)
+                                    </small>
+                                </div>
+                                
+                                <button type="submit" class="scan-button">
+                                    <i class="fas fa-microscope"></i>
+                                    <span>Analyze Firmware</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Form and Info Section -->
+                    <div id="form-info-section">
+                        <!-- Info Banner -->
+                        <div class="info-banner">
+                            <div class="info-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="info-content">
+                                <h3>Firmware Analysis Features</h3>
+                                <p>Comprehensive security analysis for IoT firmware images. Upload a firmware file to detect vulnerabilities, hardcoded credentials, and outdated components.</p>
+                                <div class="info-features">
+                                    <div class="feature">
+                                        <i class="fas fa-user-secret"></i>
+                                        <span>Credential Scanning</span>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-bug"></i>
+                                        <span>CVE Detection</span>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span>Security Audit</span>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-file-archive"></i>
+                                        <span>Binary Analysis</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading Indicator -->
+                    <div id="loading-indicator" style="display: none;" role="status" aria-live="polite">
+                        <i class="fa fa-spinner fa-spin fa-2x" style="color: var(--primary); margin-bottom: 1rem;"></i>
+                        <h3 id="scan-phase">Scanning firmware...</h3>
+                        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <div class="progress" id="scan-progress" style="width: 0%;"></div>
+                        </div>
+                        <div id="scan-status">Initializing firmware scan...</div>
+                        <div id="server-restart-warning" style="display: none;">
+                            <i class="fas fa-exclamation-triangle"></i> Server restarted during scan. Progress will continue automatically.
+                        </div>
+                        <div id="loading-message-container" class="loading-message-container" aria-live="polite">
+                            <div id="loading-message" class="loading-message">Unpacking firmware contents...</div>
+                        </div>
+                    </div>
+
+                    <!-- Task Progress (only shown when task_id is present but no results yet) -->
+                    {% if task_id and not results %}
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-tasks"></i>
+                            <span>Firmware Analysis Progress</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress-bar">
+                                <div class="progress" id="task-progress" style="width: 0%"></div>
+                            </div>
+                            <div id="scan-status-message" class="text-center">Processing firmware...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Store task_id in a hidden input for JavaScript to access -->
+                    <input type="hidden" id="hidden-task-id" value="{{ task_id }}">
+                    {% endif %}
+                    
+                    {% if results %}
+                    <div class="security-report">
+                        <!-- Risk Visualization -->
+                        <div class="risk-visualization">
+                            <div class="risk-meter">
+                                <div class="risk-level" 
+                                     data-risk-percentage="{{ risk.percentage|default(0) }}">
+                                </div>
+                                <span class="risk-text">
+                                    {{ risk.percentage|default(0) }}% Security Risk
+                                </span>
+                            </div>
+                            <div class="risk-legend">
+                                <span class="critical"><i class="fas fa-circle"></i> Critical ({{ critical_count|default(0) }})</span>
+                                <span class="high"><i class="fas fa-circle"></i> High ({{ high_count|default(0) }})</span>
+                                <span class="medium"><i class="fas fa-circle"></i> Medium ({{ medium_count|default(0) }})</span>
+                                <span class="low"><i class="fas fa-circle"></i> Low ({{ low_count|default(0) }})</span>
+                            </div>
+                        </div>
+
+                        <!-- Priority Actions Section -->
+                        <div class="priority-actions">
+                            <h3><i class="fas fa-first-aid"></i> Immediate Security Priorities</h3>
+                            
+                            {% if results.hardcoded_creds %}
+                            <div class="action-item critical">
+                                <i class="fas fa-user-secret"></i>
+                                <span>Change passwords in {{ results.hardcoded_creds|length }} files</span>
+                                <button onclick="showGuide('password-guide')" class="action-button">
+                                    <i class="fas fa-wrench"></i> How to Fix
+                                </button>
+                            </div>
+                            {% endif %}
+                            
+                            {% if results.cve_findings %}
+                            <div class="action-item high">
+                                <i class="fas fa-bug"></i>
+                                <span>Patch {{ results.cve_findings|length }} vulnerabilities</span>
+                                <button onclick="showGuide('cve-patch')" class="action-button">
+                                    <i class="fas fa-band-aid"></i> Patch Instructions
+                                </button>
+                            </div>
+                            {% endif %}
+
+                            {% if results.weak_encryption %}
+                            <div class="action-item warning">
+                                <i class="fas fa-lock"></i>
+                                <span>Update {{ results.weak_encryption|length }} weak encryption implementations</span>
+                                <button onclick="showGuide('encryption-guide')" class="action-button">
+                                    <i class="fas fa-shield-alt"></i> Encryption Guide
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Analysis Results -->
+                        <div class="firmware-results">
+                            <div class="report-header">
+                                <h3><i class="fas fa-file-contract"></i> Analysis Report</h3>
+                                {% if task_id %}
+                                <div class="report-actions">
+                                    <a href="{{ url_for('firmware_scan') }}?download=true&task_id={{ task_id }}" 
+                                       class="download-button">
+                                       <i class="fas fa-download"></i> Download Full Results
+                                    </a>
+                                    <button onclick="generatePDFReport()" class="download-button pdf-button">
+                                        <i class="fas fa-file-pdf"></i> Download PDF Report
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Hardcoded Credentials -->
+                            {% if results.hardcoded_creds %}
+                            <div class="result-section critical" id="creds-section">
+                                <div class="section-header" onclick="toggleFirmwareSection('creds-section')">
+                                    <span>
+                                        <i class="fas fa-user-secret"></i> 
+                                        Potential Credentials ({{ results.hardcoded_creds|length }})
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="section-content" id="creds-section-content">
+                                    <div class="result-grid">
+                                        {% for cred in results.hardcoded_creds %}
+                                        <div class="result-item">
+                                            <div class="severity-badge critical" data-tooltip="Anyone can see these credentials">
+                                                <i class="fas fa-fire"></i> Urgent Fix Needed
+                                            </div>
+                                            <div class="plain-language">
+                                                <i class="fas fa-file-alt"></i>
+                                                <strong>Exposed Secret Found:</strong>
+                                                <span>{{ cred[1]|truncate(30) }} in {{ cred[0] }}</span>
+                                            </div>
+                                            <div class="user-guidance">
+                                                <button class="guidance-button" onclick="showGuide('password-guide')">
+                                                    <i class="fas fa-wrench"></i> Fix Passwords
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Combined SSL & Outdated Libraries Section -->
+                            {% if results.lib_issues %}
+                            <div class="result-section warning">
+                                <div class="section-header" onclick="toggleFirmwareSection('libs')">
+                                    <span>
+                                        <i class="fas fa-shield-alt"></i> 
+                                        Library Issues ({{ results.lib_issues|length }})
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="section-content" id="libs-content">
+                                    <div class="result-grid">
+                                        {% for lib in results.lib_issues %}
+                                        <div class="result-item">
+                                            <div class="severity-badge {{ 'critical' if lib.type == 'ssl' else 'warning' }}">
+                                                {{ 'SSL' if lib.type == 'ssl' else 'OUTDATED' }}
+                                            </div>
+                                            <div class="lib-path">{{ lib.path }}</div>
+                                            <div class="lib-info">
+                                                {{ lib.description }}
+                                                {% if lib.version %}<span class="version">(Version: {{ lib.version }})</span>{% endif %}
+                                            </div>
+                                            <div class="user-guidance">
+                                                <button class="guidance-button" onclick="showGuide('lib-update-guide')">
+                                                    <i class="fas fa-wrench"></i> Fix Guide
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- CVE Vulnerabilities -->
+                            {% if results.cve_findings %}
+                            <div class="result-section critical">
+                                <div class="section-header" onclick="toggleFirmwareSection('cve')">
+                                    <span>
+                                        <i class="fas fa-bug"></i> 
+                                        CVE Vulnerabilities ({{ results.cve_findings|length }})
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="section-content" id="cve-content">
+                                    <div class="result-grid">
+                                        {% for cve in results.cve_findings %}
+                                        <div class="result-item">
+                                            <div class="cve-id"><a href="{{ cve.url }}" target="_blank" rel="noopener noreferrer">{{ cve.id }}</a></div>
+                                            <div class="cve-summary">{{ cve.summary }}</div>
+                                            <div class="cve-score">CVSS: {{ cve.cvss }}</div>
+                                            <div class="severity-badge {{ 'critical' if cve.cvss|float > 7.0 else 'high' }}">
+                                                {{ 'Critical' if cve.cvss|float > 7.0 else 'High' }} Risk
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if results.shadow_entries %}
+                            <div class="result-section medium">
+                                <div class="section-header" onclick="toggleFirmwareSection('shadow')">
+                                    <span>
+                                        <i class="fas fa-shield-alt"></i>
+                                        Shadow File Analysis ({{ shadow_entries|length }})
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="section-content" id="shadow-content">
+                                    <div class="result-grid">
+                                        {% for entry in shadow_entries %}
+                                        <div class="result-item">
+                                            <div class="severity-badge {{ 'high' if entry.risk == 'high' else 'medium' }}">
+                                                {{ entry.algorithm }}
+                                            </div>
+                                            <div class="meta-item">
+                                                <span class="meta-label">User:</span>
+                                                <span class="meta-value">{{ entry.user }}</span>
+                                            </div>
+                                            <div class="meta-item">
+                                                <span class="meta-label">Hash:</span>
+                                                <span class="meta-value">{{ entry.hash|truncate(15) }}</span>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- File Structure -->
+                            {% if results.file_structure %}
+                            <div class="result-section info">
+                                <div class="section-header" onclick="toggleFirmwareSection('structure')">
+                                    <span>
+                                        <i class="fas fa-folder-tree"></i> 
+                                        File Structure
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="section-content" id="structure-content">
+                                    <div class="file-visualization">
+                                        <div class="file-map" id="file-tree">
+                                            {% for line in results.file_structure %}
+                                            <div class="file-tree-line {{ 'warning' if '⚠' in line }}">
+                                                {{ line|safe }}
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Insecure Protocols -->
+                            {% if results.insecure_protocols %}
+                            <div class="result-section warning">
+                                <div class="section-header" onclick="toggleFirmwareSection('protocols')">
+                                    <span>
+                                        <i class="fas fa-unlock"></i> 
+                                        Insecure Protocols ({{ results.insecure_protocols|length }})
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="section-content" id="protocols-content">
+                                    <div class="result-grid">
+                                        {% for proto in results.insecure_protocols %}
+                                        <div class="result-item">
+                                            <div class="severity-badge warning">WARNING</div>
+                                            <div class="file-path">{{ proto[0] }}</div>
+                                            <pre class="matched-content">{{ proto[1] }}</pre>
+                                            <div class="user-guidance">
+                                                <button class="guidance-button" onclick="showGuide('service-guide')">
+                                                    <i class="fas fa-tools"></i> Secure Protocols
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Firmware Metadata -->
+                            {% if results.metadata %}
+                            <div class="result-section info">
+                                <div class="section-header" onclick="toggleFirmwareSection('metadata')">
+                                    <span>
+                                        <i class="fas fa-info-circle"></i> 
+                                        Firmware Metadata
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="section-content" id="metadata-content">
+                                    <div class="result-grid">
+                                        <div class="result-item">
+                                            <div class="meta-item">
+                                                <span class="meta-label">Vendor:</span>
+                                                <span class="meta-value">{{ results.metadata.vendor }}</span>
+                                            </div>
+                                            <div class="meta-item">
+                                                <span class="meta-label">Version:</span>
+                                                <span class="meta-value">{{ results.metadata.version }}</span>
+                                            </div>
+                                            <div class="meta-item">
+                                                <span class="meta-label">Architecture:</span>
+                                                <span class="meta-value">{{ results.metadata.architecture }}</span>
+                                            </div>
+                                            {% if results.metadata.build_date != 'Unknown' %}
+                                            <div class="meta-item">
+                                                <span class="meta-label">Build Date:</span>
+                                                <span class="meta-value">{{ results.metadata.build_date }}</span>
+                                            </div>
+                                            {% endif %}
+                                            {% if results.metadata.platform != 'Unknown' %}
+                                            <div class="meta-item">
+                                                <span class="meta-label">Platform:</span>
+                                                <span class="meta-value">{{ results.metadata.platform }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Weak Encryption -->
+                            {% if results.weak_encryption %}
+                            <div class="result-section warning">
+                                <div class="section-header" onclick="toggleFirmwareSection('crypto')">
+                                    <span>
+                                        <i class="fas fa-lock"></i> 
+                                        Weak Encryption ({{ results.weak_encryption|length }})
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="section-content" id="crypto-content">
+                                    <div class="result-grid">
+                                        {% for crypto in results.weak_encryption %}
+                                        <div class="result-item">
+                                            <div class="severity-badge warning">WARNING</div>
+                                            <div class="file-path">{{ crypto.file }}</div>
+                                            <div class="crypto-algorithm">{{ crypto.algorithm }}</div>
+                                            <pre class="matched-content">{{ crypto.context }}</pre>
+                                            <div class="user-guidance">
+                                                <button class="guidance-button" onclick="showGuide('encryption-guide')">
+                                                    <i class="fas fa-lock"></i> Upgrade Encryption
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Insecure Services -->
+                            {% if results.insecure_services %}
+                            <div class="result-section critical">
+                                <div class="section-header" onclick="toggleFirmwareSection('services')">
+                                    <span>
+                                        <i class="fas fa-radiation-alt"></i> 
+                                        Insecure Services ({{ results.insecure_services|length }})
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="section-content" id="services-content">
+                                    <div class="result-grid">
+                                        {% for service in results.insecure_services %}
+                                        <div class="result-item">
+                                            <div class="severity-badge critical">CRITICAL</div>
+                                            <div class="file-path">{{ service[0] }}</div>
+                                            <pre class="matched-content">{{ service[1] }}</pre>
+                                            <div class="user-guidance">
+                                                <button class="guidance-button" 
+                                                        onclick="showGuide('service-guide')">
+                                                    <i class="fas fa-info-circle"></i> Mitigation Steps
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Debug Symbols -->
+                            {% if results.debug_symbols %}
+                            <div class="result-section info">
+                                <div class="section-header" onclick="toggleFirmwareSection('debug')">
+                                    <span>
+                                        <i class="fas fa-bug"></i> 
+                                        Debug Symbols ({{ results.debug_symbols|length }})
+                                    </span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="section-content" id="debug-content">
+                                    <div class="result-grid">
+                                        {% for debug in results.debug_symbols %}
+                                        <div class="result-item">
+                                            <div class="file-path">{{ debug.file }}</div>
+                                            <pre class="matched-content">Symbols Found: {{ debug.symbols|join(', ') }}</pre>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Security Guides -->
+                        <div class="security-guides">
+                            <h3><i class="fas fa-life-ring"></i> Security Fix Guides</h3>
+                            
+                            <div class="guide" id="password-guide">
+                                <div class="guide-header">
+                                    <h4><i class="fas fa-key"></i> Fixing Exposed Passwords</h4>
+                                    <button class="close-guide">&times;</button>
+                                </div>
+                                <ol>
+                                    <li>
+                                        <strong>Identify all hardcoded credentials</strong>
+                                        <p>Review all files listed in the analysis report that contain hardcoded credentials.</p>
+                                    </li>
+                                    <li>
+                                        <strong>Remove hardcoded credentials</strong>
+                                        <p>Replace hardcoded passwords with environment variables or secure credential storage.</p>
+                                        <pre class="code-example">
+// BEFORE - Insecure
+const password = "admin123";
+
+// AFTER - Secure
+const password = process.env.ADMIN_PASSWORD;</pre>
+                                    </li>
+                                    <li>
+                                        <strong>Implement secure credential management</strong>
+                                        <p>Use a secure credential management system like HashiCorp Vault or AWS Secrets Manager.</p>
+                                    </li>
+                                    <li>
+                                        <strong>Change all exposed passwords</strong>
+                                        <p>Any password that has been exposed in source code should be considered compromised and changed immediately.</p>
+                                    </li>
+                                </ol>
+                            </div>
+                            
+                            <div class="guide" id="cve-patch">
+                                <div class="guide-header">
+                                    <h4><i class="fas fa-shield-alt"></i> Patching Vulnerabilities</h4>
+                                    <button class="close-guide">&times;</button>
+                                </div> 
+                                <ol>
+                                    <li>
+                                        <strong>Check vendor security updates</strong>
+                                        <p>Visit the vendor's security page to find patches for the identified CVEs.</p>
+                                    </li>
+                                    <li>
+                                        <strong>Update vulnerable components</strong>
+                                        <p>Apply security patches or update to newer versions of the affected libraries.</p>
+                                    </li>
+                                    <li>
+                                        <strong>Test updates thoroughly</strong>
+                                        <p>Ensure that security updates don't break existing functionality.</p>
+                                    </li>
+                                    <li>
+                                        <strong>Re-run security scan</strong>
+                                        <p>After applying patches, run another scan to verify that vulnerabilities have been addressed.</p>
+                                    </li>
+                                </ol>
+                            </div>
+                            
+                            <div class="guide" id="lib-update-guide">
+                                <div class="guide-header">
+                                    <h4><i class="fas fa-wrench"></i> Library Update Guide</h4>
+                                    <button class="close-guide">&times;</button>
+                                </div>
+                                <ol>
+                                    <li>
+                                        <strong>Identify Critical Libraries</strong>
+                                        <p>Prioritize SSL/TLS libraries first, then other outdated components</p>
+                                    </li>
+                                    <li>
+                                        <strong>SSL Library Updates</strong>
+                                        <ul>
+                                            <li>Download latest OpenSSL from <a href="https://www.openssl.org/" target="_blank">openssl.org</a></li>
+                                            <li>Recompile with updated dependencies</li>
+                                            <li>Verify using: <code>openssl version</code></li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <strong>General Library Updates</strong>
+                                        <ul>
+                                            <li>Check library vendor websites for updates</li>
+                                            <li>Update package repositories: <code>sudo apt-get update</code></li>
+                                            <li>Upgrade all packages: <code>sudo apt-get upgrade</code></li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <strong>Post-Update Verification</strong>
+                                        <ul>
+                                            <li>Run <code>ldd</code> to check library dependencies</li>
+                                            <li>Verify checksums: <code>sha256sum [library]</code></li>
+                                            <li>Re-scan firmware to confirm fixes</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
+                            
+                            <div class="guide" id="service-guide">
+                                <div class="guide-header">
+                                    <h4><i class="fas fa-power-off"></i> Securing Inbound Services</h4>
+                                    <button class="close-guide">&times;</button>
+                                </div> 
+                                <ol>
+                                    <li>
+                                        <strong>Disable Unnecessary Services</strong>
+                                        <p>Disable these services in their init scripts</p>
+                                    </li>
+                                    <li>
+                                        <strong>Replace Insecure Services</strong>
+                                        <p>Replace telnetd/ftpd with SSH (OpenSSH)</p>
+                                    </li>
+                                    <li>
+                                        <strong>Remove Startup Scripts</strong>
+                                        <p>Remove unnecessary startup scripts</p>
+                                    </li>
+                                    <li>
+                                        <strong>Firewall Configuration</strong>
+                                        <p>Use firewall rules to block associated ports</p>
+                                    </li>
+                                    <li>
+                                        <strong>Example Removal</strong>
+                                        <pre class="code-example">sudo update-rc.d -f {{ service_name }} remove
+sudo rm /etc/init.d/{{ service_name }}</pre>
+                                    </li>
+                                </ol>
+                            </div>
+                            
+                            <div class="guide" id="encryption-guide">
+                                <div class="guide-header">
+                                    <h4><i class="fas fa-lock"></i> Upgrading Weak Encryption</h4>
+                                    <button class="close-guide">&times;</button>
+                                </div>
+                                <ol>
+                                    <li>
+                                        <strong>Identify weak algorithms</strong>
+                                        <p>The following algorithms are considered insecure: MD5, SHA1, DES, RC4, 3DES, Blowfish</p>
+                                    </li>
+                                    <li>
+                                        <strong>Replace with modern alternatives</strong>
+                                        <p>Use these secure alternatives instead:</p>
+                                        <ul>
+                                            <li>For hashing: SHA-256, SHA-3, or BLAKE2</li>
+                                            <li>For encryption: AES-256, ChaCha20-Poly1305</li>
+                                            <li>For key exchange: ECDHE, X25519</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <strong>Use appropriate key lengths</strong>
+                                        <p>Ensure key lengths are sufficient (e.g., 256 bits for symmetric encryption)</p>
+                                    </li>
+                                    <li>
+                                        <strong>Implement proper key management</strong>
+                                        <p>Store keys securely and rotate them regularly</p>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- Clear Results Button -->
+                        <div class="clear-results-container">
+                            <button id="clear-results-button" class="clear-results-button" onclick="clearResults()">
+                                <i class="fas fa-trash-alt"></i>
+                                Clear Results & Start New Scan
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// Constants
+const STATE = {
+    statusCheckInterval: null,
+    isScanning: false,
+    POLL_INTERVAL: 3000, // 3 seconds
+    MAX_POLLS: 300, // 5 minutes maximum
+    progressInterval: null,
+    errorCount: 0
+};
+
+// Analysis stages for firmware scan
+const ANALYSIS_STAGES = [
+    {
+        percent: 10,
+        message: "Extracting firmware contents...",
+        icon: "fa-file-archive",
+        details: "Unpacking firmware image and analyzing file structure"
+    },
+    {
+        percent: 20,
+        message: "Scanning for hardcoded credentials...",
+        icon: "fa-key",
+        details: "Detecting passwords, API keys, and other sensitive data"
+    },
+    {
+        percent: 35,
+        message: "Identifying outdated components...",
+        icon: "fa-code-branch",
+        details: "Checking libraries and binaries against version database"
+    },
+    {
+        percent: 50,
+        message: "Analyzing SSL/TLS implementations...",
+        icon: "fa-lock",
+        details: "Verifying encryption protocols and certificate handling"
+    },
+    {
+        percent: 65,
+        message: "Detecting insecure services...",
+        icon: "fa-network-wired",
+        details: "Identifying vulnerable network services and protocols"
+    },
+    {
+        percent: 75,
+        message: "Checking for known CVEs...",
+        icon: "fa-bug",
+        details: "Cross-referencing with vulnerability databases"
+    },
+    {
+        percent: 85,
+        message: "Analyzing weak encryption...",
+        icon: "fa-shield-alt",
+        details: "Identifying outdated or insecure cryptographic methods"
+    },
+    {
+        percent: 95,
+        message: "Generating security report...",
+        icon: "fa-file-contract",
+        details: "Compiling findings and preparing recommendations"
+    }
+];
+
+// Loading messages for firmware scan
+const FIRMWARE_LOADING_MESSAGES = [
+    "Unpacking firmware contents...",
+    "Scanning binary files for vulnerabilities...",
+    "Analyzing encryption implementations...",
+    "Checking for outdated components...",
+    "Detecting hardcoded credentials...",
+    "Examining network services configuration...",
+    "Identifying vulnerable libraries...",
+    "Cross-referencing with CVE database...",
+    "Analyzing firmware permissions...",
+    "Checking for debug symbols and backdoors..."
+];
+
+// DOM Content Loaded Handler
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM Content Loaded");
+
+    // Set up sidebar toggle
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (toggleSidebar) {
+        toggleSidebar.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+        });
+    }
+    
+    // Navigation Dropdowns
+    const navDropdowns = document.querySelectorAll('.nav-dropdown');
+    
+    navDropdowns.forEach(dropdown => {
+        const link = dropdown.querySelector('.nav-link');
+        
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdown.classList.toggle('active');
+            
+            // Close other dropdowns
+            navDropdowns.forEach(otherDropdown => {
+                if (otherDropdown !== dropdown && otherDropdown.classList.contains('active')) {
+                    otherDropdown.classList.remove('active');
+                }
+            });
+        });
+    });
+    
+    // User Menu Toggle
+    const userMenuToggle = document.getElementById('userMenuToggle');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    if (userMenuToggle && userDropdown) {
+        userMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (userDropdown.classList.contains('show') && !userMenuToggle.contains(e.target)) {
+                userDropdown.classList.remove('show');
+            }
+        });
+    }
+    
+    // Logout functionality
+    const logoutLink = document.getElementById('logout-link');
+    const logoutButton = document.getElementById('logout-button');
+    
+    const handleLogout = function(e) {
+        e.preventDefault();
+        
+        fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            }
+        })
+        .catch(error => {
+            console.error('Error logging out:', error);
+        });
+    };
+    
+    if (logoutLink) {
+        logoutLink.addEventListener('click', handleLogout);
+    }
+    
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+    
+    // Initialize risk meter if present
+    initializeRiskMeter();
+    
+    // Initialize section toggles (all closed by default)
+    initializeSectionToggles();
+    
+    // Initialize guide buttons
+    initializeGuideButtons();
+    
+    // Fix credential display
+    fixCredentialDisplay();
+    
+    // Check for existing task_id
+    const taskId = document.getElementById('hidden-task-id')?.value;
+    if (taskId) {
+        checkFirmwareScanStatus(taskId);
+    }
+    
+    // Check if security report exists and handle form visibility
+    const securityReport = document.querySelector('.security-report');
+    if (securityReport) {
+        // Hide form and info section
+        const formInfoSection = document.getElementById('form-info-section');
+        const scanForm = document.querySelector('.scan-form-container');
+        
+        if (formInfoSection) formInfoSection.style.display = 'none';
+        if (scanForm) scanForm.style.display = 'none';
+    }
+
+    // Make sure any clear results button is properly positioned at the end
+    positionClearButton();
+});
+
+// Form submission handler
+function submitFirmwareForm(form) {
+    const formData = new FormData(form);
+    const loadingDiv = document.getElementById('loading-indicator'); // FIXED ID HERE
+    const errorDiv = document.getElementById('firmware-error');
+    const formInfoSection = document.getElementById('form-info-section');
+    const scanForm = document.querySelector('.scan-form-container');
+    const securityReport = document.querySelector('.security-report');
+    const recommendationsSection = document.querySelector('.security-guides');
+    const mainContainer = document.getElementById('main-container');
+
+    // Store the current container height before hiding elements
+    const currentHeight = mainContainer.offsetHeight;
+    if (currentHeight > 0) {
+        mainContainer.style.minHeight = currentHeight + 'px';
+    }
+
+    // Hide everything except loading indicator
+    formInfoSection.style.display = 'none';
+    scanForm.style.display = 'none';
+    errorDiv.style.display = 'none';
+    if (securityReport) securityReport.style.display = 'none';
+    if (recommendationsSection) recommendationsSection.style.display = 'none';
+    
+    // Show loading indicator
+    loadingDiv.style.display = 'block';
+
+    // Start the loading messages
+    STATE.messageInterval = startLoadingMessages();
+
+    // Clear any existing intervals
+    if (STATE.statusCheckInterval) {
+        clearInterval(STATE.statusCheckInterval);
+        STATE.statusCheckInterval = null;
+    }
+
+    fetch('/firmware_scan', {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json().then(data => ({isJson: true, data}));
+        } else {
+            return response.text().then(text => ({isJson: false, data: text}));
+        }
+    })
+    .then(result => {
+        if (result.isJson) {
+            if (result.data.status === 'success' && result.data.task_id) {
+                STATE.isScanning = true;
+                checkFirmwareScanStatus(result.data.task_id);
+            } else {
+                throw new Error(result.data.message || 'Upload failed');
+            }
+        } else {
+            document.open();
+            document.write(result.data);
+            document.close();
+        }
+    })
+    .catch(error => {
+        // Show form again on error
+        formInfoSection.style.display = 'block';
+        scanForm.style.display = 'block';
+        loadingDiv.style.display = 'none';
+        errorDiv.style.display = 'block';
+        document.getElementById('firmware-error-message').textContent = error.message || 'An error occurred during upload';
+        
+        // Clear the loading messages interval
+        if (STATE.messageInterval) {
+            clearInterval(STATE.messageInterval);
+            STATE.messageInterval = null;
+        }
+    });
+}
+
+
+// Enhanced function to properly style the progress bar
+function styleLoadingIndicator() {
+    // Get the loading container
+    const loadingContainer = document.getElementById('loading-indicator');
+    if (!loadingContainer) return;
+    
+    // Style the loading container
+    loadingContainer.style.textAlign = 'center';
+    loadingContainer.style.padding = '2rem';
+    loadingContainer.style.backgroundColor = 'var(--card)';
+    loadingContainer.style.borderRadius = 'var(--border-radius)';
+    loadingContainer.style.boxShadow = 'var(--shadow)';
+    loadingContainer.style.marginBottom = '1.5rem';
+    
+    // Add spinning icon if not present
+    let spinnerIcon = loadingContainer.querySelector('.fa-spinner');
+    if (!spinnerIcon) {
+        const iconContainer = document.createElement('i');
+        iconContainer.className = 'fa fa-spinner fa-spin fa-2x';
+        iconContainer.style.color = 'var(--primary)';
+        iconContainer.style.marginBottom = '1rem';
+        loadingContainer.insertBefore(iconContainer, loadingContainer.firstChild);
+    }
+    
+    // Add or update the phase header
+    let phaseHeader = loadingContainer.querySelector('#scan-phase');
+    if (!phaseHeader) {
+        phaseHeader = document.createElement('h3');
+        phaseHeader.id = 'scan-phase';
+        phaseHeader.textContent = 'Scanning firmware...';
+        loadingContainer.insertBefore(phaseHeader, loadingContainer.querySelector('.progress-bar') || loadingContainer.firstChild.nextSibling);
+    }
+    
+    // Style the progress bar container
+    const progressBarContainer = loadingContainer.querySelector('.progress-bar');
+    if (progressBarContainer) {
+        // Reset any existing styles
+        progressBarContainer.removeAttribute('style');
+        
+        // Apply proper styling
+        progressBarContainer.style.height = '0.75rem';
+        progressBarContainer.style.backgroundColor = 'var(--border)';
+        progressBarContainer.style.borderRadius = 'var(--border-radius)';
+        progressBarContainer.style.overflow = 'hidden';
+        progressBarContainer.style.margin = '1rem 0';
+        progressBarContainer.style.position = 'relative';
+        progressBarContainer.style.width = '100%';
+        
+        // Set ARIA attributes
+        progressBarContainer.setAttribute('role', 'progressbar');
+        progressBarContainer.setAttribute('aria-valuemin', '0');
+        progressBarContainer.setAttribute('aria-valuemax', '100');
+        progressBarContainer.setAttribute('aria-valuenow', '0');
+    }
+    
+    // Style the progress bar itself with enhanced visibility
+    const progressBar = loadingContainer.querySelector('#scan-progress');
+    if (progressBar) {
+        // Make sure the progress bar has the right styles for visibility
+        progressBar.style.height = '100%';
+        progressBar.style.width = progressBar.style.width || '0%';
+        
+        // Set a strong, visible gradient background
+        progressBar.style.background = 'linear-gradient(to right, #0F4C75, #3282B8)';
+        
+        // Ensure border radius matches container
+        progressBar.style.borderRadius = 'var(--border-radius)';
+        
+        // Add smooth transition
+        progressBar.style.transition = 'width 0.3s ease';
+    }
+    
+    // Add status text below progress bar
+    let statusElement = document.getElementById('scan-status');
+    if (!statusElement) {
+        statusElement = document.createElement('div');
+        statusElement.id = 'scan-status';
+        statusElement.style.marginTop = '0.5rem';
+        statusElement.style.fontWeight = '500';
+        statusElement.textContent = 'Initializing firmware scan...';
+        
+        // Insert after progress bar
+        if (progressBarContainer) {
+            progressBarContainer.after(statusElement);
+        } else {
+            loadingContainer.appendChild(statusElement);
+        }
+    }
+    
+    // Add loading message container and message
+    let loadingMessageContainer = loadingContainer.querySelector('.loading-message-container');
+    if (!loadingMessageContainer) {
+        loadingMessageContainer = document.createElement('div');
+        loadingMessageContainer.className = 'loading-message-container';
+        loadingMessageContainer.style.marginTop = '1rem';
+        loadingMessageContainer.style.padding = '1rem';
+        loadingMessageContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        loadingMessageContainer.style.borderRadius = 'var(--border-radius)';
+        loadingMessageContainer.style.textAlign = 'center';
+        
+        const loadingMessage = document.createElement('div');
+        loadingMessage.id = 'loading-message';
+        loadingMessage.className = 'loading-message';
+        loadingMessage.style.color = 'var(--primary-light)';
+        loadingMessage.style.fontStyle = 'italic';
+        loadingMessage.style.animation = 'fadeInOut 4s ease-in-out infinite';
+        
+        loadingMessageContainer.appendChild(loadingMessage);
+        loadingContainer.appendChild(loadingMessageContainer);
+    }
+    
+    // Remove any unnecessary elements
+    const analysisStage = document.getElementById('analysis-stage');
+    if (analysisStage) {
+        // Replace it with scan-status for consistency
+        const text = analysisStage.textContent;
+        statusElement.textContent = text;
+        analysisStage.remove();
+    }
+    
+    // Remove any unnecessary text nodes that aren't in elements
+    Array.from(loadingContainer.childNodes).forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+            node.textContent = '';
+        }
+    });
+}
+
+// Start loading message animation - match scan_vulns.html style
+function startLoadingMessages() {
+    const FIRMWARE_LOADING_MESSAGES = [
+        "Unpacking firmware contents...",
+        "Scanning binary files for vulnerabilities...",
+        "Analyzing encryption implementations...",
+        "Checking for outdated components...",
+        "Detecting hardcoded credentials...",
+        "Examining network services configuration...",
+        "Identifying vulnerable libraries...",
+        "Cross-referencing with CVE database...",
+        "Analyzing firmware permissions...",
+        "Checking for debug symbols and backdoors..."
+    ];
+    
+    const messageElement = document.getElementById('loading-message');
+    let messageIndex = 0;
+    
+    // Display first message immediately
+    if (messageElement) {
+        messageElement.textContent = FIRMWARE_LOADING_MESSAGES[0];
+        messageElement.style.opacity = 1;
+    }
+    
+    // Cycle through messages with fade effect
+    return setInterval(() => {
+        if (messageElement) {
+            // Set opacity to 0
+            messageElement.style.opacity = 0;
+            
+            // Wait for fade out, then change text and fade in
+            setTimeout(() => {
+                messageIndex = (messageIndex + 1) % FIRMWARE_LOADING_MESSAGES.length;
+                messageElement.textContent = FIRMWARE_LOADING_MESSAGES[messageIndex];
+                messageElement.style.opacity = 1;
+            }, 500);
+        }
+    }, 3000);
+}
+
+function updateProgress(progress, message) {
+    const progressBar = document.getElementById('scan-progress');
+    if (!progressBar) return;
+    
+    // Ensure progress is within bounds
+    progress = Math.min(Math.max(progress, 0), 100);
+    
+    // Calculate the width based on percentage
+    progressBar.style.width = `${progress}%`;
+    
+    // Force the gradient background
+    progressBar.style.background = 'linear-gradient(to right, #0F4C75, #3282B8)';
+    progressBar.style.height = '100%';
+    progressBar.style.display = 'block';
+    progressBar.style.position = 'absolute';
+    progressBar.style.left = '0';
+    progressBar.style.top = '0';
+    progressBar.style.transition = 'width 0.3s ease';
+    
+    // Update the aria value for accessibility
+    const progressBarContainer = progressBar.parentElement;
+    if (progressBarContainer) {
+        progressBarContainer.setAttribute('aria-valuenow', Math.round(progress));
+        progressBarContainer.style.position = 'relative';
+        progressBarContainer.style.overflow = 'hidden';
+    }
+    
+    // Update the status message if provided
+    if (message) {
+        const statusElement = document.getElementById('scan-status');
+        if (statusElement) {
+            statusElement.textContent = `${message} (${Math.round(progress)}%)`;
+        }
+    }
+    
+    // Force browser to repaint
+    progressBar.offsetHeight;
+}
+
+// Check firmware scan status
+function checkFirmwareScanStatus(taskId) {
+    let pollCount = 0;
+    let currentProgress = 0;
+    STATE.errorCount = 0;
+    
+    // Start loading messages 
+    STATE.messageInterval = startLoadingMessages();
+    
+    // Show the loading indicator
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'block';
+        styleLoadingIndicator();
+    }
+    
+    // Simulate progress updates
+    STATE.progressInterval = setInterval(() => {
+        if (currentProgress < 90) {
+            currentProgress += Math.random() * 10;
+            currentProgress = Math.min(currentProgress, 90);
+            
+            // Find appropriate stage
+            const stage = ANALYSIS_STAGES.find(s => s.percent >= currentProgress) || ANALYSIS_STAGES[ANALYSIS_STAGES.length - 1];
+            
+            updateProgress(currentProgress, stage.message);
+            updateAnalysisStage(stage.message);
+        }
+    }, 1000);
+
+    // Set up polling interval
+    const poll = setInterval(() => {
+        pollCount++;
+        
+        fetch(`/firmware_scan_status/${taskId}?t=${Date.now()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'completed') {
+                clearInterval(poll);
+                
+                // Clear the loading messages interval
+                if (STATE.messageInterval) {
+                    clearInterval(STATE.messageInterval);
+                    STATE.messageInterval = null;
+                }
+                
+                // Set progress to 100% when complete
+                updateProgress(100);
+                
+                // Update the status message
+                const analysisStage = document.getElementById('analysis-stage');
+                if (analysisStage) {
+                    analysisStage.innerHTML = `
+                        <i class="fas fa-check-circle stage-icon" style="color: var(--success);"></i>
+                        Analysis complete! Loading results...
+                        <span class="stage-details">Preparing your security report</span>
+                    `;
+                }
+                
+                // Add a small delay before redirecting to results page
+                setTimeout(() => {
+                    // If we have a direct result URL, go there
+                    if (data.result_url) {
+                        window.location.href = data.result_url;
+                    } else {
+                        // Otherwise, reload the current page with the task ID
+                        window.location.href = `/firmware_scan?task_id=${taskId}`;
+                    }
+                }, 2000);
+            } else if (data.status === 'failed') {
+                clearInterval(poll);
+                
+                // Clear the loading messages interval
+                if (STATE.messageInterval) {
+                    clearInterval(STATE.messageInterval);
+                    STATE.messageInterval = null;
+                }
+                
+                // Show error message
+                handleScanError(data.error || 'Analysis failed');
+            } else if (pollCount >= STATE.MAX_POLLS) {
+                clearInterval(poll);
+                
+                // Clear the loading messages interval
+                if (STATE.messageInterval) {
+                    clearInterval(STATE.messageInterval);
+                    STATE.messageInterval = null;
+                }
+                
+                // Show timeout error
+                handleScanError('Analysis timed out. The firmware may be too large or complex to process.');
+            } else if (data.status === 'scanning' || data.status === 'processing') {
+                // Update progress if provided by the server
+                if (data.progress !== undefined) {
+                    updateProgress(data.progress);
+                    
+                    // Update analysis stage if provided
+                    if (data.message) {
+                        updateAnalysisStage(data.message);
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error checking scan status:', error);
+            
+            // Don't clear the interval on network errors, just try again
+            // But after 5 consecutive errors, give up
+            if (++STATE.errorCount >= 5) {
+                clearInterval(poll);
+                
+                // Clear the loading messages interval
+                if (STATE.messageInterval) {
+                    clearInterval(STATE.messageInterval);
+                    STATE.messageInterval = null;
+                }
+                
+                handleScanError('Connection error: ' + error.message);
+            }
+        });
+    }, STATE.POLL_INTERVAL);
+}
+
+// Update analysis stage display
+function updateAnalysisStage(message) {
+    const analysisStage = document.getElementById('analysis-stage');
+    if (!analysisStage) return;
+    
+    // Find an appropriate icon based on the message
+    let icon = 'fa-cog';
+    
+    if (message.includes('credential')) icon = 'fa-key';
+    else if (message.includes('CVE') || message.includes('vulnerab')) icon = 'fa-bug';
+    else if (message.includes('extract')) icon = 'fa-file-archive';
+    else if (message.includes('encrypt') || message.includes('ssl') || message.includes('tls')) icon = 'fa-lock';
+    else if (message.includes('network') || message.includes('service')) icon = 'fa-network-wired';
+    else if (message.includes('report')) icon = 'fa-file-contract';
+    
+    // Update the display
+    analysisStage.innerHTML = `
+        <i class="fas ${icon} fa-spin stage-icon"></i>
+        ${message}
+        <span class="stage-details">Server processing in progress...</span>
+    `;
+}
+
+// Function to handle scan errors
+function handleScanError(errorMessage) {
+    // Hide loading indicator
+    const loadingDiv = document.getElementById('firmware-loading');
+    if (loadingDiv) {
+        loadingDiv.style.display = 'none';
+    }
+    
+    // Show error section
+    const errorDiv = document.getElementById('firmware-error');
+    const errorMessageEl = document.getElementById('firmware-error-message');
+    const errorGuidance = document.getElementById('firmware-error-guidance');
+    
+    if (errorDiv) {
+        errorDiv.style.display = 'block';
+    }
+    
+    if (errorMessageEl) {
+        errorMessageEl.textContent = errorMessage || 'An unknown error occurred';
+    }
+    
+    if (errorGuidance) {
+        errorGuidance.innerHTML = `
+            Please try the following:
+            <ul>
+                <li>Check that the firmware file is valid and not corrupted</li>
+                <li>Try uploading a smaller firmware file</li>
+                <li>If the problem persists, contact support</li>
+            </ul>
+        `;
+    }
+    
+    // Show form again
+    const formInfoSection = document.getElementById('form-info-section');
+    const scanForm = document.querySelector('.scan-form-container');
+    
+    if (formInfoSection) {
+        formInfoSection.style.display = 'block';
+    }
+    
+    if (scanForm) {
+        scanForm.style.display = 'block';
+    }
+}
+
+// Function to initialize the risk meter
+function initializeRiskMeter() {
+    const riskLevel = document.querySelector('.risk-level');
+    const riskText = document.querySelector('.risk-text');
+    
+    if (riskLevel) {
+        const riskPercentage = parseInt(riskLevel.getAttribute('data-risk-percentage')) || 0;
+        
+        // Set text color for better visibility
+        if (riskText) {
+            riskText.style.textShadow = '0 1px 2px rgba(0, 0, 0, 0.7)';
+            riskText.style.fontWeight = '600';
+            
+            // Change text color based on risk level for better contrast
+            if (riskPercentage > 70) {
+                riskText.style.color = 'white';
+            } else if (riskPercentage < 30) {
+                riskText.style.color = 'white';
+            }
+        }
+        
+        // Ensure the gradient is visible by setting the background again
+        riskLevel.style.background = 'linear-gradient(90deg, var(--success) 0%, var(--warning) 50%, var(--danger) 100%)';
+        
+        // Animate the risk meter filling up
+        riskLevel.style.transition = 'width 1.5s ease-in-out';
+        riskLevel.style.width = '0%';
+        
+        // Set a timeout to allow the transition to work
+        setTimeout(() => {
+            riskLevel.style.width = `${riskPercentage}%`;
+        }, 300);
+    }
+}
+
+// Function to initialize section toggles
+function initializeSectionToggles() {
+    console.log("Initializing section toggles");
+    
+    // First, get all result sections
+    const sections = document.querySelectorAll('.result-section');
+    
+    sections.forEach(section => {
+        // Get section ID or create one if it doesn't exist
+        let sectionId = section.id;
+        if (!sectionId) {
+            sectionId = `section-${Math.random().toString(36).substring(2, 9)}`;
+            section.id = sectionId;
+        }
+        
+        // Find the header and content for this section
+        const header = section.querySelector('.section-header');
+        const content = section.querySelector('.section-content');
+        
+        if (header && content) {
+            // Give the content an ID if it doesn't have one
+            if (!content.id) {
+                content.id = `${sectionId}-content`;
+            }
+            
+            // Get or create the dropdown arrow
+            let arrow = header.querySelector('.dropdown-arrow');
+            if (!arrow) {
+                arrow = document.createElement('span');
+                arrow.className = 'dropdown-arrow';
+                header.appendChild(arrow);
+            }
+            
+            // Set initial state to CLOSED by default
+            content.style.display = 'none';
+            arrow.textContent = '▶';
+            
+            // Remove any existing onclick attribute
+            header.removeAttribute('onclick');
+            
+            // Add click event listener directly
+            header.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleFirmwareSection(sectionId);
+            });
+        }
+    });
+}
+
+// Function to toggle a section
+function toggleFirmwareSection(sectionId) {
+    // Find content by ID first
+    let content = document.getElementById(`${sectionId}-content`);
+    
+    // If not found, try to find it by section ID
+    if (!content) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            content = section.querySelector('.section-content');
+        }
+    }
+    
+    // Find header
+    let header = null;
+    let arrow = null;
+    
+    // Try to find header using section ID
+    const section = document.getElementById(sectionId);
+    if (section) {
+        header = section.querySelector('.section-header');
+        if (header) {
+            arrow = header.querySelector('.dropdown-arrow');
+        }
+    }
+    
+    // If still not found, use direct selector
+    if (!header) {
+        header = document.querySelector(`.section-header[onclick*="${sectionId}"]`);
+        if (header) {
+            arrow = header.querySelector('.dropdown-arrow');
+        }
+    }
+    
+    if (content && arrow) {
+        if (content.style.display === 'none' || content.style.display === '') {
+            // Expand section
+            content.style.display = 'block';
+            arrow.textContent = '▼';
+            
+            // Smooth scroll to section if it's not visible
+            if (header && !isInViewport(content)) {
+                header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } else {
+            // Collapse section
+            content.style.display = 'none';
+            arrow.textContent = '▶';
+        }
+    }
+}
+
+// Function to check if element is in viewport
+function isInViewport(element) {
+    const rect = element.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
+
+// Function to initialize guide buttons
+function initializeGuideButtons() {
+    // Close buttons for guides
+    document.querySelectorAll('.close-guide').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const guide = this.closest('.guide');
+            if (guide) {
+                guide.classList.remove('visible');
+            }
+        });
+    });
+    
+    // Show guide buttons
+    document.querySelectorAll('[onclick^="showGuide"]').forEach(button => {
+        const guideId = button.getAttribute('onclick').match(/showGuide\('(.+?)'\)/)?.[1];
+        
+        if (guideId) {
+            // Replace the onclick attribute with an event listener
+            button.removeAttribute('onclick');
+            
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                showGuide(guideId);
+            });
+        }
+    });
+}
+
+// Function to show a guide
+function showGuide(guideId) {
+    // Hide all guides first
+    document.querySelectorAll('.guide').forEach(guide => {
+        guide.classList.remove('visible');
+    });
+    
+    // Show the selected guide
+    const guide = document.getElementById(guideId);
+    if (guide) {
+        guide.classList.add('visible');
+        
+        // Ensure close button works
+        const closeButton = guide.querySelector('.close-guide');
+        if (closeButton) {
+            closeButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                guide.classList.remove('visible');
+            });
+        }
+        
+        // Smooth scroll to the guide
+        guide.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Fix credential display structure
+function fixCredentialDisplay() {
+    // Find all credential items in the credentials section
+    const credentialItems = document.querySelectorAll('#creds-section .result-item');
+    
+    credentialItems.forEach(item => {
+        const plainLanguage = item.querySelector('.plain-language');
+        
+        // Skip if already fixed or not found
+        if (!plainLanguage || plainLanguage.querySelector('.plain-language-content')) return;
+        
+        // Get the existing icon
+        const icon = plainLanguage.querySelector('i');
+        
+        // Extract the text content from the plain language div
+        const textContent = plainLanguage.textContent.trim();
+        
+        // Create new structure
+        const content = document.createElement('div');
+        content.className = 'plain-language-content';
+        
+        // Add the "Exposed Secret Found:" label as strong text
+        const label = document.createElement('strong');
+        label.textContent = 'Exposed Secret Found:';
+        content.appendChild(label);
+        
+        // Add the credential details as a span
+        const details = document.createElement('span');
+        details.textContent = textContent.replace('Exposed Secret Found:', '').trim();
+        content.appendChild(details);
+        
+        // Clear the plain language div and rebuild it
+        plainLanguage.innerHTML = '';
+        if (icon) plainLanguage.appendChild(icon.cloneNode(true));
+        plainLanguage.appendChild(content);
+    });
+}
+
+// Function to clear results
+function clearResults() {
+    if (confirm('Are you sure you want to clear all results and start a new scan?')) {
+        // Show loading state for a moment
+        const mainContainer = document.getElementById('main-container');
+        
+        if (mainContainer) {
+            mainContainer.style.opacity = '0.7';
+            mainContainer.style.pointerEvents = 'none';
+        }
+        
+        // Reset the page (reload without parameters)
+        window.location.href = window.location.pathname;
+    }
+}
+
+// Function to position the Clear Results button at the end
+function positionClearButton() {
+    const content = document.querySelector('.content');
+    const mainContainer = document.getElementById('main-container');
+    if (!content || !mainContainer) return;
+    
+    // Find the clear button
+    const clearButton = document.getElementById('clear-results-button');
+    if (!clearButton) return;
+    
+    // Find container for the button
+    let buttonContainer = clearButton.closest('.clear-results-container');
+    if (!buttonContainer) {
+        // Create container if it doesn't exist
+        buttonContainer = document.createElement('div');
+        buttonContainer.className = 'clear-results-container';
+        buttonContainer.style.textAlign = 'center';
+        buttonContainer.style.marginTop = '2rem';
+        
+        // Move button to container
+        clearButton.parentNode.removeChild(clearButton);
+        buttonContainer.appendChild(clearButton);
+    }
+    
+    // Make sure the container is at the end of mainContainer
+    mainContainer.appendChild(buttonContainer);
+}
+
+function forceProgressBarStyle() {
+  const progressBar = document.getElementById('scan-progress');
+  if (progressBar) {
+    // Force direct styles instead of using CSS variables
+    progressBar.style.background = 'linear-gradient(to right, #0F4C75, #3282B8)';
+    progressBar.style.height = '100%';
+    progressBar.style.transition = 'width 0.3s ease';
+    
+    // Ensure the parent container has the right position
+    const container = progressBar.parentElement;
+    if (container) {
+      container.style.position = 'relative';
+      container.style.overflow = 'hidden';
+    }
+  }
+}
+
+// Style the firmware progress bar to match scan_vulns.html
+function styleProgressBar() {
+    const loadingContainer = document.getElementById('firmware-loading');
+    if (!loadingContainer) return;
+    
+    // Make sure loading container has appropriate styles
+    loadingContainer.style.textAlign = 'center';
+    loadingContainer.style.padding = '2rem';
+    loadingContainer.style.backgroundColor = 'var(--card)';
+    loadingContainer.style.borderRadius = 'var(--border-radius)';
+    loadingContainer.style.boxShadow = 'var(--shadow)';
+    loadingContainer.style.marginBottom = '1.5rem';
+    
+    // Get the progress bar elements
+    const progressBarContainer = loadingContainer.querySelector('.progress-bar');
+    const progressBar = document.getElementById('firmware-progress');
+    
+    if (progressBarContainer && progressBar) {
+        // Style the container
+        progressBarContainer.style.height = '0.75rem';
+        progressBarContainer.style.backgroundColor = 'var(--border)';
+        progressBarContainer.style.borderRadius = 'var(--border-radius)';
+        progressBarContainer.style.overflow = 'hidden';
+        progressBarContainer.style.margin = '1rem 0';
+        
+        // Style the progress bar
+        progressBar.style.height = '100%';
+        progressBar.style.background = 'linear-gradient(to right, var(--primary), var(--primary-light))';
+        progressBar.style.borderRadius = 'var(--border-radius)';
+        progressBar.style.transition = 'width 0.3s ease';
+        progressBar.style.width = progressBar.style.width || '0%';
+        
+        // Add text element in the progress bar if it doesn't exist
+        if (!progressBarContainer.querySelector('.progress-text')) {
+            const progressText = document.createElement('div');
+            progressText.className = 'progress-text';
+            progressText.style.position = 'absolute';
+            progressText.style.top = '0';
+            progressText.style.left = '0';
+            progressText.style.width = '100%';
+            progressText.style.height = '100%';
+            progressText.style.display = 'flex';
+            progressText.style.alignItems = 'center';
+            progressText.style.justifyContent = 'center';
+            progressText.style.color = 'white';
+            progressText.style.fontSize = '0.75rem';
+            progressText.style.fontWeight = '600';
+            progressText.textContent = '0%';
+            
+            // Make sure container has relative positioning
+            progressBarContainer.style.position = 'relative';
+            
+            progressBarContainer.appendChild(progressText);
+        }
+    }
+    
+    // Style the loading message container
+    let loadingMessageContainer = loadingContainer.querySelector('.loading-message-container');
+    if (!loadingMessageContainer) {
+        loadingMessageContainer = document.createElement('div');
+        loadingMessageContainer.className = 'loading-message-container';
+        loadingMessageContainer.style.marginTop = '1rem';
+        loadingMessageContainer.style.padding = '1rem';
+        loadingMessageContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        loadingMessageContainer.style.borderRadius = 'var(--border-radius)';
+        loadingMessageContainer.style.textAlign = 'center';
+        
+        const loadingMessage = document.createElement('div');
+        loadingMessage.id = 'loading-message';
+        loadingMessage.className = 'loading-message';
+        loadingMessage.style.color = 'var(--primary-light)';
+        loadingMessage.style.fontStyle = 'italic';
+        loadingMessage.style.animation = 'fadeInOut 4s ease-in-out infinite';
+        
+        loadingMessageContainer.appendChild(loadingMessage);
+        loadingContainer.appendChild(loadingMessageContainer);
+    }
+    
+    // Style the analysis stage element to match scan_vulns.html
+    const analysisStage = document.getElementById('analysis-stage');
+    if (analysisStage) {
+        analysisStage.style.backgroundColor = 'rgba(15, 76, 117, 0.1)';
+        analysisStage.style.padding = '0.75rem';
+        analysisStage.style.borderRadius = 'var(--border-radius)';
+        analysisStage.style.marginTop = '1rem';
+        analysisStage.style.fontWeight = '500';
+    }
+}
+
+function generatePDFReport() {
+    // Show loading indicator
+    const downloadButton = event.currentTarget;
+    const originalContent = downloadButton.innerHTML;
+    downloadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    downloadButton.disabled = true;
+    
+    // Get the firmware results section
+    const firmwareResults = document.querySelector('.firmware-results');
+    
+    if (!firmwareResults) {
+        alert('No results to download');
+        downloadButton.innerHTML = originalContent;
+        downloadButton.disabled = false;
+        return;
+    }
+    
+    // Create a copy of the results for PDF generation
+    const pdfContent = document.createElement('div');
+    pdfContent.style.padding = '20px';
+    pdfContent.style.backgroundColor = 'white';
+    pdfContent.style.color = 'black';
+    
+    // Add header with timestamp
+    const header = document.createElement('div');
+    header.innerHTML = `
+        <h1 style="color: #0F4C75; margin-bottom: 10px;">IoT Tracker - Firmware Analysis Report</h1>
+        <p style="color: #666; margin-bottom: 20px;">Generated on: ${new Date().toLocaleString()}</p>
+    `;
+    pdfContent.appendChild(header);
+    
+    // Clone and add the results
+    const resultsClone = firmwareResults.cloneNode(true);
+    
+    // Remove any buttons from the clone
+    resultsClone.querySelectorAll('button').forEach(btn => btn.remove());
+    
+    // Expand all sections for the PDF
+    resultsClone.querySelectorAll('.section-content').forEach(content => {
+        content.style.display = 'block';
+    });
+    
+    pdfContent.appendChild(resultsClone);
+    
+    // Temporarily add to document
+    document.body.appendChild(pdfContent);
+    
+    // Generate PDF
+    html2canvas(pdfContent, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jspdf.jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: 'a4'
+        });
+        
+        const imgWidth = 210; // A4 width in mm
+        const pageHeight = 297; // A4 height in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        
+        // Add the first page
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        
+        // Add additional pages if needed
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+        
+        // Save the PDF
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        pdf.save(`firmware-analysis-report-${timestamp}.pdf`);
+        
+        // Remove temporary content
+        document.body.removeChild(pdfContent);
+        
+        // Restore button
+        downloadButton.innerHTML = originalContent;
+        downloadButton.disabled = false;
+    }).catch(error => {
+        console.error('Error generating PDF:', error);
+        alert('Failed to generate PDF. Please try again.');
+        
+        // Remove temporary content
+        if (document.body.contains(pdfContent)) {
+            document.body.removeChild(pdfContent);
+        }
+        
+        // Restore button
+        downloadButton.innerHTML = originalContent;
+        downloadButton.disabled = false;
+    });
+}
+
+// Call this function on page load to ensure progress bar is styled correctly
+document.addEventListener('DOMContentLoaded', function() {
+    // Apply styles immediately
+    styleLoadingIndicator();
+    forceProgressBarStyle();
+
+    
+    // Add a class to make sure CSS styles apply
+    const progressBar = document.getElementById('scan-progress');
+    if (progressBar) {
+        progressBar.classList.add('visible-progress');
+    }
+    
+    // Add a style tag with additional CSS to ensure the progress bar is visible
+    const styleTag = document.createElement('style');
+    styleTag.textContent = `
+        .progress {
+            background: linear-gradient(to right, #0F4C75, #3282B8) !important;
+            height: 100% !important;
+        }
+        #scan-progress {
+            background: linear-gradient(to right, #0F4C75, #3282B8) !important;
+            height: 100% !important;
+        }
+        .visible-progress {
+            background: linear-gradient(to right, #0F4C75, #3282B8) !important;
+            height: 100% !important;
+        }
+    `;
+    document.head.appendChild(styleTag);
+    
+    // Force the style update
+    styleLoadingIndicator();
+    forceProgressBarStyle();
+    setInterval(forceProgressBarStyle, 1000);
+
+
+});
+</script>
+</body>
+</html>

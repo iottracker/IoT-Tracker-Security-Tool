@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorer - IoT Tracker</title>
+    <!-- Import fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Import Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        :root {
+            /* Primary colors from login screen */
+            --primary: #0F4C75;
+            --primary-light: #3282B8;
+            --primary-dark: #0e3c5c;
+            --secondary: #16a085;
+            --secondary-dark: #138a72;
+            --accent: #1B262C;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+            
+            /* Neutral colors */
+            --background: #f5f7fa;
+            --foreground: #2D3748;
+            --card: #ffffff;
+            --card-foreground: #1A202C;
+            --border: #E2E8F0;
+            --input: #EDF2F7;
+            
+            /* Dark theme colors */
+            --dark-background: #1B262C;
+            --dark-foreground: #f5f7fa;
+            --dark-card: #2E3E4E;
+            --dark-card-foreground: #E2E8F0;
+            --dark-border: #3D4D5C;
+            --dark-input: #2E3E4E;
+            
+            /* Additional styles */
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 6px 12px -2px rgba(0, 0, 0, 0.1), 0 3px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-theme {
+            --background: var(--dark-background);
+            --foreground: var(--dark-foreground);
+            --card: var(--dark-card);
+            --card-foreground: var(--dark-card-foreground);
+            --border: var(--dark-border);
+            --input: var(--dark-input);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.95rem;
+        }
+
+        /* Layout Containers */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 50;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: translateY(-2px);
+}
+
+.logo {
+    height: 2.5rem;
+    width: 2.5rem;
+    filter: drop-shadow(0 0 10px rgba(50, 130, 184, 0.5));
+    transition: all 0.3s ease;
+    border-radius: 50%;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 15px rgba(50, 130, 184, 0.8));
+    transform: rotate(5deg);
+}
+
+.tool-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.tool-name::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3282B8, #16a085);
+    transition: width 0.3s ease;
+}
+
+.logo-container:hover .tool-name::after {
+    width: 100%;
+}
+
+        .sidebar-content {
+            padding: 1.25rem 0;
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-content {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-dropdown.active .nav-dropdown-content {
+            display: block;
+        }
+
+        .nav-dropdown-item {
+            padding: 0.625rem 1.5rem 0.625rem 3.5rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        .nav-dropdown-toggle {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s ease;
+        }
+
+        .nav-dropdown.active .nav-dropdown-toggle {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-footer img {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .sidebar-footer-info {
+            flex: 1;
+        }
+
+        .sidebar-footer-info span {
+            display: block;
+        }
+
+        .sidebar-footer-info .username {
+            font-weight: 500;
+            color: white;
+        }
+
+        .sidebar-footer-info .role {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: var(--foreground);
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--foreground);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb i {
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+
+        .top-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .nav-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--foreground);
+            cursor: pointer;
+            position: relative;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-action:hover {
+            background-color: var(--input);
+        }
+
+        .online-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--foreground);
+        }
+
+        .online-dot {
+            height: 0.625rem;
+            width: 0.625rem;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .online-dot::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+            background-color: var(--success);
+            opacity: 0.4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1.7);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: var(--border-radius);
+        }
+
+        .user-menu-toggle:hover {
+            background-color: var(--input);
+        }
+
+        .user-menu-toggle img {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-menu-toggle i {
+            font-size: 0.8rem;
+            color: var(--foreground);
+            opacity: 0.6;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            min-width: 180px;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--card-foreground);
+            text-decoration: none;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--input);
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-title i {
+            color: var(--primary);
+        }
+
+        .page-description {
+            color: var(--foreground);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Map Container */
+        .map-container {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            height: calc(100% - 5rem);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-header {
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .map-title {
+            font-weight: 600;
+            color: var(--foreground);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .map-title i {
+            color: var(--primary);
+        }
+
+        .map-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .map-action {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--input);
+            border: none;
+            border-radius: var(--border-radius);
+            color: var(--foreground);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .map-action:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .map-body {
+            flex: 1;
+            position: relative;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .map-footer {
+            padding: 0.75rem 1.25rem;
+            background-color: var(--input);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .map-stats {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .map-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .map-stat i {
+            color: var(--primary);
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                height: 100vh;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .toggle-sidebar {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--input);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body class="{% if session.get('theme') == 'dark' %}dark-theme{% else %}{% endif %}">
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='Untitled design.png') }}" alt="IoT Tracker Logo" class="logo">
+                    <span class="tool-name">IoT<span>TRACKER</span></span>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="nav-section">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">
+                        <i class="fas fa-th-large"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('explorer') }}" class="nav-link active">
+                        <i class="fas fa-compass"></i> Explorer
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    
+                    <div class="nav-dropdown" id="devicesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-microchip"></i> Devices
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-wifi"></i> Network Scan
+                            </a>
+                            <a href="{{ url_for('docker_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fab fa-docker"></i> Docker Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-dropdown" id="vulnerabilitiesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-shield-alt"></i> Vulnerabilities
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan_vulns') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-search"></i> Live Scan
+                            </a>
+                            <a href="{{ url_for('firmware_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-file-code"></i> Firmware Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('analyze_traffic_route') }}" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Analyze Traffic
+                    </a>
+                    
+                    <a href="{{ url_for('upload_file') }}" class="nav-link">
+                        <i class="fas fa-upload"></i> Upload Data
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="{{ url_for('account') }}" class="nav-link">
+                        <i class="fas fa-user-circle"></i> Account
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="nav-link">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                <div class="sidebar-footer-info">
+                    <span class="username">{{ username }}</span>
+                    <span class="role">Administrator</span>
+                </div>
+                <a href="#" id="logout-button" class="nav-action" data-tooltip="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Top Navigation -->
+            <header class="top-nav">
+                <div class="nav-left">
+                    <button class="toggle-sidebar" id="toggleSidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb">
+                        <span>Home</span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Explorer</span>
+                    </div>
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="online-status">
+                        <span class="online-dot"></span>
+                        <span>Online</span>
+                    </div>
+                    
+                    <div class="user-menu">
+                        <div class="user-menu-toggle" id="userMenuToggle">
+                            <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        
+                        <div class="dropdown-menu" id="userDropdown">
+                            <a href="{{ url_for('account') }}" class="dropdown-item">
+                                <i class="fas fa-user-circle"></i>
+                                <span>Account</span>
+                            </a>
+                            <a href="{{ url_for('settings') }}" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </a>
+                            <a href="#" id="logout-link" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content Area -->
+            <div class="content">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-compass"></i> Network Explorer
+                    </h1>
+                    <p class="page-description">
+                        Navigate through your network and discover connected devices.
+                    </p>
+                </div>
+                
+                <div class="map-container animated">
+                    <div class="map-header">
+                        <h3 class="map-title">
+                            <i class="fas fa-map-marker-alt"></i> Device Location Map
+                        </h3>
+                        <div class="map-actions">
+                            <button class="map-action" data-tooltip="Refresh" id="refresh-map">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="map-action" data-tooltip="Zoom In">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="map-action" data-tooltip="Zoom Out">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="map-action" data-tooltip="Full Screen">
+                                <i class="fas fa-expand-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="map-body">
+                        <div id="map"></div>
+                    </div>
+                    <div class="map-footer">
+                        <div class="map-stats">
+                            <div class="map-stat">
+                                <i class="fas fa-wifi"></i>
+                                <span>Devices: <strong id="device-count">Loading...</strong></span>
+                            </div>
+                            <div class="map-stat">
+                                <i class="fas fa-network-wired"></i>
+                                <span>Network: <strong id="network-info">Loading...</strong></span>
+                            </div>
+                        </div>
+                        <div>
+                            <span>Last updated: <strong id="last-updated">Just now</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Map initialization
+        let map;
+        let mapInitialized = false;
+        let deviceCount = 0;
+
+        function initializeMap() {
+            if (!mapInitialized) {
+                mapInitialized = true;
+                
+                // Initialize map with options
+                map = L.map('map', {
+                    preferCanvas: true,
+                    zoomControl: false
+                }).setView([51.505, -0.09], 13);
+
+                // Add tile layer with dark theme support
+                const isDarkMode = document.body.classList.contains('dark-theme');
+                const tileUrl = isDarkMode ? 
+                    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png' :
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                    
+                L.tileLayer(tileUrl, {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Add custom zoom controls
+                document.querySelector('.map-action:nth-child(2)').addEventListener('click', function() {
+                    map.zoomIn();
+                });
+                
+                document.querySelector('.map-action:nth-child(3)').addEventListener('click', function() {
+                    map.zoomOut();
+                });
+                
+                // Full screen toggle
+                document.querySelector('.map-action:nth-child(4)').addEventListener('click', function() {
+                    const mapContainer = document.querySelector('.map-container');
+                    if (!document.fullscreenElement) {
+                        if (mapContainer.requestFullscreen) {
+                            mapContainer.requestFullscreen();
+                        } else if (mapContainer.webkitRequestFullscreen) {
+                            mapContainer.webkitRequestFullscreen();
+                        } else if (mapContainer.msRequestFullscreen) {
+                            mapContainer.msRequestFullscreen();
+                        }
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        } else if (document.webkitExitFullscreen) {
+                            document.webkitExitFullscreen();
+                        } else if (document.msExitFullscreen) {
+                            document.msExitFullscreen();
+                        }
+                    }
+                });
+                
+                // Refresh button
+                document.getElementById('refresh-map').addEventListener('click', function() {
+                    this.classList.add('rotating');
+                    setTimeout(() => {
+                        this.classList.remove('rotating');
+                        document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+                    }, 1000);
+                });
+
+                // Geolocation logic
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const userLat = position.coords.latitude;
+                        const userLng = position.coords.longitude;
+
+                        // Get local IP and add marker
+                        getLocalIP((privateIp) => {
+                            const currentTime = new Date().toLocaleString();
+                            const userIcon = L.divIcon({
+                                className: 'custom-marker',
+                                html: `<div style="background-color: var(--primary); width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(15, 76, 117, 0.8);"></div>`,
+                                iconSize: [14, 14],
+                                iconAnchor: [7, 7]
+                            });
+                            
+                            const message = `
+                                <div style="text-align: center;">
+                                    <strong style="font-size: 1.1rem; display: block; margin-bottom: 5px; color: var(--primary);">Your Location</strong>
+                                    <div style="font-size: 0.9rem; margin-bottom: 3px;"><i class="fas fa-lock"></i> Private IP: ${privateIp}</div>
+                                    <div style="font-size: 0.9rem;"><i class="fas fa-clock"></i> Time: ${currentTime}</div>
+                                </div>
+                            `;
+
+                            L.marker([userLat, userLng], { icon: userIcon })
+                                .addTo(map)
+                                .bindPopup(message)
+                                .openPopup();
+
+                            map.setView([userLat, userLng], 13);
+                            
+                            // Add example device markers
+                            addExampleDevices(userLat, userLng);
+                            
+                            // Update network info
+                            document.getElementById('network-info').textContent = privateIp.split('.').slice(0, 3).join('.') + '.0/24';
+                        });
+                    }, () => {
+                        alert("Unable to retrieve your location.");
+                    });
+                }
+            }
+        }
+
+        // Add example devices around the user's location
+        function addExampleDevices(userLat, userLng) {
+            const devices = [
+                { 
+                    lat: userLat + 0.002, 
+                    lng: userLng + 0.003, 
+                    name: "Smart Hub", 
+                    type: "Controller", 
+                    status: "Online",
+                    ip: "192.168.1.100",
+                    mac: "00:1A:2B:3C:4D:5E",
+                    icon: "fas fa-home"
+                },
+                { 
+                    lat: userLat - 0.001, 
+                    lng: userLng + 0.002, 
+                    name: "Smart Camera", 
+                    type: "Security", 
+                    status: "Online",
+                    ip: "192.168.1.101",
+                    mac: "00:2B:3C:4D:5E:6F",
+                    icon: "fas fa-video"
+                },
+                { 
+                    lat: userLat + 0.001, 
+                    lng: userLng - 0.002, 
+                    name: "Smart Thermostat", 
+                    type: "Climate", 
+                    status: "Online",
+                    ip: "192.168.1.102",
+                    mac: "00:3C:4D:5E:6F:7G",
+                    icon: "fas fa-thermometer-half"
+                },
+                { 
+                    lat: userLat - 0.0015, 
+                    lng: userLng - 0.0015, 
+                    name: "Smart Lock", 
+                    type: "Security", 
+                    status: "Offline",
+                    ip: "192.168.1.103",
+                    mac: "00:4D:5E:6F:7G:8H",
+                    icon: "fas fa-lock"
+                },
+                { 
+                    lat: userLat + 0.0025, 
+                    lng: userLng - 0.0025, 
+                    name: "Smart Bulb", 
+                    type: "Lighting", 
+                    status: "Online",
+                    ip: "192.168.1.104",
+                    mac: "00:5E:6F:7G:8H:9I",
+                    icon: "fas fa-lightbulb"
+                }
+            ];
+            
+            devices.forEach(device => {
+                const markerColor = device.status === "Online" ? 'var(--success)' : 'var(--danger)';
+                const markerIcon = L.divIcon({
+                    className: 'device-marker',
+                    html: `<div style="background-color: ${markerColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);"></div>`,
+                    iconSize: [12, 12],
+                    iconAnchor: [6, 6]
+                });
+                
+                const popupContent = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.75rem; color: var(--primary); margin-bottom: 5px;">
+                            <i class="${device.icon}"></i>
+                        </div>
+                        <strong style="font-size: 1.1rem; display: block; margin-bottom: 5px;">${device.name}</strong>
+                        <div style="font-size: 0.9rem; margin-bottom: 3px;">Type: ${device.type}</div>
+                        <div style="font-size: 0.9rem; margin-bottom: 3px;">IP: ${device.ip}</div>
+                        <div style="font-size: 0.9rem; margin-bottom: 3px;">MAC: ${device.mac}</div>
+                        <div style="font-size: 0.9rem; margin-bottom: 5px;">
+                            Status: 
+                            <span style="color: ${device.status === 'Online' ? 'var(--success)' : 'var(--danger)'};">
+                                ${device.status}
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: center; gap: 5px; margin-top: 5px;">
+                            <button style="background: var(--primary); color: white; border: none; border-radius: 4px; padding: 3px 8px; font-size: 0.8rem; cursor: pointer;">
+                                <i class="fas fa-info-circle"></i> Details
+                            </button>
+                            <button style="background: var(--secondary); color: white; border: none; border-radius: 4px; padding: 3px 8px; font-size: 0.8rem; cursor: pointer;">
+                                <i class="fas fa-shield-alt"></i> Scan
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                L.marker([device.lat, device.lng], { icon: markerIcon })
+                    .addTo(map)
+                    .bindPopup(popupContent);
+                
+                deviceCount++;
+            });
+            
+            // Update device count
+            document.getElementById('device-count').textContent = deviceCount.toString();
+        }
+
+        // getLocalIP function
+        function getLocalIP(callback) {
+            const pc = new RTCPeerConnection({ iceServers: [] });
+            pc.createDataChannel("");
+            pc.createOffer().then(offer => pc.setLocalDescription(offer));
+            pc.onicecandidate = (event) => {
+                if (event?.candidate?.candidate) {
+                    const ipMatch = event.candidate.candidate.match(/([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/);
+                    callback(ipMatch ? ipMatch[1] : "Not Available");
+                    pc.close();
+                }
+            };
+        }
+
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+            
+            // Navigation Dropdowns
+            const navDropdowns = document.querySelectorAll('.nav-dropdown');
+            
+            navDropdowns.forEach(dropdown => {
+                const link = dropdown.querySelector('.nav-link');
+                
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    dropdown.classList.toggle('active');
+                    
+                    // Close other dropdowns
+                    navDropdowns.forEach(otherDropdown => {
+                        if (otherDropdown !== dropdown && otherDropdown.classList.contains('active')) {
+                            otherDropdown.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            // User Menu Dropdown
+            const userMenuToggle = document.getElementById('userMenuToggle');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (userMenuToggle && userDropdown) {
+                userMenuToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (userDropdown.classList.contains('show') && !userMenuToggle.contains(e.target)) {
+                        userDropdown.classList.remove('show');
+                    }
+                });
+            }
+            
+            // Sidebar toggle for mobile
+            const toggleSidebar = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (toggleSidebar) {
+                toggleSidebar.addEventListener('click', function() {
+                    sidebar.classList.toggle('open');
+                });
+            }
+            
+            // Logout functionality
+            const logoutLink = document.getElementById('logout-link');
+            const logoutButton = document.getElementById('logout-button');
+            
+            const handleLogout = function(e) {
+                e.preventDefault();
+                
+                fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        window.location.href = '/';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error logging out:', error);
+                });
+            };
+            
+            if (logoutLink) {
+                logoutLink.addEventListener('click', handleLogout);
+            }
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', handleLogout);
+            }
+            
+            // Set last updated time
+            document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+        });
+
+        // Add CSS for rotating refresh button
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes rotate {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            
+            .rotating {
+                animation: rotate 1s linear;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

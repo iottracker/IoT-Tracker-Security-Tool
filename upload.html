@@ -1,0 +1,4584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Tracker - Upload Data</title>
+    <!-- Import fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Import Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            /* Primary colors from login screen */
+            --primary: #0F4C75;
+            --primary-light: #3282B8;
+            --primary-dark: #0e3c5c;
+            --secondary: #16a085;
+            --secondary-dark: #138a72;
+            --accent: #1B262C;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+            
+            /* Neutral colors */
+            --background: #f5f7fa;
+            --foreground: #2D3748;
+            --card: #ffffff;
+            --card-foreground: #1A202C;
+            --border: #E2E8F0;
+            --input: #EDF2F7;
+            
+            /* Dark theme colors */
+            --dark-background: #1B262C;
+            --dark-foreground: #f5f7fa;
+            --dark-card: #2E3E4E;
+            --dark-card-foreground: #E2E8F0;
+            --dark-border: #3D4D5C;
+            --dark-input: #2E3E4E;
+            
+            /* Additional styles */
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 6px 12px -2px rgba(0, 0, 0, 0.1), 0 3px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-theme {
+            --background: var(--dark-background);
+            --foreground: var(--dark-foreground);
+            --card: var(--dark-card);
+            --card-foreground: var(--dark-card-foreground);
+            --border: var(--dark-border);
+            --input: var(--dark-input);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.95rem;
+        }
+
+        /* Layout Containers */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 50;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: translateY(-2px);
+}
+
+.logo {
+    height: 2.5rem;
+    width: 2.5rem;
+    filter: drop-shadow(0 0 10px rgba(50, 130, 184, 0.5));
+    transition: all 0.3s ease;
+    border-radius: 50%;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 15px rgba(50, 130, 184, 0.8));
+    transform: rotate(5deg);
+}
+
+.tool-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.tool-name::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3282B8, #16a085);
+    transition: width 0.3s ease;
+}
+
+.logo-container:hover .tool-name::after {
+    width: 100%;
+}
+
+        .sidebar-content {
+            padding: 1.25rem 0;
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-content {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-dropdown.active .nav-dropdown-content {
+            display: block;
+        }
+
+        .nav-dropdown-item {
+            padding: 0.625rem 1.5rem 0.625rem 3.5rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        .nav-dropdown-toggle {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s ease;
+        }
+
+        .nav-dropdown.active .nav-dropdown-toggle {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-footer img {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .sidebar-footer-info {
+            flex: 1;
+        }
+
+        .sidebar-footer-info span {
+            display: block;
+        }
+
+        .sidebar-footer-info .username {
+            font-weight: 500;
+            color: white;
+        }
+
+        .sidebar-footer-info .role {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: var(--foreground);
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--foreground);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb i {
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+
+        .top-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .nav-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--foreground);
+            cursor: pointer;
+            position: relative;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-action:hover {
+            background-color: var(--input);
+        }
+
+        .nav-action-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.65rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .online-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--foreground);
+        }
+
+        .online-dot {
+            height: 0.625rem;
+            width: 0.625rem;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .online-dot::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+            background-color: var(--success);
+            opacity: 0.4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1.7);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: var(--border-radius);
+        }
+
+        .user-menu-toggle:hover {
+            background-color: var(--input);
+        }
+
+        .user-menu-toggle img {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-menu-toggle i {
+            font-size: 0.8rem;
+            color: var(--foreground);
+            opacity: 0.6;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            min-width: 180px;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--card-foreground);
+            text-decoration: none;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--input);
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header .subtitle {
+            color: var(--foreground);
+            opacity: 0.7;
+            font-size: 0.95rem;
+        }
+
+        /* Progress Indicator */
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .progress-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 30px;
+            right: 30px;
+            height: 2px;
+            background-color: var(--border);
+            z-index: 1;
+        }
+
+        .progress-step {
+            position: relative;
+            z-index: 2;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--card);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--foreground);
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background-color: var(--primary-light);
+            border-color: var(--primary-light);
+            color: white;
+            box-shadow: 0 0 0 3px rgba(50, 130, 184, 0.2);
+        }
+
+        .progress-step.completed {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        /* Upload Card */
+        .upload-card {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .upload-card-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .upload-card-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .upload-card-header i {
+            font-size: 1.25rem;
+        }
+
+        .upload-card-body {
+            padding: 1.5rem;
+        }
+
+        /* Stepper */
+        .stepper {
+            margin-bottom: 2rem;
+        }
+
+        .step-container {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .step-container:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .step-header {
+            background-color: var(--input);
+            color: var(--foreground);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .step-header.active {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        .step-header.completed {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .step-header i {
+            transition: transform 0.3s ease;
+        }
+
+        .step-header.active i {
+            transform: rotate(180deg);
+        }
+
+        .step-number {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .step-content {
+            padding: 1.5rem;
+            display: none;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
+
+        .step-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Upload Form */
+        .upload-section {
+            margin: 1rem 0;
+        }
+
+        .file-input-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: var(--input);
+            color: var(--foreground);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .file-label:hover {
+            background-color: rgba(50, 130, 184, 0.1);
+        }
+
+        .scan-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .scan-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Analysis Results */
+        .analysis-results {
+            margin-top: 1.5rem;
+        }
+
+        .analysis-results h3 {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+            color: var(--foreground);
+        }
+
+        .attack-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .attack-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--primary-light);
+            transition: all 0.3s ease;
+        }
+
+        .attack-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .attack-name {
+            font-weight: 500;
+        }
+
+        .attack-count {
+            background-color: var(--input);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Alert Boxes */
+        .alert-box {
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .risk-alert {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .info-box {
+            background-color: rgba(50, 130, 184, 0.1);
+            border-left: 4px solid var(--primary-light);
+            color: var(--primary);
+        }
+
+        .success-message {
+            background-color: rgba(39, 174, 96, 0.1);
+            border-left: 4px solid var(--success);
+            color: var(--success);
+        }
+
+        .error-message {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .download-button, .next-step-btn {
+            background-color: var(--primary);
+            color: white;
+            margin-top: 1rem;
+        }
+
+        .download-button:hover, .next-step-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .option-btn {
+            background-color: var(--input);
+            color: var(--foreground);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            margin-right: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+            background-color: rgba(50, 130, 184, 0.1);
+        }
+
+        /* Question Section */
+        .question-section {
+            background-color: rgba(50, 130, 184, 0.05);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin: 1rem 0;
+        }
+
+        .question-section p {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--input);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-light), var(--primary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Correlation Results */
+        .attack-correlation {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .attack-correlation h4 {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
+
+        .cve-match {
+            background-color: rgba(39, 174, 96, 0.1);
+            border-left: 4px solid var(--success);
+            color: var(--foreground);
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .cve-match i {
+            color: var(--success);
+            font-size: 1.25rem;
+        }
+
+        .cve-item {
+            background-color: var(--input);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin: 0.75rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cve-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cve-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: 600;
+        }
+
+        .critical-severity {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .high-severity {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .medium-severity {
+            background-color: rgba(243, 156, 18, 0.05);
+            color: var(--warning);
+        }
+
+        .safe-note {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--success);
+            margin: 0.5rem 0;
+        }
+
+        /* Remediation Cards */
+        .remediation-card {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s ease;
+        }
+
+        .remediation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .remediation-header {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .critical-card .remediation-header {
+            background-color: rgba(231, 76, 60, 0.05);
+            border-left: 5px solid var(--danger);
+        }
+
+        .high-card .remediation-header {
+            background-color: rgba(243, 156, 18, 0.05);
+            border-left: 5px solid var(--warning);
+        }
+
+        .medium-card .remediation-header {
+            background-color: rgba(243, 156, 18, 0.025);
+            border-left: 5px solid var(--warning);
+        }
+
+        .attack-info h5 {
+            margin: 0;
+            color: var(--foreground);
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .severity-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        .severity-badge.critical {
+            background-color: var(--danger);
+        }
+
+        .severity-badge.high {
+            background-color: var(--warning);
+        }
+
+        .severity-badge.medium {
+            background-color: rgba(243, 156, 18, 0.8);
+        }
+
+        .remediation-body {
+            padding: 1.5rem;
+        }
+
+        .attack-description {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--foreground);
+            opacity: 0.8;
+        }
+
+        .remediation-steps {
+            background-color: rgba(50, 130, 184, 0.05);
+            padding: 1.25rem;
+            border-radius: var(--border-radius);
+        }
+
+        .remediation-steps h6 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .remediation-steps ol {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .remediation-steps li {
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        /* Severity Sections */
+        .severity-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            background-color: var(--card);
+        }
+
+        .critical-section {
+            border-left: 4px solid var(--danger);
+        }
+
+        .high-section {
+            border-left: 4px solid var(--warning);
+        }
+
+        .medium-section {
+            border-left: 4px solid rgba(243, 156, 18, 0.8);
+        }
+
+        .severity-section h4 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            color: var(--foreground);
+        }
+
+        .severity-section h4 i {
+            font-size: 1.2rem;
+        }
+
+        .critical-section h4 i {
+            color: var(--danger);
+        }
+
+        .high-section h4 i {
+            color: var(--warning);
+        }
+
+        .medium-section h4 i {
+            color: rgba(243, 156, 18, 0.8);
+        }
+
+        /* Modal */
+        .cve-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .close-button {
+            background-color: var(--input);
+            color: var(--foreground);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .close-button:hover {
+            background-color: rgba(50, 130, 184, 0.1);
+        }
+
+        /* General Remediation */
+        .general-remediation {
+            background-color: var(--card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--primary-light);
+        }
+
+        .general-remediation h4 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
+
+        .general-remediation ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .general-remediation li {
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .general-remediation li strong {
+            color: var(--primary);
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--foreground);
+            opacity: 0.7;
+            padding: 1rem;
+        }
+
+        .loading i {
+            color: var(--primary-light);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fa-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                height: 100vh;
+                z-index: 1000;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .toggle-sidebar {
+                display: block;
+            }
+
+            .options {
+                flex-direction: column;
+            }
+
+            .option-btn {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 0.75rem;
+            }
+
+            .file-input-container {
+                flex-direction: column;
+            }
+
+            .scan-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="{% if session.get('theme') == 'dark' %}dark-theme{% else %}{% endif %}">
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='Untitled design.png') }}" alt="IoT Tracker Logo" class="logo">
+                    <span class="tool-name">IoT<span>TRACKER</span></span>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="nav-section">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">
+                        <i class="fas fa-th-large"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('explorer') }}" class="nav-link">
+                        <i class="fas fa-compass"></i> Explorer
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    
+                    <div class="nav-dropdown" id="devicesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-microchip"></i> Devices
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-wifi"></i> Network Scan
+                            </a>
+                            <a href="{{ url_for('docker_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fab fa-docker"></i> Docker Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-dropdown" id="vulnerabilitiesDropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-shield-alt"></i> Vulnerabilities
+                            <i class="fas fa-chevron-down nav-dropdown-toggle"></i>
+                        </a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ url_for('scan_vulns') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-search"></i> Live Scan
+                            </a>
+                            <a href="{{ url_for('firmware_scan') }}" class="nav-link nav-dropdown-item">
+                                <i class="fas fa-file-code"></i> Firmware Scan
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('analyze_traffic_route') }}" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Analyze Traffic
+                    </a>
+                    
+                    <a href="{{ url_for('upload_file') }}" class="nav-link active">
+                        <i class="fas fa-upload"></i> Upload Data
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <a href="{{ url_for('account') }}" class="nav-link">
+                        <i class="fas fa-user-circle"></i> Account
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="nav-link">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                <div class="sidebar-footer-info">
+                    <span class="username">{{ username }}</span>
+                    <span class="role">Administrator</span>
+                </div>
+                <a href="#" id="logout-button" class="nav-action" data-tooltip="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Top Navigation -->
+            <header class="top-nav">
+                <div class="nav-left">
+                    <button class="toggle-sidebar" id="toggleSidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb">
+                        <span>Home</span>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Upload Data</span>
+                    </div>
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="online-status">
+                        <span class="online-dot"></span>
+                        <span>Online</span>
+                    </div>
+                    
+                    <button class="nav-action" data-tooltip="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="nav-action-badge">3</span>
+                    </button>
+                    
+                    <div class="user-menu">
+                        <div class="user-menu-toggle" id="userMenuToggle">
+                            <img src="https://robohash.org/{{ username }}?set=set1" alt="User Avatar">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        
+                        <div class="dropdown-menu" id="userDropdown">
+                            <a href="{{ url_for('account') }}" class="dropdown-item">
+                                <i class="fas fa-user-circle"></i>
+                                <span>Account</span>
+                            </a>
+                            <a href="{{ url_for('settings') }}" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </a>
+                            <a href="#" id="logout-link" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content Area -->
+            <div class="content">
+                <div class="page-header">
+                    <h2>Network Traffic Analysis & Vulnerability Correlation</h2>
+                    <p class="subtitle">Multi-step analysis to identify threats and vulnerabilities in your IoT devices</p>
+                </div>
+                
+                <!-- Progress indicator -->
+                <div class="progress-indicator">
+                    <div class="progress-step active" id="progress-step-1">1</div>
+                    <div class="progress-step" id="progress-step-2">2</div>
+                    <div class="progress-step" id="progress-step-3">3</div>
+                    <div class="progress-step" id="progress-step-4">4</div>
+                </div>
+                
+                <!-- Step 1: Upload and analyze traffic -->
+                <div class="step-container" id="step-container-1">
+                    <div class="step-header active" id="step-header-1">
+                        <div style="display: flex; align-items: center;">
+                            <div class="step-number">1</div>
+                            <span>Network Traffic Analysis</span>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="step-content active" id="step-content-1">
+                        <p>Upload a CSV file containing network traffic data for AI-based classification.</p>
+                        
+                        <!-- Upload Form -->
+                        <div class="upload-section">
+                            <form method="POST" enctype="multipart/form-data" class="upload-form">
+                                <div class="file-input-container">
+                                    <!-- Hidden file input -->
+                                    <input type="file" id="file" name="file" accept=".csv" required hidden>
+                                    
+                                    <!-- Custom button that triggers file input -->
+                                    <label for="file" class="file-label">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span id="file-name">Choose a CSV file</span>
+                                    </label>
+                                    
+                                    <button type="submit" class="scan-button">
+                                        <i class="fas fa-search"></i> Analyze
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Analysis Results -->
+                        {% if attack_counts %}
+                            <div class="analysis-results">
+                                <h3>Analysis Summary</h3>
+                                <p><strong>Identified Traffic Patterns:</strong></p>
+                                <ul class="attack-list">
+                                    {% for attack, count in attack_counts.items() %}
+                                        <li class="attack-item">
+                                            <span class="attack-name">{{ attack }}</span>
+                                            <span class="attack-count">{{ count }} occurrences</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                
+                                <!-- Risk Alert -->
+                                {% if attack_counts and 'NORMAL' not in attack_counts or ('NORMAL' in attack_counts and attack_counts|length > 1) %}
+                                    <div class="alert-box risk-alert">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <div>
+                                            <strong>Security Alert:</strong> Potential security risks detected in your network traffic. 
+                                            We recommend proceeding to the next step to identify vulnerabilities causing these attacks.
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <a href="{{ url_for('download_results') }}" class="btn download-button">
+                                    <i class="fas fa-download"></i> Download Labeled Results
+                                </a>
+                                
+                                <button class="btn next-step-btn" id="to-step-2">
+                                    <i class="fas fa-arrow-right"></i> Continue to Vulnerability Assessment
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Step 2: Vulnerability scan results upload -->
+                <div class="step-container" id="step-container-2">
+                    <div class="step-header" id="step-header-2">
+                        <div style="display: flex; align-items: center;">
+                            <div class="step-number">2</div>
+                            <span>Vulnerability Scan Results</span>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="step-content" id="step-content-2">
+                        <h3>Device Vulnerability Assessment</h3>
+                        <p>To correlate attacks with specific vulnerabilities, we need your device vulnerability scan results.</p>
+                        
+                        <div class="question-section">
+                            <p><strong>Have you already performed a vulnerability scan on the device that generated this traffic data?</strong></p>
+                            <div class="options">
+                                <button class="option-btn" id="yes-scan">Yes, I have scan results</button>
+                                <button class="option-btn" id="no-scan">No, I haven't scanned yet</button>
+                            </div>
+                        </div>
+                        
+                        <div id="upload-vuln-section" style="display: none;">
+                            <p>Please upload the vulnerability scan results (TXT file from Nmap scan with CVEs):</p>
+                            <div class="upload-section">
+                                <form id="vuln-upload-form" enctype="multipart/form-data">
+                                    <div class="file-input-container">
+                                        <input type="file" id="vuln-file" name="vuln-file" accept=".txt" required hidden>
+                                        <label for="vuln-file" class="file-label">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <span id="vuln-file-name">Choose TXT file</span>
+                                        </label>
+                                        <button type="submit" class="scan-button">
+                                            <i class="fas fa-upload"></i> Upload
+                                        </button>
+                                    </div>
+                                </form>
+                                
+                                <!-- Progress bar element -->
+                                <div class="progress-container" id="upload-progress-container" style="display: none;">
+                                    <div class="progress-bar" id="upload-progress-bar" style="width: 0%;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="no-scan-section" style="display: none;">
+                            <div class="alert-box info-box">
+                                <i class="fas fa-info-circle"></i>
+                                <div>
+                                    <p>Before continuing, we recommend running a vulnerability scan:</p>
+                                    <ol>
+                                        <li>Go to the <a href="{{ url_for('scan_vulns') }}">Live Scan</a> page</li>
+                                        <li>Run a scan on the device that generated this traffic</li>
+                                        <li>Save the results as a text file</li>
+                                        <li>Return here to upload those results</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <button class="option-btn" id="show-upload">I have the scan results now</button>
+                        </div>
+                        
+                        <div id="vuln-upload-success" style="display: none;">
+                            <div class="alert-box success-message">
+                                <i class="fas fa-check-circle"></i>
+                                <p><strong>Vulnerability data uploaded successfully!</strong></p>
+                            </div>
+                            <button class="btn next-step-btn" id="to-step-3">
+                                <i class="fas fa-arrow-right"></i> Continue to Correlation Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Correlation analysis -->
+                <div class="step-container" id="step-container-3">
+                    <div class="step-header" id="step-header-3">
+                        <div style="display: flex; align-items: center;">
+                            <div class="step-number">3</div>
+                            <span>Attack-Vulnerability Correlation</span>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="step-content" id="step-content-3">
+                        <h3>Correlation Analysis Results</h3>
+                        <p>Based on our analysis, we've identified the following correlations between detected attacks and vulnerabilities:</p>
+                        
+                        <div id="correlation-results">
+                            <!-- This section will be populated with JavaScript after both files are uploaded -->
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i> Analyzing correlations...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Remediation guidance -->
+                <div class="step-container" id="step-container-4">
+                    <div class="step-header" id="step-header-4">
+                        <div style="display: flex; align-items: center;">
+                            <div class="step-number">4</div>
+                            <span>Attack Remediation Guidelines</span>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="step-content" id="step-content-4">
+                        <h3><i class="fas fa-shield-alt"></i> Specific Remediation Steps</h3>
+                        <p>Based on the detected attack patterns, here are specific remediation steps to address each type of attack:</p>
+                        
+                        <div id="remediation-container">
+                            <!-- This container will be populated with remediation instructions for detected attacks -->
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i> Loading remediation guidance...
+                            </div>
+                        </div>
+                        
+                        <div class="general-remediation">
+                            <h4>General Security Hardening</h4>
+                            <ul>
+                                <li><strong>Firmware Updates:</strong> Keep all devices' firmware updated to the latest stable version</li>
+                                <li><strong>Network Segmentation:</strong> Isolate IoT devices on a separate network segment</li>
+                                <li><strong>Strong Authentication:</strong> Use unique, complex passwords and enable 2FA where available</li>
+                                <li><strong>Disable Unused Services:</strong> Turn off any services or ports that aren't required</li>
+                                <li><strong>Apply Principle of Least Privilege:</strong> Restrict permissions to the minimum needed</li>
+                                <li><strong>Regular Backups:</strong> Maintain backups of critical configurations and data</li>
+                                <li><strong>Monitoring:</strong> Implement continuous network monitoring to detect anomalies</li>
+                            </ul>
+                            
+                            <button class="btn download-button" id="download-full-report">
+                                <i class="fas fa-file-pdf"></i> Download Full Analysis Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Avatar dropdown functionality
+    const userMenuToggle = document.getElementById('userMenuToggle');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    if (userMenuToggle && userDropdown) {
+        userMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (userDropdown.classList.contains('show') && !userMenuToggle.contains(e.target)) {
+                userDropdown.classList.remove('show');
+            }
+        });
+    }
+    
+    // Sidebar toggle for mobile
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (toggleSidebar && sidebar) {
+        toggleSidebar.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+        });
+    }
+    
+    // Navigation Dropdowns
+    const navDropdowns = document.querySelectorAll('.nav-dropdown');
+    
+    navDropdowns.forEach(dropdown => {
+        const link = dropdown.querySelector('.nav-link');
+        
+        if (link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdown.classList.toggle('active');
+                
+                // Close other dropdowns
+                navDropdowns.forEach(otherDropdown => {
+                    if (otherDropdown !== dropdown && otherDropdown.classList.contains('active')) {
+                        otherDropdown.classList.remove('active');
+                    }
+                });
+            });
+        }
+    });
+    
+    // Logout functionality
+    const logoutLink = document.getElementById('logout-link');
+    const logoutButton = document.getElementById('logout-button');
+    
+    const handleLogout = function(e) {
+        e.preventDefault();
+        
+        fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            }
+        })
+        .catch(error => {
+            console.error('Error logging out:', error);
+        });
+    };
+    
+    if (logoutLink) {
+        logoutLink.addEventListener('click', handleLogout);
+    }
+    
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+    
+    // File input change listener
+    const fileInput = document.getElementById("file");
+    if (fileInput) {
+        fileInput.addEventListener("change", function() {
+            const fileName = this.files[0] ? this.files[0].name : "Choose a CSV file";
+            const fileNameElem = document.getElementById("file-name");
+            if (fileNameElem) {
+                fileNameElem.textContent = fileName;
+            }
+        });
+    }
+
+    // Add listener for vuln file too
+    const vulnFileInput = document.getElementById("vuln-file");
+    if (vulnFileInput) {
+        vulnFileInput.addEventListener("change", function() {
+            let fileName = this.files[0] ? this.files[0].name : "Choose TXT file";
+            const vulnFileNameElem = document.getElementById("vuln-file-name");
+            if (vulnFileNameElem) {
+                vulnFileNameElem.textContent = fileName;
+            }
+        });
+    }
+    
+    // Step headers click events
+    document.querySelectorAll('.step-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const stepId = this.id.split('-')[2];
+            toggleStep(stepId);
+        });
+    });
+    
+    // Next step buttons
+    const toStep2Button = document.getElementById('to-step-2');
+    if (toStep2Button) {
+        toStep2Button.addEventListener('click', function() {
+            completeStep(1);
+            openStep(2);
+        });
+    }
+    
+    const toStep3Button = document.getElementById('to-step-3');
+    if (toStep3Button) {
+        toStep3Button.addEventListener('click', function() {
+            completeStep(2);
+            openStep(3);
+            
+            // Immediately start the correlation analysis
+            populateCorrelationResults();
+        });
+    }
+    
+    // Vulnerability scan question
+    const yesScanBtn = document.getElementById('yes-scan');
+    const noScanBtn = document.getElementById('no-scan');
+    const showUploadBtn = document.getElementById('show-upload');
+    const uploadVulnSection = document.getElementById('upload-vuln-section');
+    const noScanSection = document.getElementById('no-scan-section');
+    const vulnUploadSuccess = document.getElementById('vuln-upload-success');
+
+    if (yesScanBtn && uploadVulnSection && noScanSection) {
+        yesScanBtn.addEventListener('click', function() {
+            uploadVulnSection.style.display = 'block';
+            noScanSection.style.display = 'none';
+        });
+    }
+    
+    if (noScanBtn && uploadVulnSection && noScanSection) {
+        noScanBtn.addEventListener('click', function() {
+            uploadVulnSection.style.display = 'none';
+            noScanSection.style.display = 'block';
+            
+            // Add a button to skip to next step with all possible CVEs
+            if (noScanSection) {
+                const skipToStep3Btn = document.createElement('button');
+                skipToStep3Btn.className = 'btn next-step-btn';
+                skipToStep3Btn.style.marginTop = '1rem';
+                skipToStep3Btn.innerHTML = '<i class="fas fa-arrow-right"></i> Skip to Correlation Analysis';
+                
+                skipToStep3Btn.addEventListener('click', function() {
+                    // Use default CVEs since user doesn't have scan results
+                    fetch('/use_default_cves', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            completeStep(2);
+                            openStep(3);
+                            populateCorrelationResults();
+                        } else {
+                            alert('Error loading default CVEs: ' + (data.error || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Even if there's an error, still allow proceeding to next step
+                        completeStep(2);
+                        openStep(3);
+                        populateCorrelationResults();
+                    });
+                });
+                
+                // Check if the button already exists before adding
+                if (!noScanSection.querySelector('.next-step-btn')) {
+                    noScanSection.appendChild(skipToStep3Btn);
+                }
+            }
+        });
+    }
+    
+    if (showUploadBtn && uploadVulnSection && noScanSection) {
+        showUploadBtn.addEventListener('click', function() {
+            uploadVulnSection.style.display = 'block';
+            noScanSection.style.display = 'none';
+        });
+    }
+    
+    // Add another direct option to skip vulnerability upload
+    if (document.querySelector('.step-content') && !document.getElementById('skip-vuln-upload')) {
+        const skipVulnBtn = document.createElement('button');
+        skipVulnBtn.id = 'skip-vuln-upload';
+        skipVulnBtn.className = 'option-btn';
+        skipVulnBtn.style.marginTop = '1rem';
+        skipVulnBtn.innerHTML = 'Skip vulnerability upload and use default CVEs';
+        
+    // When user chooses to skip vulnerability upload
+    skipVulnBtn.addEventListener('click', function() {
+        if (vulnUploadSuccess) {
+            vulnUploadSuccess.style.display = 'block';
+        }
+        
+        // Clear any previously uploaded CVEs
+        clearUploadedCVEs();
+        
+        // Use default CVEs
+        fetch('/use_default_cves', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Show success message
+                if (vulnUploadSuccess) {
+                    vulnUploadSuccess.style.display = 'block';
+                }
+            } else {
+                console.warn('Failed to load default CVEs, will use fallback data');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+        
+        // Add to the step 2 content
+        const step2Content = document.getElementById('step-content-2');
+        if (step2Content && !step2Content.querySelector('#skip-vuln-upload')) {
+            const questionSection = step2Content.querySelector('.question-section');
+            if (questionSection) {
+                questionSection.appendChild(skipVulnBtn);
+            }
+        }
+    }
+    
+    // Vulnerability upload form submission
+    const vulnUploadForm = document.getElementById('vuln-upload-form');
+    if (vulnUploadForm) {
+        vulnUploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            const vulnFileInput = document.getElementById('vuln-file');
+            
+            if (!vulnFileInput.files[0]) {
+                alert('Please select a file to upload.');
+                return;
+            }
+            
+            formData.append('vuln-file', vulnFileInput.files[0]);
+            
+            // Get the progress elements
+            const progressContainer = document.getElementById('upload-progress-container');
+            const progressBar = document.getElementById('upload-progress-bar');
+            
+            // Show progress bar
+            if (progressContainer) {
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+            }
+            
+            // Create and setup XMLHttpRequest
+            const xhr = new XMLHttpRequest();
+            
+            // Setup progress event
+            xhr.upload.addEventListener('progress', function(event) {
+                if (event.lengthComputable && progressBar) {
+                    const percentComplete = Math.round((event.loaded / event.total) * 100);
+                    progressBar.style.width = percentComplete + '%';
+                    
+                    if (percentComplete === 100) {
+                        // Add a processing class
+                        progressBar.classList.add('processing');
+                    }
+                }
+            });
+            
+            // Setup completion event
+            xhr.addEventListener('load', function() {
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.status === 'success') {
+                            if (progressBar) {
+                                progressBar.style.width = '100%';
+                            }
+                            
+                            setTimeout(() => {
+                                if (vulnUploadSuccess) {
+                                    vulnUploadSuccess.style.display = 'block';
+                                }
+                                if (progressContainer) {
+                                    progressContainer.style.display = 'none';
+                                }
+                            }, 500);
+                        } else {
+                            if (progressBar) {
+                                progressBar.style.backgroundColor = 'var(--danger)';
+                            }
+                            alert('Upload failed: ' + (response.error || 'Unknown error'));
+                        }
+                    } catch (e) {
+                        if (progressBar) {
+                            progressBar.style.backgroundColor = 'var(--danger)';
+                        }
+                        alert('Failed to parse server response');
+                        console.error('Response parsing error:', e, xhr.responseText);
+                    }
+                } else {
+                    if (progressBar) {
+                        progressBar.style.backgroundColor = 'var(--danger)';
+                    }
+                    alert('Upload failed with status: ' + xhr.status);
+                }
+            });
+            
+            // Setup error event
+            xhr.addEventListener('error', function() {
+                if (progressBar) {
+                    progressBar.style.backgroundColor = 'var(--danger)';
+                }
+                alert('Upload failed due to network error.');
+            });
+            
+            // Send the request
+            xhr.open('POST', '/upload_vuln_scan', true);
+            xhr.timeout = 300000; // 5 minute timeout
+            xhr.ontimeout = function() {
+                if (progressBar) {
+                    progressBar.style.backgroundColor = 'var(--danger)';
+                }
+                alert('The server request timed out. The file might be too large.');
+            };
+            xhr.send(formData);
+        });
+    }
+});
+
+// Function to toggle step visibility
+function toggleStep(stepId) {
+    const content = document.getElementById(`step-content-${stepId}`);
+    const header = document.getElementById(`step-header-${stepId}`);
+    
+    if (!content || !header) return;
+    
+    if (content.classList.contains('active')) {
+        content.classList.remove('active');
+        header.classList.remove('active');
+    } else {
+        content.classList.add('active');
+        header.classList.add('active');
+    }
+}
+
+// Function to open a specific step
+function openStep(stepId) {
+    // Close all steps
+    document.querySelectorAll('.step-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.querySelectorAll('.step-header').forEach(header => {
+        header.classList.remove('active');
+    });
+    
+    // Open the target step
+    const targetContent = document.getElementById(`step-content-${stepId}`);
+    const targetHeader = document.getElementById(`step-header-${stepId}`);
+    
+    if (targetContent) targetContent.classList.add('active');
+    if (targetHeader) targetHeader.classList.add('active');
+    
+    // Update progress indicator
+    document.querySelectorAll('.progress-step').forEach(step => {
+        const stepNumber = parseInt(step.textContent);
+        if (stepNumber <= stepId) {
+            step.classList.add('active');
+        }
+    });
+    
+    // Scroll to the opened step
+    if (targetHeader) {
+        targetHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Function to mark a step as completed
+function completeStep(stepId) {
+    const header = document.getElementById(`step-header-${stepId}`);
+    const progressStep = document.getElementById(`progress-step-${stepId}`);
+    
+    if (header) header.classList.add('completed');
+    if (progressStep) {
+        progressStep.classList.add('completed');
+        progressStep.classList.add('active');
+    }
+}
+
+// Function to populate correlation results
+async function populateCorrelationResults() {
+    const correlationResults = document.getElementById('correlation-results');
+    if (!correlationResults) return;
+    
+    // Clear any previous results to avoid reuse
+    correlationResults.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Analyzing correlations...</div>';
+
+    try {
+        // Get attack counts from the server
+        const attackCountsResponse = await fetch('/get_attack_counts');
+        if (!attackCountsResponse.ok) {
+            throw new Error(`Server returned ${attackCountsResponse.status}`);
+        }
+        const attackCounts = await attackCountsResponse.json();
+        
+        const attacks = Object.keys(attackCounts);
+        
+        if (attacks.length === 0) {
+            correlationResults.innerHTML = `<div class="alert-box info-box">
+                <i class="fas fa-info-circle"></i>
+                <p>No attack data available to correlate.</p>
+            </div>`;
+            return;
+        }
+        
+        // Fetch your predefined CVE mappings
+        const mappingsResponse = await fetch('/get_cve_mappings');
+        if (!mappingsResponse.ok) {
+            throw new Error(`Server returned ${mappingsResponse.status}`);
+        }
+        const attackCveMap = await mappingsResponse.json();
+
+        // Get the user's device CVEs from their uploaded scan
+        let userCves = [];
+        try {
+            const userCvesResponse = await fetch('/get_uploaded_cves');
+            if (userCvesResponse.ok) {
+                userCves = await userCvesResponse.json();
+            } else {
+                console.warn('Failed to get user CVEs, will use default mappings only');
+            }
+        } catch (error) {
+            console.warn('Error fetching user CVEs:', error);
+            // Continue with empty user CVEs array
+        }
+        
+        // Build results HTML
+        let html = '';
+        let foundVulnerabilities = false;
+        
+        // Process each detected attack
+        for (const attack of attacks) {
+            // Skip "NORMAL" traffic in the report
+            if (attack === "NORMAL" || attack === "BENIGNTRAFFIC" || attack === "BENIGN_TRAFFIC") {
+                continue;
+            }
+            
+            // Normalize attack name to match your mapping keys
+            const normalizedAttack = attack.replace(/\s+/g, '_').replace(/-/g, '_').toUpperCase();
+            
+            html += `<div class="attack-correlation">
+                <h4><i class="fas fa-bug"></i> ${attack} (${attackCounts[attack]} occurrences)</h4>`;
+            
+            // Get all possible CVEs for this attack type
+            const attackCves = attackCveMap[normalizedAttack] || [];
+            
+            if (attackCves.length === 0) {
+                html += `<div class="alert-box info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <p>No known CVEs mapped to this attack pattern.</p>
+                </div>`;
+                continue;
+            }
+            
+            // Find matching CVEs between attack type and user's device
+            const matchingCves = [];
+            
+            // If user has uploaded CVEs, match them
+            if (userCves.length > 0) {
+                // Improved matching logic that's more tolerant of formatting differences
+                for (const attackCve of attackCves) {
+                    for (const userCve of userCves) {
+                        // Compare normalized CVE IDs (uppercase and trimmed)
+                        const attackCveId = attackCve.cve_id.toUpperCase().trim();
+                        const userCveId = userCve.cve_id.toUpperCase().trim();
+                        
+                        if (userCveId === attackCveId) {
+                            // Create a merged CVE object with information from both sources
+                            const mergedCve = {
+                                ...attackCve,
+                                severity: userCve.severity || attackCve.severity,
+                                state: userCve.state || "Present on device",
+                                // Prefer user's description if it's more substantial
+                                description: (userCve.description && userCve.description.length > 50) 
+                                    ? userCve.description 
+                                    : attackCve.description || userCve.description
+                            };
+                            
+                            matchingCves.push(mergedCve);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                // If no user CVEs, use most critical from attackCves (up to 3) as potential vulnerabilities
+                const criticalAttackCves = attackCves
+                    .filter(cve => {
+                        const severity = parseFloat(cve.severity);
+                        return !isNaN(severity) && severity >= 7.0;
+                    })
+                    .slice(0, 3);
+                
+                if (criticalAttackCves.length > 0) {
+                    matchingCves.push(...criticalAttackCves.map(cve => ({
+                        ...cve,
+                        state: "Potentially present"
+                    })));
+                }
+            }
+            
+            if (matchingCves.length > 0) {
+                foundVulnerabilities = true;
+                
+                html += `<div class="cve-match">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Critical: Found ${matchingCves.length} vulnerabilities ${userCves.length ? 'on your device' : 'potentially affecting your device'} that may be causing this attack!</strong>
+                </div>`;
+                
+                // Display matching CVEs with details
+                matchingCves.forEach(cve => {
+                    const severity = cve.severity || "Unknown";
+                    const state = cve.state || (userCves.length ? "Present on device" : "Potentially present");
+                    const description = cve.description || "No description available";
+                    
+                    // Add a severity badge
+                    let severityClass = "medium-severity";
+                    if (typeof severity === 'number' || !isNaN(parseFloat(severity))) {
+                        const severityNum = parseFloat(severity);
+                        if (severityNum >= 9.0) severityClass = "critical-severity";
+                        else if (severityNum >= 7.0) severityClass = "high-severity";
+                        else if (severityNum >= 4.0) severityClass = "medium-severity";
+                        else severityClass = "low-severity";
+                    } else if (state.includes("VULNERABLE")) {
+                        severityClass = "high-severity";
+                    }
+                    
+                    html += `<div class="cve-item" onclick="showCveDetails('${cve.cve_id}')">
+                        <div class="cve-header">
+                            <strong>${cve.cve_id}</strong>
+                            <span class="badge ${severityClass}">
+                            ${typeof severity === 'number' || !isNaN(parseFloat(severity)) ? 
+                                `Severity: ${severity}` : 
+                                state}
+                            </span>
+                        </div>
+                        <p>${description.substring(0, 150)}${description.length > 150 ? '...' : ''}</p>
+                    </div>`;
+                });
+                
+                // Risk alert for matching vulnerabilities
+                html += `<div class="alert-box risk-alert">
+                    <i class="fas fa-shield-alt"></i>
+                    <p>These vulnerabilities require immediate attention as they are ${userCves.length ? 'actively being exploited' : 'commonly exploited in similar attacks'}.</p>
+                </div>`;
+            } else {
+                // No matches found, but show some example CVEs for this attack
+                html += `<p class="safe-note">
+                    <i class="fas fa-check-circle"></i>
+                    ${userCves.length ? 
+                        'Your device doesn\'t appear to have the common vulnerabilities associated with this attack.' : 
+                        'No specific vulnerabilities identified. See examples of related vulnerabilities below:'}
+                </p>`;
+                
+                // Show a few example CVEs
+                const exampleCves = attackCves.slice(0, 3);
+                exampleCves.forEach(cve => {
+                    html += `<div class="cve-item" onclick="showCveDetails('${cve.cve_id}')">
+                        <div class="cve-header">
+                            <strong>${cve.cve_id}</strong>
+                            <span class="badge info">Not detected</span>
+                        </div>
+                        <p>${cve.description ? cve.description.substring(0, 150) + (cve.description.length > 150 ? '...' : '') : 'No description available'}</p>
+                    </div>`;
+                });
+                
+                if (attackCves.length > 3) {
+                    html += `<p><a href="#" class="show-more" data-attack="${normalizedAttack}">
+                        Show ${attackCves.length - 3} more possible CVEs...
+                    </a></p>`;
+                }
+            }
+            
+            html += `</div>`;
+        }
+        
+        // Add overall summary
+        if (foundVulnerabilities) {
+            html = `<div class="alert-box risk-alert">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>
+                    <strong>Security Alert:</strong> We found vulnerabilities ${userCves.length ? 'on your device' : 'that may affect your device'} that match known attack patterns.
+                    See details below and follow the remediation steps.
+                </div>
+            </div>` + html;
+        } else {
+            html = `<div class="alert-box success-message">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <strong>Good News:</strong> No critical vulnerabilities were found that directly match the detected attacks.
+                    However, we still recommend addressing any detected attack patterns.
+                </div>
+            </div>` + html;
+        }
+
+        correlationResults.innerHTML = html;
+        
+        // Add event listeners for "Show more" links
+        document.querySelectorAll('.show-more').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const attackType = this.getAttribute('data-attack');
+                showAllCves(attackType, attackCveMap[attackType]);
+            });
+        });
+        
+        // Call populateRemediationGuidance() to generate remediation content - don't auto open it
+        populateRemediationGuidance();
+        
+    } catch (error) {
+        correlationResults.innerHTML = `<div class="alert-box error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Error processing correlation data: ${error.message}</p>
+        </div>`;
+        console.error('Correlation error:', error);
+    }
+    
+    // Add a button to continue to step 4
+    const continueToStep4Btn = document.createElement('button');
+    continueToStep4Btn.className = 'btn next-step-btn';
+    continueToStep4Btn.innerHTML = '<i class="fas fa-arrow-right"></i> Continue to Remediation Guidelines';
+    continueToStep4Btn.addEventListener('click', function() {
+        completeStep(3);
+        openStep(4);
+    });
+    
+    // Add button if it doesn't exist already
+    if (!correlationResults.querySelector('.next-step-btn')) {
+        correlationResults.appendChild(continueToStep4Btn);
+    }
+}
+
+// Function to show CVE details in a modal
+function showCveDetails(cveId) {
+    fetch(`/cve_details/${cveId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(cveData => {
+            // Show modal with full details
+            const modalHtml = `<div class="cve-modal">
+                <div class="modal-content">
+                    <h3>${cveData.cve_id}</h3>
+                    <p>${cveData.description || 'No description available'}</p>
+                    <div class="modal-footer">
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="close-button">Close</button>
+                    </div>
+                </div>
+            </div>`;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Add event listener to close modal on background click
+            document.querySelector('.cve-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.remove();
+                }
+            });
+        })
+        .catch(error => {
+            alert('Failed to load CVE details: ' + error.message);
+        });
+}
+
+// Helper function to show all CVEs for an attack type
+function showAllCves(attackType, cveList) {
+    const displayName = attackType.replace(/_/g, ' ');
+    
+    const modalHtml = `<div class="cve-modal">
+        <div class="modal-content">
+            <h3>All Known Vulnerabilities for ${displayName}</h3>
+            <div class="cve-list">
+                ${cveList && cveList.length ? cveList.map(cve => `
+                    <div class="cve-item">
+                        <p><strong>${cve.cve_id}</strong></p>
+                        <p>${cve.description || 'No description available'}</p>
+                    </div>
+                `).join('') : '<p>No vulnerabilities found for this attack type.</p>'}
+            </div>
+            <div class="modal-footer">
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" class="close-button">Close</button>
+            </div>
+        </div>
+    </div>`;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Add event listener to close modal on background click
+    document.querySelector('.cve-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.remove();
+        }
+    });
+}
+
+// Function to normalize attack name for mapping with remediation guidance
+function normalizeAttackName(attackName) {
+    // Handle null/undefined input and log warning
+    if (!attackName) {
+        console.warn("Empty attack name provided to normalizeAttackName");
+        return 'Default';
+    }
+
+    // Check for exact case-insensitive match in mapping first
+    const mappingKeys = Object.keys(ATTACK_NAME_MAPPING);
+    for (const key of mappingKeys) {
+        if (key.toLowerCase() === attackName.toLowerCase()) {
+            console.log(`Exact mapping match: ${key} -> ${ATTACK_NAME_MAPPING[key]}`);
+            return ATTACK_NAME_MAPPING[key];
+        }
+    }
+
+    // Normalize the attack name format
+    let normalizedName = attackName.toUpperCase()
+        .replace(/[-_\.]/g, '_')  // Standardize separators
+        .replace(/\s+/g, '_');    // Remove whitespace
+
+    // Handle numbered variants (e.g., ICMP_Flood6)
+    // Handle numbered variants (e.g., ICMP_Flood6)
+    if (normalizedName.endsWith('6') || normalizedName.endsWith('4')) {
+        if (normalizedName.includes('ICMP_FLOOD')) {
+            normalizedName = normalizedName.replace(/\d+$/, '');
+        }
+    }
+
+    // Check for direct mapping with normalized name
+    if (ATTACK_NAME_MAPPING[normalizedName]) {
+        return ATTACK_NAME_MAPPING[normalizedName];
+    }
+
+    // Try different separator variations
+    // Try different separator variations
+    const variations = [
+        normalizedName.replace(/_/g, '-'),  // Hyphen version
+        normalizedName.replace(/-/g, '_'),   // Underscore version
+        normalizedName                      // Keep original
+    ];
+
+    // Check all variations
+    for (const variant of variations) {
+        if (ATTACK_NAME_MAPPING[variant]) {
+            return ATTACK_NAME_MAPPING[variant];
+        }
+    }
+
+    // Handle specific attack patterns
+    if (normalizedName.includes('DOS') || normalizedName.includes('DDOS')) {
+        const isDistributed = normalizedName.includes('DDOS');
+        const prefix = isDistributed ? 'DDoS' : 'DoS';
+
+        if (normalizedName.includes('SYN')) return `${prefix}_SYN_Flood`;
+        if (normalizedName.includes('HTTP')) return 'DDoS_HTTP_Flood';
+        if (normalizedName.includes('ICMP') || normalizedName.includes('PING')) return `${prefix}_ICMP_Flood`;
+        if (normalizedName.includes('TCP')) return `${prefix}_TCP_Flood`;
+        if (normalizedName.includes('UDP')) return `${prefix}_UDP_Flood`;
+        if (normalizedName.includes('RST') || normalizedName.includes('FIN')) return 'DDoS_RSTFINFlood';
+        if (normalizedName.includes('PSHACK')) return 'DDoS_PSHACK_Flood';
+        if (normalizedName.includes('SYNONYMOUSIP')) return 'DDoS_SynonymousIP_Flood';
+        if (normalizedName.includes('ACK')) return 'DDoS_ACK_Fragmentation';
+        if (normalizedName.includes('SLOW')) return 'DDoS_SlowLoris';
+        
+        return `${prefix}_TCP_Flood`;  // Default to TCP flood
+    }
+
+    // Handle Mirai variants
+    if (normalizedName.includes('MIRAI')) {
+        if (normalizedName.includes('GREETH')) return 'Mirai_Greeth_Flood';
+        if (normalizedName.includes('GREIP')) return 'Mirai_Greip_Flood';
+        if (normalizedName.includes('UDP')) return 'Mirai_UDPplain';
+        return 'Mirai_Greeth_Flood';  // Default Mirai variant
+    }
+
+    // Handle other attack categories
+    if (normalizedName.includes('MITM') || normalizedName.includes('ARP')) return 'MITM_ArpSpoofing';
+    if (normalizedName.includes('BENIGN')) return 'NORMAL';
+    if (normalizedName.includes('SQL')) return 'SQL_Injection';
+    if (normalizedName.includes('XSS')) return 'XSS';
+    if (normalizedName.includes('COMMAND_INJECT')) return 'Command_Injection';
+    if (normalizedName.includes('BRUTE')) return 'Brute_Force';
+    if (normalizedName.includes('SCAN')) return 'Port_Scan';
+
+    // Log unrecognized patterns
+    console.warn(`Unrecognized attack type: ${attackName} (normalized: ${normalizedName})`);
+    return 'Default';
+}
+
+function populateRemediationGuidance() {
+    const remediationContainer = document.getElementById('remediation-container');
+    if (!remediationContainer) {
+        console.error("Remediation container not found");
+        return;
+    }
+    
+    remediationContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Analyzing attack patterns...</div>';
+    
+    // Fetch attack counts from the server
+    fetch('/get_attack_counts')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(attackCounts => {
+            // Clear loading indicator
+            remediationContainer.innerHTML = '';
+            
+            // Log all attack names for debugging
+            console.log("Found attacks:", Object.keys(attackCounts));
+            
+            // If no attacks or only benign traffic, show appropriate message
+            if (Object.keys(attackCounts).length === 0 || 
+                (Object.keys(attackCounts).length === 1 && 
+                (attackCounts.BENIGNTRAFFIC || attackCounts.NORMAL || attackCounts.BENIGN_TRAFFIC || 
+                attackCounts.BenignTraffic))) {
+                
+                remediationContainer.innerHTML = `
+                    <div class="alert-box success-message">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No malicious traffic patterns were detected. Your network appears to be operating normally.</p>
+                    </div>
+                    <div class="alert-box info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Even though no immediate threats were detected, it's still recommended to follow 
+                        security best practices listed in the General Security Hardening section below.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group attacks by severity for better organization
+            const criticalAttacks = [];
+            const highAttacks = [];
+            const mediumAttacks = [];
+            
+            // Track processed attack types to prevent duplicates
+            const processedAttacks = new Set();
+            
+            // Process each attack type
+            for (const [attackName, count] of Object.entries(attackCounts)) {
+                // Skip benign/normal traffic
+                if (attackName === "BENIGNTRAFFIC" || attackName === "NORMAL" || 
+                    attackName === "BENIGN_TRAFFIC" || attackName === "BenignTraffic" || 
+                    attackName.toUpperCase().includes("BENIGN")) {
+                    continue;
+                }
+                
+                // Log the attack being processed
+                console.log(`Processing attack: "${attackName}"`);
+                
+                // Try multiple normalization approaches
+                let normalizedName = normalizeAttackName(attackName);
+                console.log(`Attack "${attackName}" normalized to "${normalizedName}"`);
+                
+                // If normalization fails, try direct mapping
+                if (normalizedName === 'Default' || !remediationGuidance[normalizedName]) {
+                    // Try exact match first
+                    if (remediationGuidance[attackName]) {
+                        normalizedName = attackName;
+                    } else {
+                        // Try with underscores
+                        const underscoreVersion = attackName.replace(/-/g, '_');
+                        if (remediationGuidance[underscoreVersion]) {
+                            normalizedName = underscoreVersion;
+                        }
+                    }
+                }
+                
+                // Skip if this normalized attack has already been processed
+                if (processedAttacks.has(normalizedName)) {
+                    console.log(`Skipping duplicate attack type: ${normalizedName}`);
+                    continue;
+                }
+                
+                // Get remediation info
+                let remediation = remediationGuidance[normalizedName];
+                
+                // If still no remediation found, use default but log the issue
+                if (!remediation) {
+                    console.warn(`No remediation found for: ${attackName} (normalized: ${normalizedName})`);
+                    remediation = remediationGuidance.Default;
+                }
+                
+                // Mark this attack as processed
+                processedAttacks.add(normalizedName);
+                
+                // Clone the remediation object and add the attack count
+                const attackData = { 
+                    ...remediation, 
+                    originalName: attackName,
+                    count: count 
+                };
+                
+                // Group by severity
+                if (remediation.severity === "critical") {
+                    criticalAttacks.push(attackData);
+                } else if (remediation.severity === "high") {
+                    highAttacks.push(attackData);
+                } else {
+                    mediumAttacks.push(attackData);
+                }
+            }
+            
+            // Sort attacks within each severity group by count (highest first)
+            const sortByCount = (a, b) => b.count - a.count;
+            criticalAttacks.sort(sortByCount);
+            highAttacks.sort(sortByCount);
+            mediumAttacks.sort(sortByCount);
+
+            // Generate HTML for critical severity attacks
+            if (criticalAttacks.length > 0) {
+                remediationContainer.innerHTML += `
+                    <div class="severity-section critical-section">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Critical Priority Remediation</h4>
+                        <p>These attacks pose the highest risk and should be addressed immediately:</p>
+                        ${generateRemediationCards(criticalAttacks)}
+                    </div>
+                `;
+            }
+            
+            // Generate HTML for high severity attacks
+            if (highAttacks.length > 0) {
+                remediationContainer.innerHTML += `
+                    <div class="severity-section high-section">
+                        <h4><i class="fas fa-exclamation-circle"></i> High Priority Remediation</h4>
+                        <p>These attacks pose significant risk and should be addressed promptly:</p>
+                        ${generateRemediationCards(highAttacks)}
+                    </div>
+                `;
+            }
+            
+            // Generate HTML for medium severity attacks
+            if (mediumAttacks.length > 0) {
+                remediationContainer.innerHTML += `
+                    <div class="severity-section medium-section">
+                        <h4><i class="fas fa-info-circle"></i> Medium Priority Remediation</h4>
+                        <p>These issues should be addressed as part of your security maintenance:</p>
+                        ${generateRemediationCards(mediumAttacks)}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            remediationContainer.innerHTML = `
+                <div class="alert-box error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Error loading remediation guidance: ${error.message}</p>
+                </div>
+            `;
+            console.error('Error fetching attack counts:', error);
+        });
+}
+
+// Helper function to generate remediation cards
+function generateRemediationCards(attacks) {
+    return attacks.map(attack => `
+        <div class="remediation-card ${attack.severity}-card">
+            <div class="remediation-header">
+                <div class="attack-info">
+                    <h5>${attack.title}</h5>
+                    <span class="attack-count">${attack.count} occurrences</span>
+                </div>
+                <span class="severity-badge ${attack.severity}">${attack.severity.toUpperCase()}</span>
+            </div>
+            
+            <div class="remediation-body">
+                <p class="attack-description">${attack.description}</p>
+                
+                <div class="remediation-steps">
+                    <h6>Remediation Steps:</h6>
+                    <ol>
+                        ${attack.remediation.map(step => `<li>${step}</li>`).join('')}
+                    </ol>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Add event listener to download report button
+document.getElementById('download-full-report').addEventListener('click', async function() {
+    try {
+        // Check if jsPDF is available
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+            throw new Error("jsPDF library not loaded. Please check your internet connection.");
+        }
+        
+        const { jsPDF } = window.jspdf;
+        
+        // Show loading state
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating Report...';
+        
+        // Fetch all required data
+        try {
+            var [attackCounts, userCves, mappingData] = await Promise.all([
+                fetch('/get_attack_counts').then(res => res.json()),
+                fetch('/get_uploaded_cves').then(res => res.json()).catch(() => []),
+                fetch('/get_cve_mappings').then(res => res.json()).catch(() => ({}))
+            ]);
+        } catch (fetchError) {
+            console.error("Error fetching data:", fetchError);
+            // Use fallback data for testing if server endpoints fail
+            attackCounts = {
+                "DDoS_SYN_Flood": 157,
+                "SQL_Injection": 43,
+                "XSS": 28,
+                "Port_Scan": 89,
+                "Brute_Force": 35,
+                "NORMAL": 425
+            };
+            
+            userCves = [
+                {
+                    "cve_id": "CVE-2021-44228",
+                    "severity": "10.0",
+                    "description": "Apache Log4j2 JNDI features used in configuration, log messages, and parameters do not protect against attacker controlled LDAP and other JNDI related endpoints."
+                },
+                {
+                    "cve_id": "CVE-2022-22965",
+                    "severity": "9.8",
+                    "description": "Spring Framework RCE vulnerability via Data Binding on JDK 9+."
+                },
+                {
+                    "cve_id": "CVE-2020-1472",
+                    "severity": "10.0",
+                    "description": "Netlogon Elevation of Privilege Vulnerability (Zerologon)."
+                },
+                {
+                    "cve_id": "CVE-2019-0708",
+                    "severity": "9.8",
+                    "description": "Remote Desktop Services Remote Code Execution Vulnerability (BlueKeep)."
+                }
+            ];
+            
+            mappingData = {
+                "DDOS_SYN_FLOOD": [
+                    {
+                        "cve_id": "CVE-2021-44228",
+                        "description": "Apache Log4j2 JNDI features used in configuration, log messages, and parameters do not protect against attacker controlled LDAP and other JNDI related endpoints."
+                    }
+                ],
+                "SQL_INJECTION": [
+                    {
+                        "cve_id": "CVE-2022-22965",
+                        "description": "Spring Framework RCE vulnerability via Data Binding on JDK 9+."
+                    }
+                ]
+            };
+        }
+
+        // Create a new document in portrait orientation
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+        
+        // Get document dimensions
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 20; // margin in mm
+        const contentWidth = pageWidth - (margin * 2);
+        
+        // Set up colors
+        const colors = {
+            primary: [74, 111, 165],    // #4A6FA5 - primary blue
+            secondary: [220, 220, 220], // #DCDCDC - light gray
+            critical: [220, 53, 69],    // #DC3545 - red
+            high: [255, 128, 0],        // #FF8000 - orange
+            medium: [255, 193, 7],      // #FFC107 - yellow
+            low: [40, 167, 69],         // #28A745 - green
+            text: [40, 40, 40],         // #282828 - dark gray
+            lightText: [120, 120, 120]  // #787878 - medium gray
+        };
+        
+        // Section counter for numbering
+        let sectionNumber = 1;
+        
+        // Keep track of pages for table of contents
+        const tocReferences = [];
+        
+        // Cover Page
+        createCoverPage(doc, colors);
+        doc.addPage();
+        
+        // Save position for Table of Contents (we'll fill it later)
+        const tocStartPage = doc.internal.getCurrentPageInfo().pageNumber;
+        doc.setFontSize(18);
+        doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+        doc.text('Table of Contents', margin, margin + 10);
+        
+        // Save the Y position where TOC content should start
+        const tocContentStartY = margin + 20;
+        doc.addPage();
+        
+        // Executive Summary
+        let currentPage = doc.internal.getCurrentPageInfo().pageNumber;
+        tocReferences.push({
+            title: "Executive Summary",
+            page: currentPage
+        });
+        
+        drawSectionHeader(doc, "Executive Summary", sectionNumber++, colors, margin);
+        let y = margin + 20;
+        
+        // Count of non-normal traffic
+        const attackTypes = Object.keys(attackCounts).filter(key => key !== "NORMAL" && key !== "BENIGNTRAFFIC" && key !== "BENIGN_TRAFFIC");
+        const totalAttackCount = attackTypes.reduce((sum, key) => sum + attackCounts[key], 0);
+        const totalCVEs = userCves.length;
+        
+        // Categorize attacks by severity
+        const attacksBySeverity = categorizeAttacksBySeverity(attackCounts, remediationGuidance, ATTACK_NAME_MAPPING);
+        
+        // Add summary text
+        doc.setFontSize(11);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        
+        const summaryText = [
+            "This report provides a comprehensive analysis of security issues detected on your IoT devices based on network traffic analysis and vulnerability scanning.",
+            "",
+            `• ${totalAttackCount} suspicious traffic patterns were detected across ${attackTypes.length} different attack categories.`,
+            `• ${totalCVEs} vulnerabilities were identified on the scanned device(s).`,
+            `• ${attacksBySeverity.critical.length} critical severity issues require immediate attention.`,
+            `• ${attacksBySeverity.high.length} high severity issues should be addressed promptly.`,
+            "",
+            "The correlation analysis has identified specific vulnerabilities that may be enabling the detected attack patterns. This report provides detailed remediation steps to address these security issues."
+        ];
+        
+        y = writeMultilineText(doc, summaryText.join('\n'), margin, y, contentWidth, 6);
+        
+        // Key Findings section
+        y = addSpacing(y, 10);
+        doc.setFontSize(13);
+        doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+        doc.text("Key Findings", margin, y);
+        y = addSpacing(y, 8);
+        
+        // Draw top 3 most frequent attacks
+        const topAttacks = Object.entries(attackCounts)
+            .filter(([key]) => key !== "NORMAL" && key !== "BENIGNTRAFFIC" && key !== "BENIGN_TRAFFIC")
+            .sort(([, countA], [, countB]) => countB - countA)
+            .slice(0, 3);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        
+        if (topAttacks.length > 0) {
+            doc.text("Most Frequent Attack Patterns:", margin, y);
+            y = addSpacing(y, 6);
+            
+            topAttacks.forEach(([attack, count]) => {
+                const normalizedAttack = normalizeAttackName(attack);
+                const severity = remediationGuidance[normalizedAttack]?.severity || "medium";
+                
+                // Draw colored bullet by severity
+                doc.setFillColor(...getSeverityColor(severity, colors));
+                doc.circle(margin + 2, y - 1.5, 2, 'F');
+                
+                doc.text(`${attack}: ${count} occurrences`, margin + 6, y);
+                y = addSpacing(y, 6);
+            });
+        }
+        
+        // Add threat severity summary pie chart
+        y = addSpacing(y, 10);
+        createSeverityDistributionChart(doc, attacksBySeverity, margin, y, colors);
+        y = addSpacing(y, 60); // Make space for the chart
+        
+        // Recommendations preview
+        doc.setFontSize(13);
+        doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+        doc.text("Key Recommendations", margin, y);
+        y = addSpacing(y, 8);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        
+        // List top recommendations
+        const recommendations = [
+            "Update firmware on all affected devices to patch identified vulnerabilities",
+            "Implement network segmentation to isolate IoT devices from critical systems",
+            "Deploy firewall rules to filter malicious traffic patterns",
+            "Establish regular vulnerability scanning and monitoring protocols"
+        ];
+        
+        recommendations.forEach((rec, index) => {
+            doc.text(`${index + 1}. ${rec}`, margin, y);
+            y = addSpacing(y, 6);
+        });
+        
+        // Network Traffic Analysis Section
+        doc.addPage();
+        currentPage = doc.internal.getCurrentPageInfo().pageNumber;
+        tocReferences.push({
+            title: "Network Traffic Analysis",
+            page: currentPage
+        });
+        
+        drawSectionHeader(doc, "Network Traffic Analysis", sectionNumber++, colors, margin);
+        y = margin + 20;
+        
+        // Introduction text
+        doc.setFontSize(11);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        y = writeMultilineText(doc, "The network traffic analysis examined patterns in your device communications to identify potential security threats. Each detected pattern was categorized and counted to determine the prevalence and types of attacks targeting your devices.", margin, y, contentWidth, 6);
+        
+        // Draw traffic distribution chart
+        y = addSpacing(y, 15);
+        createTrafficDistributionChart(doc, attackCounts, margin, y, colors);
+        y = addSpacing(y, 60); // Space for chart
+        
+        // Detailed attack listing
+        y = addSpacing(y, 10);
+        doc.setFontSize(13);
+        doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+        doc.text("Detected Attack Patterns", margin, y);
+        y = addSpacing(y, 12);
+        
+        // Create table for attack details
+        const attackTableHeaders = ["Attack Type", "Count", "Severity", "Description"];
+        const attackTableData = Object.entries(attackCounts)
+            .filter(([key]) => key !== "NORMAL" && key !== "BENIGNTRAFFIC" && key !== "BENIGN_TRAFFIC")
+            .map(([attack, count]) => {
+                const normalizedAttack = normalizeAttackName(attack);
+                const attackInfo = remediationGuidance[normalizedAttack] || remediationGuidance.Default;
+                return [
+                    attack,
+                    count.toString(),
+                    attackInfo.severity.toUpperCase(),
+                    attackInfo.description || "Unknown attack pattern"
+                ];
+            })
+            .sort((a, b) => {
+                // Sort by severity (critical > high > medium) then by count
+                const severityOrder = { "CRITICAL": 0, "HIGH": 1, "MEDIUM": 2 };
+                if (severityOrder[a[2]] !== severityOrder[b[2]]) {
+                    return severityOrder[a[2]] - severityOrder[b[2]];
+                }
+                return parseInt(b[1]) - parseInt(a[1]);
+            });
+        
+        if (attackTableData.length > 0) {
+            y = createTable(doc, attackTableHeaders, attackTableData, margin, y, contentWidth, colors);
+        } else {
+            doc.setFontSize(11);
+            doc.setTextColor(colors.lightText[0], colors.lightText[1], colors.lightText[2]);
+            doc.text("No attack patterns detected in network traffic.", margin, y);
+            y = addSpacing(y, 6);
+        }
+        
+        // Vulnerability Assessment Section
+        doc.addPage();
+        currentPage = doc.internal.getCurrentPageInfo().pageNumber;
+        tocReferences.push({
+            title: "Vulnerability Assessment",
+            page: currentPage
+        });
+        
+        drawSectionHeader(doc, "Vulnerability Assessment", sectionNumber++, colors, margin);
+        y = margin + 20;
+        
+        // Introduction text
+        doc.setFontSize(11);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        y = writeMultilineText(doc, "The vulnerability assessment identified security weaknesses in your IoT devices. These vulnerabilities could potentially be exploited by attackers to gain unauthorized access or disrupt services.", margin, y, contentWidth, 6);
+        
+        // Vulnerability statistics
+        y = addSpacing(y, 10);
+        if (userCves.length > 0) {
+            // Group CVEs by severity
+            const cvesBySeverity = {};
+            userCves.forEach(cve => {
+                let sevCategory = "Other";
+                if (cve.severity) {
+                    const sevValue = parseFloat(cve.severity);
+                    if (!isNaN(sevValue)) {
+                        if (sevValue >= 9.0) sevCategory = "Critical";
+                        else if (sevValue >= 7.0) sevCategory = "High";
+                        else if (sevValue >= 4.0) sevCategory = "Medium";
+                        else sevCategory = "Low";
+                    }
+                }
+                
+                if (!cvesBySeverity[sevCategory]) cvesBySeverity[sevCategory] = [];
+                cvesBySeverity[sevCategory].push(cve);
+            });
+            
+            // Create vulnerability severity chart
+            createVulnerabilityChart(doc, cvesBySeverity, margin, y, colors);
+            y = addSpacing(y, 60);
+            
+            // Top vulnerabilities section
+            doc.setFontSize(13);
+            doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+            doc.text("Critical Vulnerabilities", margin, y);
+            y = addSpacing(y, 10);
+            
+            // Get most severe vulnerabilities
+            const criticalVulns = userCves
+                .filter(cve => {
+                    const sevValue = parseFloat(cve.severity);
+                    return !isNaN(sevValue) && sevValue >= 7.0;
+                })
+                .sort((a, b) => parseFloat(b.severity) - parseFloat(a.severity))
+                .slice(0, 5);
+            
+            if (criticalVulns.length > 0) {
+                // Create table for critical vulnerabilities
+                const vulnTableHeaders = ["CVE ID", "Severity", "Description"];
+                const vulnTableData = criticalVulns.map(cve => [
+                    cve.cve_id,
+                    cve.severity,
+                    cve.description ? (cve.description.length > 80 ? cve.description.substring(0, 80) + "..." : cve.description) : "No description available"
+                ]);
+                
+                y = createTable(doc, vulnTableHeaders, vulnTableData, margin, y, contentWidth, colors);
+            } else {
+                doc.setFontSize(11);
+                doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+                doc.text("No critical vulnerabilities detected.", margin, y);
+                y = addSpacing(y, 6);
+            }
+        } else {
+            doc.setFontSize(11);
+            doc.setTextColor(colors.lightText[0], colors.lightText[1], colors.lightText[2]);
+            doc.text("No vulnerability data available.", margin, y);
+            y = addSpacing(y, 6);
+        }
+        
+        // Attack-Vulnerability Correlation Section
+        doc.addPage();
+        currentPage = doc.internal.getCurrentPageInfo().pageNumber;
+        tocReferences.push({
+            title: "Attack-Vulnerability Correlation",
+            page: currentPage
+        });
+        
+        drawSectionHeader(doc, "Attack-Vulnerability Correlation", sectionNumber++, colors, margin);
+        y = margin + 20;
+        
+        // Introduction text
+        doc.setFontSize(11);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        y = writeMultilineText(doc, "This section analyzes the relationship between detected attack patterns and identified vulnerabilities. Correlations indicate which vulnerabilities are likely being targeted by the observed attack traffic.", margin, y, contentWidth, 6);
+        
+        // Process correlations
+        y = addSpacing(y, 15);
+        if (attackTypes.length > 0 && userCves.length > 0) {
+            // Find correlations between attacks and CVEs
+            const correlations = [];
+            
+            for (const attack of attackTypes) {
+                const normalizedAttack = attack.replace(/\s+/g, '_').replace(/-/g, '_').toUpperCase();
+                const attackCves = mappingData[normalizedAttack] || [];
+                
+                if (attackCves.length > 0) {
+                    // Find matching CVEs
+                    const matchingCves = [];
+                    
+                    for (const attackCve of attackCves) {
+                        for (const userCve of userCves) {
+                            const attackCveId = attackCve.cve_id.toUpperCase().trim();
+                            const userCveId = userCve.cve_id.toUpperCase().trim();
+                            
+                            if (userCveId === attackCveId) {
+                                matchingCves.push({
+                                    ...attackCve,
+                                    severity: userCve.severity || attackCve.severity,
+                                    state: userCve.state || "Present on device",
+                                    description: userCve.description || attackCve.description
+                                });
+                                break;
+                            }
+                        }
+                    }
+                    
+                    correlations.push({
+                        attack,
+                        count: attackCounts[attack],
+                        matchingCves
+                    });
+                }
+            }
+            
+            // Sort correlations by number of matching CVEs (most first)
+            correlations.sort((a, b) => b.matchingCves.length - a.matchingCves.length);
+            
+            // Present correlations
+            if (correlations.some(c => c.matchingCves.length > 0)) {
+                doc.setFontSize(13);
+                doc.setTextColor(colors.critical[0], colors.critical[1], colors.critical[2]);
+                doc.text("High-Risk Correlations", margin, y);
+                y = addSpacing(y, 8);
+                
+                doc.setFontSize(11);
+                doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+                
+                for (const correlation of correlations) {
+                    if (correlation.matchingCves.length > 0) {
+                        const normalizedAttack = normalizeAttackName(correlation.attack);
+                        const attackInfo = remediationGuidance[normalizedAttack] || remediationGuidance.Default;
+                        
+                        // Check for page break
+                        if (y > pageHeight - 60) {
+                            doc.addPage();
+                            y = margin + 10;
+                        }
+                        
+                        // Draw attack name with severity indicator
+                        drawSeverityBullet(doc, attackInfo.severity, margin, y, colors);
+                        doc.setFontSize(12);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(`${correlation.attack} (${correlation.count} occurrences)`, margin + 6, y);
+                        y = addSpacing(y, 6);
+                        
+                        doc.setFont(undefined, 'normal');
+                        doc.setFontSize(11);
+                        y = writeMultilineText(doc, attackInfo.description || "Unknown attack pattern", margin + 6, y, contentWidth - 6, 5);
+                        
+                        doc.setFontSize(11);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(`Linked Vulnerabilities: ${correlation.matchingCves.length} CVEs`, margin + 6, y);
+                        y = addSpacing(y, 6);
+                        
+                        // List matching CVEs
+                        doc.setFont(undefined, 'normal');
+                        for (const cve of correlation.matchingCves.slice(0, 3)) { // Show only top 3
+                            if (y > pageHeight - 30) {
+                                doc.addPage();
+                                y = margin + 10;
+                            }
+                            
+                            const sevText = cve.severity ? `(Severity: ${cve.severity})` : "";
+                            doc.text(`• ${cve.cve_id} ${sevText}`, margin + 10, y);
+                            y = addSpacing(y, 5);
+                            
+                            if (cve.description) {
+                                doc.setTextColor(colors.lightText[0], colors.lightText[1], colors.lightText[2]);
+                                const description = cve.description.length > 100 ? 
+                                    cve.description.substring(0, 100) + "..." : 
+                                    cve.description;
+                                y = writeMultilineText(doc, description, margin + 12, y, contentWidth - 12, 5);
+                                doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+                            }
+                        }
+                        
+                        if (correlation.matchingCves.length > 3) {
+                            doc.setTextColor(colors.lightText[0], colors.lightText[1], colors.lightText[2]);
+                            doc.text(`...and ${correlation.matchingCves.length - 3} more`, margin + 10, y);
+                            y = addSpacing(y, 5);
+                            doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+                        }
+                        
+                        y = addSpacing(y, 8);
+                    }
+                }
+            } else {
+                doc.setFontSize(11);
+                doc.text("No direct correlations found between detected attacks and vulnerabilities.", margin, y);
+                y = addSpacing(y, 6);
+            }
+        } else {
+            doc.setFontSize(11);
+            doc.setTextColor(colors.lightText[0], colors.lightText[1], colors.lightText[2]);
+            doc.text("Insufficient data for correlation analysis.", margin, y);
+            y = addSpacing(y, 6);
+        }
+        
+        // Security Recommendations Section
+        doc.addPage();
+        currentPage = doc.internal.getCurrentPageInfo().pageNumber;
+        tocReferences.push({
+            title: "Security Recommendations",
+            page: currentPage
+        });
+        
+        drawSectionHeader(doc, "Security Recommendations", sectionNumber++, colors, margin);
+        y = margin + 20;
+        
+        // Introduction text
+        doc.setFontSize(11);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        y = writeMultilineText(doc, "Based on the detected attack patterns and vulnerabilities, we recommend the following remediation steps to improve your IoT device security.", margin, y, contentWidth, 6);
+        
+        // Group recommendations by severity
+        y = addSpacing(y, 10);
+        
+        // Critical severity section
+        if (attacksBySeverity.critical.length > 0) {
+            doc.setFontSize(14);
+            doc.setTextColor(colors.critical[0], colors.critical[1], colors.critical[2]);
+            doc.text("Critical Priority - Immediate Action Required", margin, y);
+            y = addSpacing(y, 10);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+            
+            for (const attackName of attacksBySeverity.critical) {
+                const normalizedAttack = normalizeAttackName(attackName);
+                const attackInfo = remediationGuidance[normalizedAttack];
+                
+                if (y > pageHeight - 60) {
+                    doc.addPage();
+                    y = margin + 10;
+                }
+                
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text(attackInfo.title, margin, y);
+                y = addSpacing(y, 6);
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(11);
+                y = writeMultilineText(doc, attackInfo.description, margin, y, contentWidth, 5);
+                
+                // Remediation steps
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.text("Remediation Steps:", margin, y);
+                y = addSpacing(y, 6);
+                
+                doc.setFont(undefined, 'normal');
+                attackInfo.remediation.forEach((step, index) => {
+                    if (y > pageHeight - 20) {
+                        doc.addPage();
+                        y = margin + 10;
+                    }
+                    
+                    y = writeMultilineText(doc, `${index + 1}. ${step}`, margin + 5, y, contentWidth - 5, 5);
+                });
+                
+                y = addSpacing(y, 10);
+            }
+        }
+        
+        // High severity section
+        if (attacksBySeverity.high.length > 0) {
+            if (y > pageHeight - 40) {
+                doc.addPage();
+                y = margin + 10;
+            } else {
+                y = addSpacing(y, 10);
+            }
+            
+            doc.setFontSize(14);
+            doc.setTextColor(colors.high[0], colors.high[1], colors.high[2]);
+            doc.text("High Priority - Address Promptly", margin, y);
+            y = addSpacing(y, 10);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+            
+            // Get the top 3 high severity attacks
+            for (const attackName of attacksBySeverity.high.slice(0, 3)) {
+                const normalizedAttack = normalizeAttackName(attackName);
+                const attackInfo = remediationGuidance[normalizedAttack];
+                
+                if (y > pageHeight - 60) {
+                    doc.addPage();
+                    y = margin + 10;
+                }
+                
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text(attackInfo.title, margin, y);
+                y = addSpacing(y, 6);
+                
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(11);
+                
+                // Remediation steps (summarized)
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.text("Key Remediation Steps:", margin, y);
+                y = addSpacing(y, 6);
+                
+                doc.setFont(undefined, 'normal');
+                attackInfo.remediation.slice(0, 3).forEach((step, index) => {
+                    if (y > pageHeight - 20) {
+                        doc.addPage();
+                        y = margin + 10;
+                    }
+                    
+                    y = writeMultilineText(doc, `${index + 1}. ${step}`, margin + 5, y, contentWidth - 5, 5);
+                });
+                
+                y = addSpacing(y, 8);
+            }
+        }
+        
+        // Add general recommendations
+        if (y > pageHeight - 60) {
+            doc.addPage();
+            y = margin + 10;
+        } else {
+            y = addSpacing(y, 15);
+        }
+        
+        doc.setFontSize(14);
+        doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+        doc.text("General Security Hardening", margin, y);
+        y = addSpacing(y, 10);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        
+        const generalRecommendations = [
+            "Keep all devices' firmware updated to the latest stable version",
+            "Isolate IoT devices on a separate network segment",
+            "Use unique, complex passwords and enable 2FA where available",
+            "Turn off any services or ports that aren't required",
+            "Restrict permissions to the minimum needed",
+            "Maintain backups of critical configurations and data",
+            "Implement continuous network monitoring to detect anomalies"
+        ];
+        
+        generalRecommendations.forEach((rec, index) => {
+            if (y > pageHeight - 15) {
+                doc.addPage();
+                y = margin + 10;
+            }
+            
+            doc.text(`${index + 1}. ${rec}`, margin, y);
+            y = addSpacing(y, 6);
+        });
+        
+        // Finally, go back and generate the table of contents
+        generateTableOfContents(doc, tocReferences, tocStartPage, tocContentStartY, margin, colors);
+        
+        // Add footer with page numbers to all pages except cover
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let i = 2; i <= totalPages; i++) {
+            doc.setPage(i);
+            
+            // Footer line
+            doc.setDrawColor(200, 200, 200);
+            doc.setLineWidth(0.5);
+            doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+            
+            // Page number
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+            
+            // Footer text
+            doc.text("IoT Tracker Security Report", margin, pageHeight - 10);
+            doc.text(new Date().toISOString().slice(0, 10), pageWidth - margin, pageHeight - 10, { align: 'right' });
+        }
+        
+        // Save the PDF
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        doc.save(`IoT-Security-Report-${timestamp}.pdf`);
+        
+    } catch (error) {
+        console.error('Error generating report:', error);
+        alert(`Error generating report: ${error.message}`);
+    } finally {
+        // Reset button state
+        this.innerHTML = '<i class="fas fa-file-pdf"></i> Download Full Analysis Report';
+    }
+});
+
+// Helper Functions for PDF Generation
+// Create a cover page for the report
+function createCoverPage(doc, colors) {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    
+    // Background color
+    doc.setFillColor(250, 250, 250);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+    
+    // Top banner
+    doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    // Bottom banner
+    doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.rect(0, pageHeight - 30, pageWidth, 30, 'F');
+    
+    // Report title
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(24);
+    doc.setTextColor(255, 255, 255);
+    doc.text("IoT Security Analysis Report", pageWidth / 2, 25, { align: 'center' });
+    
+    // Add logo placeholder
+    doc.setFillColor(240, 240, 240);
+    doc.roundedRect(pageWidth / 2 - 30, 80, 60, 60, 5, 5, 'F');
+    
+    doc.setFontSize(16);
+    doc.setTextColor(colors.lightText[0], colors.lightText[1], colors.lightText[2]);
+    doc.text("IoT Tracker", pageWidth / 2, 120, { align: 'center' });
+    
+    // Report subtitle
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(14);
+    doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+    doc.text("Network Traffic & Vulnerability Analysis", pageWidth / 2, 160, { align: 'center' });
+    
+    // Generated date
+    const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(colors.lightText[0], colors.lightText[1], colors.lightText[2]);
+    doc.text(`Generated on: ${currentDate}`, pageWidth / 2, 180, { align: 'center' });
+    
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255);
+    doc.text("CONFIDENTIAL - SECURITY REPORT", pageWidth / 2, pageHeight - 15, { align: 'center' });
+    
+    return doc;
+}
+
+// Generate the table of contents
+function generateTableOfContents(doc, tocReferences, tocPage, startY, margin, colors) {
+    // Go to the TOC page
+    doc.setPage(tocPage);
+    
+    let y = startY;
+    
+    // Draw TOC entries
+    doc.setFontSize(11);
+    doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+    
+    tocReferences.forEach((entry, index) => {
+        // Section number and title
+        const text = entry.title;
+        const pageText = entry.page.toString();
+        
+        // Calculate dots width
+        const textWidth = doc.getTextWidth(text);
+        const pageWidth = doc.getTextWidth(pageText);
+        const dotsWidth = doc.internal.pageSize.getWidth() - margin * 2 - textWidth - pageWidth - 5;
+        
+        // Determine number of dots needed
+        const singleDotWidth = doc.getTextWidth('.');
+        const numberOfDots = Math.floor(dotsWidth / singleDotWidth);
+        const dots = '.'.repeat(numberOfDots);
+        
+        // Draw line with dots
+        doc.text(`${index + 1}. ${text}`, margin, y);
+        doc.text(dots, margin + textWidth + 5, y, { align: 'left' });
+        doc.text(pageText, doc.internal.pageSize.getWidth() - margin, y, { align: 'right' });
+        
+        y += 8;
+    });
+    
+    return doc;
+}
+
+// Write multiline text with proper wrapping
+function writeMultilineText(doc, text, x, y, maxWidth, lineHeight) {
+    const textLines = doc.splitTextToSize(text, maxWidth);
+    textLines.forEach((line, i) => {
+        doc.text(line, x, y + (i * lineHeight));
+    });
+    
+    return y + (textLines.length * lineHeight);
+}
+
+// Add vertical spacing to y coordinate
+function addSpacing(y, spacing) {
+    return y + spacing;
+}
+
+// Draw section header with colored background
+function drawSectionHeader(doc, title, number, colors, margin) {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const headerHeight = 10;
+    
+    // Draw colored background
+    doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.rect(0, margin, pageWidth, headerHeight, 'F');
+    
+    // Add section title
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255);
+    
+    doc.text(`${number}. ${title}`, margin, margin + 7);
+    
+    return doc;
+}
+
+// Create a table with headers and data
+function createTable(doc, headers, rows, x, y, width, colors) {
+    if (rows.length === 0) return y;
+    
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = x;
+    const rowHeight = 10;
+    const fontSize = 9;
+    
+    // Calculate column widths based on content
+    const columnWidths = [];
+    const columnCount = headers.length;
+    
+    // Default equal column widths
+    const defaultColumnWidth = width / columnCount;
+    
+    // Adjust column widths based on their typical content
+    if (columnCount === 3) {
+        // For 3 column tables (typically CVE tables)
+        columnWidths.push(defaultColumnWidth * 0.3); // ID column
+        columnWidths.push(defaultColumnWidth * 0.2); // Severity column
+        columnWidths.push(defaultColumnWidth * 0.5); // Description column
+    } else if (columnCount === 4) {
+        // For 4 column tables (typically attack tables)
+        columnWidths.push(defaultColumnWidth * 0.35); // Attack Type column
+        columnWidths.push(defaultColumnWidth * 0.15); // Count column
+        columnWidths.push(defaultColumnWidth * 0.15); // Severity column
+        columnWidths.push(defaultColumnWidth * 0.35); // Description column
+    } else {
+        // Default equal widths for other tables
+        headers.forEach(() => columnWidths.push(defaultColumnWidth));
+    }
+    
+    // Draw table header background
+    doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.rect(x, y, width, rowHeight, 'F');
+    
+    // Draw header text
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(fontSize);
+    doc.setTextColor(255, 255, 255);
+    
+    let xOffset = x;
+    headers.forEach((header, i) => {
+        doc.text(header, xOffset + 2, y + 6.5);
+        xOffset += columnWidths[i];
+    });
+    
+    // Move to first row
+    y += rowHeight;
+    
+    // Draw table rows
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+    
+    let rowColor = true; // For alternating row colors
+    
+    for (let i = 0; i < rows.length; i++) {
+        // Check if we need a page break
+        if (y + rowHeight > pageHeight - margin) {
+            doc.addPage();
+            y = margin;
+            
+            // Redraw the header on the new page
+            doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+            doc.rect(x, y, width, rowHeight, 'F');
+            
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(255, 255, 255);
+            
+            xOffset = x;
+            headers.forEach((header, j) => {
+                doc.text(header, xOffset + 2, y + 6.5);
+                xOffset += columnWidths[j];
+            });
+            
+            y += rowHeight;
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        }
+        
+        // Draw row background for alternating rows
+        if (rowColor) {
+            doc.setFillColor(245, 245, 245);
+            doc.rect(x, y, width, rowHeight, 'F');
+        }
+        
+        // Draw cell content
+        xOffset = x;
+        for (let j = 0; j < Math.min(rows[i].length, headers.length); j++) {
+            const cellContent = rows[i][j] || '';
+            const cellWidth = columnWidths[j];
+            
+            // Handle long text in cells by truncating
+            const maxChars = Math.floor(cellWidth / 1.5);
+            let displayContent = cellContent.toString();
+            if (displayContent.length > maxChars) {
+                displayContent = displayContent.substring(0, maxChars - 3) + '...';
+            }
+            
+            // Apply special coloring for severity
+            if (headers[j] === "Severity") {
+                if (cellContent === "CRITICAL") {
+                    doc.setTextColor(colors.critical[0], colors.critical[1], colors.critical[2]);
+                } else if (cellContent === "HIGH") {
+                    doc.setTextColor(colors.high[0], colors.high[1], colors.high[2]);
+                } else if (cellContent === "MEDIUM") {
+                    doc.setTextColor(colors.medium[0], colors.medium[1], colors.medium[2]);
+                } else {
+                    doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+                }
+            }
+            
+            doc.text(displayContent, xOffset + 2, y + 6.5);
+            
+            // Reset text color
+            doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+            
+            xOffset += cellWidth;
+        }
+        
+        y += rowHeight;
+        rowColor = !rowColor; // Toggle row color
+    }
+    
+    return y + 5; // Add some space after the table
+}
+
+// Create a severity distribution chart (bar chart)
+function createSeverityDistributionChart(doc, attacksBySeverity, x, y, colors) {
+    const chartWidth = 150;
+    const chartHeight = 60;
+    const barHeight = 15;
+    const barSpacing = 8;
+    
+    // Total count of attacks
+    const totalAttacks = attacksBySeverity.critical.length + 
+                         attacksBySeverity.high.length + 
+                         attacksBySeverity.medium.length;
+    
+    if (totalAttacks === 0) {
+        doc.setFontSize(11);
+        doc.setTextColor(colors.lightText[0], colors.lightText[1], colors.lightText[2]);
+        doc.text("No attack data available for chart", x, y + 25);
+        return;
+    }
+    
+    // Chart title
+    doc.setFontSize(12);
+    doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+    doc.setFont(undefined, 'bold');
+    doc.text("Threat Severity Distribution", x + (chartWidth / 2), y - 5, { align: 'center' });
+    doc.setFont(undefined, 'normal');
+    
+    // Prepare the data as array for easier iteration
+    const data = [
+        { label: "Critical", count: attacksBySeverity.critical.length, color: colors.critical },
+        { label: "High", count: attacksBySeverity.high.length, color: colors.high },
+        { label: "Medium", count: attacksBySeverity.medium.length, color: colors.medium }
+    ].filter(item => item.count > 0);
+    
+    // Draw bars
+    let currentY = y + 5;
+    const labelWidth = 50;
+    const barStartX = x + labelWidth;
+    const barMaxWidth = chartWidth - labelWidth - 45; // Leave space for count and percentage
+    
+    data.forEach(item => {
+        // Draw label
+        doc.setFontSize(10);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        doc.text(item.label, x, currentY + (barHeight / 2) + 2);
+        
+        // Calculate bar width based on percentage
+        const percentage = (item.count / totalAttacks);
+        const barWidth = barMaxWidth * percentage;
+        
+        // Draw the bar
+        doc.setFillColor(item.color[0], item.color[1], item.color[2]);
+        doc.rect(barStartX, currentY, barWidth, barHeight, 'F');
+        
+        // Draw count and percentage at end of bar
+        const percentText = `${Math.round(percentage * 100)}%`;
+        doc.setFontSize(9);
+        doc.text(`${item.count} (${percentText})`, barStartX + barWidth + 5, currentY + (barHeight / 2) + 2);
+        
+        // Move to next bar position
+        currentY += barHeight + barSpacing;
+    });
+    
+    // Draw a thin border around the chart area
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.rect(x, y - 10, chartWidth, currentY - y + 15, 'S');
+}
+
+// Create a traffic distribution chart
+function createTrafficDistributionChart(doc, attackCounts, x, y, colors) {
+    const chartWidth = 160;
+    const chartHeight = 50;
+    const barHeight = 12;
+    const barSpacing = 5;
+    
+    // Filter out normal traffic
+    const filteredAttacks = Object.entries(attackCounts)
+        .filter(([key]) => key !== "NORMAL" && key !== "BENIGNTRAFFIC" && key !== "BENIGN_TRAFFIC")
+        .sort(([, countA], [, countB]) => countB - countA)
+        .slice(0, 5); // Top 5 attacks
+    
+    // Chart title
+    doc.setFontSize(12);
+    doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+    doc.setFont(undefined, 'bold');
+    doc.text("Top Attack Patterns Detected", x + (chartWidth / 2), y - 5, { align: 'center' });
+    doc.setFont(undefined, 'normal');
+    
+    if (filteredAttacks.length === 0) {
+        doc.setFontSize(11);
+        doc.setTextColor(colors.lightText[0], colors.lightText[1], colors.lightText[2]);
+        doc.text("No attack data available for chart", x, y + 25);
+        return;
+    }
+    
+    // Find the maximum count for scaling
+    const maxCount = Math.max(...filteredAttacks.map(([, count]) => count));
+    
+    // Draw bars
+    let currentY = y;
+    
+    filteredAttacks.forEach(([attack, count], index) => {
+        // Normalize the attack name if too long
+        let displayAttack = attack;
+        if (displayAttack.length > 20) {
+            displayAttack = displayAttack.substring(0, 17) + '...';
+        }
+        
+        // Draw label
+        doc.setFontSize(9);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        doc.text(displayAttack, x, currentY + (barHeight / 2) + 2);
+        
+        // Calculate bar width based on count
+        const barWidth = (count / maxCount) * (chartWidth - 80);
+        
+        // Get color based on normalized attack name
+        const normalizedAttack = normalizeAttackName(attack);
+        const attackInfo = remediationGuidance[normalizedAttack] || remediationGuidance.Default;
+        const barColor = getSeverityColor(attackInfo.severity, colors);
+        
+        // Draw the bar
+        doc.setFillColor(...barColor);
+        doc.rect(x + 60, currentY, barWidth, barHeight, 'F');
+        
+        // Draw count at the end of the bar
+        doc.setFontSize(9);
+        doc.text(count.toString(), x + 60 + barWidth + 5, currentY + (barHeight / 2) + 2);
+        
+        // Move to next bar position
+        currentY += barHeight + barSpacing;
+    });
+}
+
+// Create a vulnerability severity chart
+function createVulnerabilityChart(doc, cvesBySeverity, x, y, colors) {
+    const chartWidth = 160;
+    const chartHeight = 50;
+    const barHeight = 12;
+    const barSpacing = 5;
+    
+    // Order severity categories
+    const severityOrder = ["Critical", "High", "Medium", "Low", "Other"];
+    
+    // Filter to only populated categories
+    const populatedSeverities = severityOrder.filter(severity => 
+        cvesBySeverity[severity] && cvesBySeverity[severity].length > 0
+    );
+    
+    // Chart title
+    doc.setFontSize(12);
+    doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+    doc.setFont(undefined, 'bold');
+    doc.text("Vulnerability Severity Distribution", x + (chartWidth / 2), y - 5, { align: 'center' });
+    doc.setFont(undefined, 'normal');
+    
+    if (populatedSeverities.length === 0) {
+        doc.setFontSize(11);
+        doc.setTextColor(colors.lightText[0], colors.lightText[1], colors.lightText[2]);
+        doc.text("No vulnerability data available for chart", x, y + 25);
+        return;
+    }
+    
+    // Find the maximum count for scaling
+    const maxCount = Math.max(...populatedSeverities.map(severity => cvesBySeverity[severity].length));
+    
+    // Draw bars
+    let currentY = y;
+    
+    populatedSeverities.forEach(severity => {
+        const count = cvesBySeverity[severity].length;
+        
+        // Draw label
+        doc.setFontSize(9);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        doc.text(severity, x, currentY + (barHeight / 2) + 2);
+        
+        // Calculate bar width based on count
+        const barWidth = (count / maxCount) * (chartWidth - 80);
+        
+        // Get bar color based on severity
+        let barColor;
+        switch (severity) {
+            case "Critical":
+                barColor = [colors.critical[0], colors.critical[1], colors.critical[2]];
+                break;
+            case "High":
+                barColor = [colors.high[0], colors.high[1], colors.high[2]];
+                break;
+            case "Medium":
+                barColor = [colors.medium[0], colors.medium[1], colors.medium[2]];
+                break;
+            case "Low":
+                barColor = [colors.low[0], colors.low[1], colors.low[2]];
+                break;
+            default:
+                barColor = [colors.secondary[0], colors.secondary[1], colors.secondary[2]];
+        }
+        
+        // Draw the bar
+        doc.setFillColor(...barColor);
+        doc.rect(x + 60, currentY, barWidth, barHeight, 'F');
+        
+        // Draw count at the end of the bar
+        doc.setFontSize(9);
+        doc.text(count.toString(), x + 60 + barWidth + 5, currentY + (barHeight / 2) + 2);
+        
+        // Move to next bar position
+        currentY += barHeight + barSpacing;
+    });
+}
+
+// Helper function to get severity color
+function getSeverityColor(severity, colors) {
+    switch (severity.toLowerCase()) {
+        case 'critical':
+            return [colors.critical[0], colors.critical[1], colors.critical[2]];
+        case 'high':
+            return [colors.high[0], colors.high[1], colors.high[2]];
+        case 'medium':
+            return [colors.medium[0], colors.medium[1], colors.medium[2]];
+        default:
+            return [colors.text[0], colors.text[1], colors.text[2]];
+    }
+}
+
+// Draw a colored bullet for severity indication
+function drawSeverityBullet(doc, severity, x, y, colors) {
+    const bulletColor = getSeverityColor(severity, colors);
+    doc.setFillColor(...bulletColor);
+    doc.circle(x + 2, y - 1, 2.5, 'F');
+}
+
+// Categorize attacks by severity
+function categorizeAttacksBySeverity(attackCounts, remediationMap, attackNameMap) {
+    const result = {
+        critical: [],
+        high: [],
+        medium: []
+    };
+    
+    Object.keys(attackCounts)
+        .filter(key => key !== "NORMAL" && key !== "BENIGNTRAFFIC" && key !== "BENIGN_TRAFFIC")
+        .forEach(attack => {
+            const normalizedAttack = normalizeAttackName(attack);
+            const remediation = remediationMap[normalizedAttack] || remediationMap.Default;
+            
+            switch (remediation.severity) {
+                case 'critical':
+                    result.critical.push(attack);
+                    break;
+                case 'high':
+                    result.high.push(attack);
+                    break;
+                default:
+                    result.medium.push(attack);
+            }
+        });
+    
+    return result;
+}
+
+
+function clearUploadedCVEs() {
+    // Clear the uploaded CVEs from session
+    fetch('/clear_uploaded_cves', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Cleared uploaded CVEs:', data);
+    })
+    .catch(error => {
+        console.error('Error clearing uploaded CVEs:', error);
+    });
+}
+
+function populateRemediationGuidance() {
+    const remediationContainer = document.getElementById('remediation-container');
+    if (!remediationContainer) {
+        console.error("Remediation container not found");
+        return;
+    }
+    
+    remediationContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Analyzing attack patterns...</div>';
+    
+    // Fetch attack counts from the server
+    fetch('/get_attack_counts')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(attackCounts => {
+            // Clear loading indicator
+            remediationContainer.innerHTML = '';
+            
+            // If no attacks or only benign traffic, show appropriate message
+            if (Object.keys(attackCounts).length === 0 || 
+                (Object.keys(attackCounts).length === 1 && 
+                (attackCounts.BENIGNTRAFFIC || attackCounts.NORMAL || attackCounts.BENIGN_TRAFFIC))) {
+                
+                remediationContainer.innerHTML = `
+                    <div class="alert-box success-message">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No malicious traffic patterns were detected. Your network appears to be operating normally.</p>
+                    </div>
+                    <div class="alert-box info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Even though no immediate threats were detected, it's still recommended to follow 
+                        security best practices listed in the General Security Hardening section below.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group attacks by severity for better organization
+            const criticalAttacks = [];
+            const highAttacks = [];
+            const mediumAttacks = [];
+            
+            // Track processed attack types to prevent duplicates
+            const processedAttacks = new Set();
+            
+            // Log all attack names for debugging
+            console.log("Found attacks:", Object.keys(attackCounts));
+            
+            // Process each attack type
+            for (const [attackName, count] of Object.entries(attackCounts)) {
+                // Skip benign/normal traffic
+                if (attackName === "BENIGNTRAFFIC" || attackName === "NORMAL" || attackName === "BENIGN_TRAFFIC" || 
+                    attackName === "BenignTraffic" || attackName.toUpperCase().includes("BENIGN")) {
+                    continue;
+                }
+                
+                // Normalize the attack name to match our remediation database
+                const normalizedName = normalizeAttackName(attackName);
+                
+                // Log the normalization for debugging
+                console.log(`Attack "${attackName}" normalized to "${normalizedName}"`);
+                
+                // Skip if this normalized attack has already been processed
+                if (processedAttacks.has(normalizedName)) {
+                    console.log(`Skipping duplicate attack type: ${normalizedName}`);
+                    continue;
+                }
+                
+                // Get remediation info
+                const remediation = remediationGuidance[normalizedName] || remediationGuidance.Default;
+                
+                // If using default remediation, log a warning
+                if (remediation === remediationGuidance.Default) {
+                    console.warn(`Using default remediation for attack: ${attackName} (normalized: ${normalizedName})`);
+                }
+                
+                // Mark this attack as processed
+                processedAttacks.add(normalizedName);
+                
+                // Clone the remediation object and add the attack count
+                const attackData = { 
+                    ...remediation, 
+                    originalName: attackName,
+                    count: count 
+                };
+                
+                // Group by severity
+                if (remediation.severity === "critical") {
+                    criticalAttacks.push(attackData);
+                } else if (remediation.severity === "high") {
+                    highAttacks.push(attackData);
+                } else {
+                    mediumAttacks.push(attackData);
+                }
+            }
+            
+            // Sort attacks within each severity group by count (highest first)
+            const sortByCount = (a, b) => b.count - a.count;
+            criticalAttacks.sort(sortByCount);
+            highAttacks.sort(sortByCount);
+            mediumAttacks.sort(sortByCount);
+
+            // Generate HTML for critical severity attacks
+            if (criticalAttacks.length > 0) {
+                remediationContainer.innerHTML += `
+                    <div class="severity-section critical-section">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Critical Priority Remediation</h4>
+                        <p>These attacks pose the highest risk and should be addressed immediately:</p>
+                        ${generateRemediationCards(criticalAttacks)}
+                    </div>
+                `;
+            }
+            
+            // Generate HTML for high severity attacks
+            if (highAttacks.length > 0) {
+                remediationContainer.innerHTML += `
+                    <div class="severity-section high-section">
+                        <h4><i class="fas fa-exclamation-circle"></i> High Priority Remediation</h4>
+                        <p>These attacks pose significant risk and should be addressed promptly:</p>
+                        ${generateRemediationCards(highAttacks)}
+                    </div>
+                `;
+            }
+            
+            // Generate HTML for medium severity attacks
+            if (mediumAttacks.length > 0) {
+                remediationContainer.innerHTML += `
+                    <div class="severity-section medium-section">
+                        <h4><i class="fas fa-info-circle"></i> Medium Priority Remediation</h4>
+                        <p>These issues should be addressed as part of your security maintenance:</p>
+                        ${generateRemediationCards(mediumAttacks)}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            remediationContainer.innerHTML = `
+                <div class="alert-box error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Error loading remediation guidance: ${error.message}</p>
+                </div>
+            `;
+            console.error('Error fetching attack counts:', error);
+        });
+}
+
+// Define the attack name mapping for normalization
+const ATTACK_NAME_MAPPING = {
+    // DDoS Attacks
+    'SYN_FLOOD': 'DDoS_SYN_Flood',
+    'SYNFLOOD': 'DDoS_SYN_Flood',
+    'HTTP_FLOOD': 'DDoS_HTTP_Flood',
+    'HTTPFLOOD': 'DDoS_HTTP_Flood',
+    'ICMP_FLOOD': 'DDoS_ICMP_Flood',
+    'ICMP_FLOOD6': 'DDoS_ICMP_Flood', // Added for "DDoS-ICMP_Flood6"
+    'ICMP_FRAGMENTATION': 'DDoS_ICMP_Fragmentation',
+    'PINGFLOOD': 'DDoS_ICMP_Flood',
+    'TCP_FLOOD': 'DDoS_TCP_Flood',
+    'UDP_FLOOD': 'DDoS_UDP_Flood',
+    'UDP_FRAGMENTATION': 'DDoS_UDP_Fragmentation',
+    'ACK_FRAGMENTATION': 'DDoS_ACK_Fragmentation',
+    'PSHACK_FLOOD': 'DDoS_PSHACK_Flood',
+    'RSTFINFLOOD': 'DDoS_RSTFINFlood',
+    'SLOWLORIS': 'DDoS_SlowLoris',
+    'SYNONYMOUSIP_FLOOD': 'DDoS_SynonymousIP_Flood',
+
+    'DDOS-ICMP_FLOOD6': 'DDoS_ICMP_Flood',
+    'DOS-TCP_FLOOD': 'DoS_TCP_Flood', 
+    'DOS-UDP_FLOOD': 'DoS_UDP_Flood',
+    'DOS-SYN_FLOOD': 'DoS_SYN_Flood',
+    'DDOS-PSHACK_FLOOD': 'DDoS_PSHACK_Flood',
+    'DDOS-SYNONYMOUSIP_FLOOD': 'DDoS_SynonymousIP_Flood',
+    'DDOS-TCP_FLOOD': 'DDoS_TCP_Flood',
+    'DDOS-UDP_FLOOD': 'DDoS_UDP_Flood',
+    'DDOS-RSTFINFLOOD': 'DDoS_RSTFINFlood',
+    'MIRAI-GREETH_FLOOD': 'Mirai_Greeth_Flood',
+    'MIRAI-UDPPLAIN': 'Mirai_UDPplain',
+    'MITM-ARPSPOOFING': 'MITM_ArpSpoofing',
+    'BENIGNTRAFFIC': 'NORMAL',
+    
+    // Injection Attacks
+    'SQLINJECT': 'SQL_Injection',
+    'SQL_INJECTION': 'SQL_Injection',
+    'SQLINJECTION': 'SQL_Injection',
+    'COMMAND_INJECTION': 'Command_Injection',
+    'COMMANDINJECTION': 'Command_Injection',
+    'XSS': 'XSS',
+    'CROSS_SITE': 'XSS',
+    'CROSSSITE': 'XSS',
+    
+    // MITM Attacks
+    'ARP_SPOOFING': 'MITM_ArpSpoofing',
+    'ARPSPOOFING': 'MITM_ArpSpoofing',
+    'MITM_ARPSPOOFING': 'MITM_ArpSpoofing',
+    'MITM-ARPSPOOFING': 'MITM_ArpSpoofing',
+    'DNS_SPOOFING': 'DNS_Spoofing',
+    'DNSSPOOFING': 'DNS_Spoofing',
+    
+    // Malware
+    'BACKDOOR': 'Backdoor_Malware',
+    'MALWARE': 'Backdoor_Malware',
+    'BACKDOOR_MALWARE': 'Backdoor_Malware',
+    
+    // Brute Force
+    'BRUTE_FORCE': 'Brute_Force',
+    'BRUTEFORCE': 'Brute_Force',
+    'DICTIONARY': 'Dictionary_Attack',
+    'DICTIONARYBRUTEFORCE': 'Dictionary_Attack',
+    
+    // Reconnaissance
+    'PORT_SCAN': 'Port_Scan',
+    'PORTSCAN': 'Port_Scan',
+    'VULNERABILITY': 'Vulnerability_Scan',
+    'VULNSCAN': 'Vulnerability_Scan', 
+    'VULNERABILITYSCAN': 'Vulnerability_Scan',
+    'RECON': 'Recon',
+    'HOSTDISCOVERY': 'Recon_HostDiscovery',
+    'OSSCAN': 'Recon_OSScan',
+    'PINGSWEEP': 'Recon_PingSweep',
+    'DISCOVERY': 'Recon',
+    'SCAN': 'Recon',
+    
+    // Specific attack names from LABEL_MAPPING with dash notation
+    'BACKDOOR_MALWARE': 'Backdoor_Malware',
+    'BENIGNTRAFFIC': 'NORMAL',
+    'BENIGN_TRAFFIC': 'NORMAL',
+    'BENIGN': 'NORMAL',
+    'BROWSERHIJACKING': 'Browser_Hijacking',
+    'COMMANDINJECTION': 'Command_Injection',
+    'DDOS-ACK_FRAGMENTATION': 'DDoS_ACK_Fragmentation',
+    'DDOS-HTTP_FLOOD': 'DDoS_HTTP_Flood',
+    'DDOS-ICMP_FLOOD': 'DDoS_ICMP_Flood',
+    'DDOS-ICMP_FLOOD6': 'DDoS_ICMP_Flood',   // Added variant
+    'DDOS-ICMP_FRAGMENTATION': 'DDoS_ICMP_Fragmentation',
+    'DDOS-PSHACK_FLOOD': 'DDoS_PSHACK_Flood',
+    'DDOS-RSTFINFLOOD': 'DDoS_RSTFINFlood',
+    'DDOS-SYN_FLOOD': 'DDoS_SYN_Flood',
+    'DDOS-SLOWLORIS': 'DDoS_SlowLoris',
+    'DDOS-SYNONYMOUSIP_FLOOD': 'DDoS_SynonymousIP_Flood',
+    'DDOS-TCP_FLOOD': 'DDoS_TCP_Flood',
+    'DDOS-UDP_FLOOD': 'DDoS_UDP_Flood',
+    'DDOS-UDP_FRAGMENTATION': 'DDoS_UDP_Fragmentation',
+    'DNS_SPOOFING': 'DNS_Spoofing',
+    'DICTIONARYBRUTEFORCE': 'Dictionary_Attack',
+    'DOS-HTTP_FLOOD': 'DoS_HTTP_Flood',
+    'DOS-SYN_FLOOD': 'DoS_SYN_Flood',
+    'DOS-TCP_FLOOD': 'DoS_TCP_Flood',
+    'DOS-UDP_FLOOD': 'DoS_UDP_Flood',
+    'MITM-ARPSPOOFING': 'MITM_ArpSpoofing',
+    'MIRAI-GREETH_FLOOD': 'Mirai_Greeth_Flood',
+    'MIRAI-GREIP_FLOOD': 'Mirai_Greip_Flood',
+    'MIRAI-UDPPLAIN': 'Mirai_UDPplain',
+    'RECON-HOSTDISCOVERY': 'Recon_HostDiscovery',
+    'RECON-OSSCAN': 'Recon_OSScan',
+    'RECON-PINGSWEEP': 'Recon_PingSweep',
+    'RECON-PORTSCAN': 'Recon_PortScan',
+    'SQLINJECTION': 'SQL_Injection',
+    'UPLOADING_ATTACK': 'Uploading_Attack',
+    'VULNERABILITYSCAN': 'Vulnerability_Scan',
+    'XSS': 'XSS',
+    
+    // Add lowercase variants for case-insensitive matching
+    'mirai-greeth_flood': 'Mirai_Greeth_Flood',
+    'mirai-udpplain': 'Mirai_UDPplain'
+};
+    
+    // Define the remediationGuidance object - stores all remediation advice for different attack types
+    const remediationGuidance = {
+    // Original remediations
+    "DDoS_HTTP_Flood": {
+        title: "DDoS HTTP Flood Attack",
+        description: "An attack that overwhelms a target with HTTP requests, consuming server resources until it can no longer serve legitimate requests.",
+        severity: "high",
+        remediation: [
+            "Implement rate limiting to restrict the number of requests from a single IP address",
+            "Deploy a Web Application Firewall (WAF) to filter malicious traffic",
+            "Use a CDN to absorb traffic and mitigate the impact of the attack",
+            "Configure server timeout settings to drop long-running connections",
+            "Implement challenge-response mechanisms (e.g., CAPTCHA) during suspected attacks"
+        ]
+    },
+    "DDoS_ICMP_Flood": {
+        title: "DDoS ICMP Flood Attack",
+        description: "Attempts to overwhelm a targeted device with ICMP echo request (ping) packets, causing a denial of service.",
+        severity: "high",
+        remediation: [
+            "Configure firewall rules to limit ICMP traffic",
+            "Set ICMP packet rate limits on network equipment",
+            "Consider disabling ICMP responses on public-facing systems",
+            "Use traffic filtering to block excessive ICMP packets",
+            "Deploy DDoS protection services that can identify and mitigate ICMP floods"
+        ]
+    },
+    "DDoS_SYN_Flood": {
+        title: "DDoS SYN Flood Attack",
+        description: "A TCP SYN flood attack exploits the TCP handshake process by sending a high volume of SYN packets without completing the handshake.",
+        severity: "critical",
+        remediation: [
+            "Implement SYN cookies to validate connection attempts",
+            "Increase the TCP backlog queue size on critical systems",
+            "Reduce the SYN-RECEIVED timer to free half-open connections faster",
+            "Configure firewalls to filter suspicious SYN traffic patterns",
+            "Use load balancers with TCP connection proxy capabilities"
+        ]
+    },
+    "DDoS_TCP_Flood": {
+        title: "DDoS TCP Flood Attack",
+        description: "Floods a target with TCP packets to consume bandwidth and computing resources.",
+        severity: "high",
+        remediation: [
+            "Implement TCP connection limits per client IP",
+            "Deploy hardware-based security appliances designed to handle high traffic volumes",
+            "Configure timeout settings for idle TCP connections",
+            "Use traffic analysis tools to identify and block attack sources",
+            "Consider cloud-based DDoS protection services for critical infrastructure"
+        ]
+    },
+    "DDoS_UDP_Flood": {
+        title: "DDoS UDP Flood Attack",
+        description: "Sends a large number of UDP packets to random ports on a targeted system to overwhelm it.",
+        severity: "high",
+        remediation: [
+            "Configure firewall rules to block UDP traffic to unused ports",
+            "Implement rate limiting for UDP traffic",
+            "Deploy traffic analysis systems to detect abnormal UDP patterns",
+            "Consider restricting UDP traffic to only necessary services",
+            "Use DDoS mitigation services that can filter UDP flood attacks"
+        ]
+    },
+    "Command_Injection": {
+        title: "Command Injection Attack",
+        description: "Executes arbitrary commands on the host operating system through a vulnerable application.",
+        severity: "critical",
+        remediation: [
+            "Implement proper input validation and sanitization",
+            "Use safe APIs that don't execute system commands",
+            "Apply the principle of least privilege for service accounts",
+            "Implement a whitelist of allowed commands and characters",
+            "Deploy a Web Application Firewall (WAF) with rules to detect command injection attempts",
+            "Regularly update and patch vulnerable components"
+        ]
+    },
+    "SQL_Injection": {
+        title: "SQL Injection Attack",
+        description: "Inserts malicious SQL code into query parameters to manipulate databases.",
+        severity: "critical",
+        remediation: [
+            "Use parameterized queries or prepared statements",
+            "Implement ORM (Object Relational Mapping) libraries",
+            "Apply input validation and sanitization",
+            "Limit database permissions for application accounts",
+            "Implement a WAF with rules to detect SQL injection attempts",
+            "Regularly apply security patches to database systems"
+        ]
+    },
+    "XSS": {
+        title: "Cross-Site Scripting (XSS) Attack",
+        description: "Injects malicious scripts into web pages viewed by other users.",
+        severity: "high",
+        remediation: [
+            "Implement context-specific output encoding",
+            "Use Content Security Policy (CSP) headers",
+            "Apply input validation and sanitization",
+            "Use modern frameworks that automatically escape output",
+            "Deploy a WAF with XSS detection rules",
+            "Use the HttpOnly flag for sensitive cookies"
+        ]
+    },
+    "MITM_ArpSpoofing": {
+        title: "Man-in-the-Middle ARP Spoofing Attack",
+        description: "Sends fake ARP messages to link an attacker's MAC address with the IP address of a legitimate server or gateway.",
+        severity: "critical",
+        remediation: [
+            "Implement static ARP entries for critical systems",
+            "Use VLANs to segment networks and reduce the scope of ARP spoofing",
+            "Deploy ARP spoofing detection tools",
+            "Use encrypted protocols (HTTPS, SSH, etc.) to prevent data interception",
+            "Consider implementing 802.1X port security on network switches",
+            "Use IP-to-MAC binding or DHCP snooping on managed switches"
+        ]
+    },
+    "DNS_Spoofing": {
+        title: "DNS Spoofing Attack",
+        description: "Alters DNS records to redirect traffic to malicious sites.",
+        severity: "critical",
+        remediation: [
+            "Implement DNSSEC to validate DNS responses",
+            "Use DNS over HTTPS (DoH) or DNS over TLS (DoT)",
+            "Configure DNS servers to only accept updates from authorized sources",
+            "Monitor for unusual DNS traffic patterns",
+            "Keep DNS software updated with security patches",
+            "Use trusted DNS providers with security features"
+        ]
+    },
+    "Port_Scan": {
+        title: "Port Scan Activity",
+        description: "Systematic scan of network ports to discover available services.",
+        severity: "medium",
+        remediation: [
+            "Close unnecessary open ports and disable unused services",
+            "Implement a firewall to restrict access to essential services only",
+            "Configure intrusion detection systems to alert on port scan activity",
+            "Use port knocking or single packet authorization for sensitive services",
+            "Implement rate limiting for connection attempts",
+            "Consider deploying honeypot systems to detect reconnaissance activities"
+        ]
+    },
+    "Vulnerability_Scan": {
+        title: "Vulnerability Scanning Activity",
+        description: "Automated scanning to identify known vulnerabilities in systems.",
+        severity: "medium",
+        remediation: [
+            "Regularly update and patch all systems and applications",
+            "Implement intrusion detection systems to alert on vulnerability scanning",
+            "Configure web servers to minimize information disclosure",
+            "Remove unnecessary services, applications, and protocols",
+            "Implement proper access controls and authentication mechanisms",
+            "Conduct your own regular vulnerability scans to identify issues"
+        ]
+    },
+    "Backdoor_Malware": {
+        title: "Backdoor Malware Detection",
+        description: "Malicious software that provides unauthorized access to systems.",
+        severity: "critical",
+        remediation: [
+            "Isolate affected devices from the network immediately",
+            "Run a full system scan with updated security software",
+            "Implement application whitelisting to prevent unauthorized executables",
+            "Monitor outbound connections for suspicious traffic patterns",
+            "Consider rebuilding compromised systems from trusted images",
+            "Implement network segmentation to contain potential threats",
+            "Deploy an endpoint detection and response (EDR) solution"
+        ]
+    },
+    "Brute_Force": {
+        title: "Brute Force Attack",
+        description: "Systematically attempting many passwords to gain unauthorized access.",
+        severity: "high",
+        remediation: [
+            "Implement account lockout policies after multiple failed attempts",
+            "Use multi-factor authentication (MFA) where possible",
+            "Enforce strong password policies",
+            "Implement login attempt rate limiting",
+            "Use CAPTCHA or similar mechanisms for login forms",
+            "Monitor and alert on unusual login patterns",
+            "Consider using a password manager for generating complex passwords"
+        ]
+    },
+    "Dictionary_Attack": {
+        title: "Dictionary Attack",
+        description: "Uses a list of common words to guess passwords.",
+        severity: "high",
+        remediation: [
+            "Implement account lockout policies",
+            "Enforce complex password requirements that resist dictionary attacks",
+            "Use multi-factor authentication",
+            "Implement rate limiting for login attempts",
+            "Use password strength meters to encourage better passwords",
+            "Consider using passphrases instead of single-word passwords"
+        ]
+    },
+    "Recon": {
+        title: "Reconnaissance Activity",
+        description: "Information gathering to identify potential targets and vulnerabilities.",
+        severity: "medium",
+        remediation: [
+            "Minimize public-facing information about your systems",
+            "Configure web servers to limit information in HTTP headers",
+            "Disable directory listings on web servers",
+            "Implement proper access controls for all services",
+            "Use intrusion detection systems to identify scanning activities",
+            "Monitor network traffic for unusual patterns",
+            "Remove identifying banners from services"
+        ]
+    },
+    
+    // New remediations for additional attack types
+    "Browser_Hijacking": {
+        title: "Browser Hijacking Attack",
+        description: "Malicious software that modifies browser settings to redirect traffic, change default search engines, or display unwanted ads.",
+        severity: "high",
+        remediation: [
+            "Scan systems with up-to-date antimalware software",
+            "Reset browser settings to default values",
+            "Remove suspicious browser extensions and add-ons",
+            "Update browsers to the latest versions",
+            "Implement DNS filtering to block malicious domains",
+            "Use ad-blockers and anti-tracking extensions",
+            "Educate users about safe browsing practices"
+        ]
+    },
+    "DDoS_ACK_Fragmentation": {
+        title: "DDoS ACK Fragmentation Attack",
+        description: "Attackers send fragmented ACK packets to consume bandwidth and processing resources.",
+        severity: "high",
+        remediation: [
+            "Configure firewalls to validate and reassemble fragmented packets",
+            "Implement TCP fragment reassembly timeout settings",
+            "Deploy network appliances capable of handling high volumes of fragmented traffic",
+            "Consider dropping highly fragmented packets during attack scenarios",
+            "Monitor for unusual patterns of ACK packets and fragments"
+        ]
+    },
+    "DDoS_ICMP_Fragmentation": {
+        title: "DDoS ICMP Fragmentation Attack",
+        description: "Sends oversized or fragmented ICMP packets to exhaust target resources.",
+        severity: "high",
+        remediation: [
+            "Configure firewalls to limit or block fragmented ICMP traffic",
+            "Set ICMP packet size limits on network equipment",
+            "Consider disabling ICMP fragment forwarding",
+            "Deploy DDoS protection services that can reassemble and inspect fragmented packets",
+            "Implement ICMP rate limiting"
+        ]
+    },
+    "DDoS_PSHACK_Flood": {
+        title: "DDoS PSH+ACK Flood Attack",
+        description: "Sends a high volume of TCP packets with PSH and ACK flags set to overwhelm the target.",
+        severity: "high",
+        remediation: [
+            "Configure stateful inspection firewalls to validate TCP sessions",
+            "Implement rate limiting for TCP connections",
+            "Deploy traffic analysis systems to detect unusual TCP flag combinations",
+            "Use DDoS mitigation services with TCP flag filtering",
+            "Consider implementing TCP SYN cookies"
+        ]
+    },
+    "DDoS_RSTFINFlood": {
+        title: "DDoS RST/FIN Flood Attack",
+        description: "Floods a target with TCP reset (RST) or finish (FIN) packets to disrupt legitimate connections.",
+        severity: "high",
+        remediation: [
+            "Configure firewalls to detect and block abnormal volumes of RST/FIN packets",
+            "Implement TCP connection validation",
+            "Deploy intrusion prevention systems with TCP flood detection",
+            "Use traffic analysis tools to identify attack patterns",
+            "Consider cloud-based DDoS protection services"
+        ]
+    },
+    "DDoS_SlowLoris": {
+        title: "DDoS SlowLoris Attack",
+        description: "A low-bandwidth attack that establishes multiple connections to the target server and keeps them open as long as possible by sending partial HTTP requests.",
+        severity: "high",
+        remediation: [
+            "Configure shorter connection timeouts on web servers",
+            "Increase the maximum number of connections the server can handle",
+            "Implement rate limiting by IP address",
+            "Deploy a reverse proxy or load balancer to handle connection management",
+            "Consider using DDoS protection services that can detect slow HTTP attacks",
+            "Update web server software to versions with SlowLoris mitigation"
+        ]
+    },
+    "DDoS_SynonymousIP_Flood": {
+        title: "DDoS Synonymous IP Flood Attack",
+        description: "Uses multiple IP addresses that resolve to the same target to bypass IP-based filtering and rate limiting.",
+        severity: "high",
+        remediation: [
+            "Implement advanced traffic analysis beyond simple IP-based filtering",
+            "Deploy behavior-based DDoS detection systems",
+            "Consider using cloud-based DDoS protection with adaptive filtering",
+            "Monitor for unusual patterns across multiple IP addresses",
+            "Implement DNS-based security controls"
+        ]
+    },
+    "DDoS_UDP_Fragmentation": {
+        title: "DDoS UDP Fragmentation Attack",
+        description: "Sends fragmented UDP packets to consume target resources during reassembly.",
+        severity: "high",
+        remediation: [
+            "Configure firewalls to limit or reassemble fragmented UDP traffic",
+            "Set UDP fragment reassembly timeouts and limits",
+            "Implement rate limiting for UDP traffic",
+            "Deploy traffic analysis systems to detect abnormal UDP fragmentation patterns",
+            "Consider dropping highly fragmented UDP packets during suspected attacks"
+        ]
+    },
+    "DoS_HTTP_Flood": {
+        title: "DoS HTTP Flood Attack",
+        description: "Similar to DDoS HTTP Flood but from a single or few sources, overloading web servers with HTTP requests.",
+        severity: "high",
+        remediation: [
+            "Implement rate limiting per IP address",
+            "Deploy web application firewalls with HTTP flood detection",
+            "Configure server timeout settings",
+            "Use CAPTCHA or other challenge mechanisms for suspicious traffic",
+            "Consider CDN services to absorb traffic"
+        ]
+    },
+    "DoS_SYN_Flood": {
+        title: "DoS SYN Flood Attack",
+        description: "A single-source attack sending SYN packets without completing the TCP handshake.",
+        severity: "high",
+        remediation: [
+            "Implement SYN cookies",
+            "Configure SYN flood protection on firewalls",
+            "Increase backlog queue size",
+            "Set shorter SYN-RECEIVED timeout values",
+            "Block the attacking IP address"
+        ]
+    },
+    "DoS_TCP_Flood": {
+        title: "DoS TCP Flood Attack",
+        description: "A single-source attack flooding a target with TCP packets.",
+        severity: "high",
+        remediation: [
+            "Configure firewalls to detect and block abnormal TCP traffic patterns",
+            "Implement TCP connection limits per client",
+            "Use intrusion prevention systems to detect TCP floods",
+            "Consider blacklisting attacking IP addresses",
+            "Monitor for unusual TCP traffic patterns"
+        ]
+    },
+    "DoS_UDP_Flood": {
+        title: "DoS UDP Flood Attack",
+        description: "A single-source attack sending large numbers of UDP packets to random ports.",
+        severity: "high",
+        remediation: [
+            "Configure firewalls to block UDP traffic to unused ports",
+            "Implement UDP rate limiting",
+            "Deploy intrusion prevention systems with UDP flood detection",
+            "Block the attacking IP address",
+            "Monitor for unusual UDP traffic patterns"
+        ]
+    },
+    "Mirai_Greeth_Flood": {
+        title: "Mirai Greeth Flood Attack",
+        description: "A variant of the Mirai botnet that uses TCP-based flooding techniques.",
+        severity: "critical",
+        remediation: [
+            "Keep all IoT devices updated with the latest firmware",
+            "Change default credentials on all network devices",
+            "Implement network segmentation to isolate IoT devices",
+            "Deploy DDoS protection services",
+            "Monitor for unusual outbound connections from IoT devices",
+            "Configure firewalls to detect and block Mirai command and control traffic",
+            "Consider implementing TCP connection validation mechanisms"
+        ]
+    },
+    "Mirai_Greip_Flood": {
+        title: "Mirai Greip Flood Attack",
+        description: "A variant of the Mirai botnet that uses IP-based flooding techniques.",
+        severity: "critical",
+        remediation: [
+            "Update all IoT device firmware",
+            "Change default passwords on all network devices",
+            "Implement IoT network segmentation",
+            "Deploy DDoS mitigation services",
+            "Monitor for unusual traffic patterns from IoT devices",
+            "Configure firewalls to detect and block Mirai command and control traffic",
+            "Consider using cloud-based DDoS protection services"
+        ]
+    },
+    "Mirai_UDPplain": {
+        title: "Mirai UDPplain Attack",
+        description: "A Mirai botnet variant that floods targets with UDP packets.",
+        severity: "critical",
+        remediation: [
+            "Ensure all IoT devices have up-to-date firmware",
+            "Change default credentials on all devices",
+            "Segment IoT devices from critical networks",
+            "Implement UDP rate limiting",
+            "Configure firewalls to block UDP traffic to unused ports",
+            "Monitor for unusual UDP traffic patterns",
+            "Deploy DDoS protection services"
+        ]
+    },
+    "Recon_HostDiscovery": {
+        title: "Reconnaissance Host Discovery",
+        description: "Scanning to identify active hosts on a network.",
+        severity: "medium",
+        remediation: [
+            "Implement firewall rules to limit ICMP responses",
+            "Configure intrusion detection systems to alert on host discovery attempts",
+            "Consider implementing network access control",
+            "Use honeypots to detect reconnaissance activity",
+            "Minimize information disclosure in network services",
+            "Regularly review network device logs for scanning activities"
+        ]
+    },
+    "Recon_OSScan": {
+        title: "Reconnaissance OS Scanning",
+        description: "Attempts to identify operating systems running on network hosts.",
+        severity: "medium",
+        remediation: [
+            "Configure firewalls to block OS fingerprinting attempts",
+            "Disable unnecessary services that can reveal OS information",
+            "Implement TCP/IP stack hardening",
+            "Use intrusion detection systems to identify OS scanning",
+            "Modify default TCP/IP responses to obscure OS information",
+            "Regularly review security logs for scanning activities"
+        ]
+    },
+    "Recon_PingSweep": {
+        title: "Reconnaissance Ping Sweep",
+        description: "Sending ICMP echo requests to multiple hosts to identify active systems.",
+        severity: "medium",
+        remediation: [
+            "Configure firewalls to limit or block ICMP echo requests",
+            "Implement intrusion detection systems with ping sweep detection",
+            "Consider disabling ICMP responses on critical systems",
+            "Use network monitoring to detect unusual ICMP traffic",
+            "Deploy honeypots to detect reconnaissance activity",
+            "Implement logging for ICMP traffic"
+        ]
+    },
+    "Recon_PortScan": {
+        title: "Reconnaissance Port Scan",
+        description: "Scanning multiple ports on target systems to identify available services.",
+        severity: "medium",
+        remediation: [
+            "Close unnecessary open ports",
+            "Implement firewall rules to restrict access to essential services",
+            "Configure intrusion detection systems to alert on port scanning",
+            "Use port knocking for sensitive services",
+            "Implement connection rate limiting",
+            "Deploy honeypots to detect scanning activity",
+            "Regularly review security logs for scanning patterns"
+        ]
+    },
+    "Uploading_Attack": {
+        title: "File Upload Attack",
+        description: "Exploitation of file upload functionality to upload malicious files or execute code on the server.",
+        severity: "critical",
+        remediation: [
+            "Implement strict file type validation",
+            "Validate file content (not just extensions)",
+            "Use antivirus scanning for uploaded files",
+            "Store uploaded files outside the web root",
+            "Randomize filenames to prevent guessing",
+            "Set proper file permissions to prevent execution",
+            "Limit file size and implement upload rate limiting",
+            "Configure Content-Disposition headers to prevent browser execution"
+        ]
+    },
+    "Default": {
+        title: "Unknown or Customized Attack",
+        description: "An attack pattern that doesn't match known signatures.",
+        severity: "medium",
+        remediation: [
+            "Review network and system logs for unusual activities",
+            "Implement a defense-in-depth security strategy",
+            "Keep all systems and applications updated with security patches",
+            "Monitor network traffic for abnormal patterns",
+            "Consider engaging security professionals for a thorough assessment",
+            "Deploy intrusion detection and prevention systems"
+        ]
+    }
+};
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="wrapper">
+        <form action="{{ url_for('register') }}" method="POST">
+            <h2>Register</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <div class="input-field">
+                <input type="email" name="email" required autocomplete="off">
+                <label>Enter your email</label>
+            </div>
+            <div class="input-field">
+                <input type="text" name="username" required autocomplete="off">
+                <label>Enter your username</label>
+            </div>
+            <div class="input-field">
+                <input type="password" name="password" required autocomplete="off">
+                <label>Create a password</label>
+            </div>
+            <div class="input-field">
+                <select name="security_question" required autocomplete="off">
+                    <option value="" disabled selected>Select a security question</option>
+                    <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                    <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                    <option value="What is the name of the town where you were born?">What is the name of the town where you were born?</option>
+                    <option value="What was your high school mascot?">What was your high school mascot?</option>
+                    <option value="What is your favorite book?">What is your favorite book?</option>
+                    <option value="What is the name of your favorite teacher?">What is the name of your favorite teacher?</option>
+                    <option value="What was the make and model of your first car?">What was the make and model of your first car?</option>
+                    <option value="What is your favorite movie?">What is your favorite movie?</option>
+                    <option value="What is the name of your childhood best friend?">What is the name of your childhood best friend?</option>
+                    <option value="What is your favorite sports team?">What is your favorite sports team?</option>
+                    <option value="What is your father's middle name?">What is your father's middle name?</option>
+                    <option value="What is the name of your first school?">What is the name of your first school?</option>
+                    <option value="What is your favorite food?">What is your favorite food?</option>
+                    <option value="What is the name of the street you grew up on?">What is the name of the street you grew up on?</option>
+                    <option value="What is your favorite color?">What is your favorite color?</option>
+                    <option value="What is your favorite holiday destination?">What is your favorite holiday destination?</option>
+                    <option value="What is the name of your favorite fictional character?">What is the name of your favorite fictional character?</option>
+                    <option value="What is your favorite song?">What is your favorite song?</option>
+                    <option value="What is your favorite hobby?">What is your favorite hobby?</option>
+                    <option value="What is the name of your first boss?">What is the name of your first boss?</option>
+                </select>
+                <label>Select a security question</label>
+            </div>
+            <div class="input-field">
+                <input type="text" name="security_answer" required autocomplete="off">
+                <label>Enter the answer to your security question</label>
+            </div>
+            <button type="submit">Register</button>
+            <div class="register">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Clear input fields and prevent autofill when the page loads
+        window.onload = function() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.value = ''; // Clear the input value
+                input.setAttribute('autocomplete', 'new-password'); // Disable autofill
+            });
+
+            // Clear the select field
+            const select = document.querySelector('select');
+            if (select) {
+                select.selectedIndex = 0; // Reset to the first option
+            }
+        };
+    </script>
+</body>
+</html>
