@@ -1,0 +1,200 @@
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "PT Sans", sans-serif;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  padding: 0 10px;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url("backget.png"), #000;
+  background-position: center;
+  background-size: cover;
+}
+
+/* Override browser autofill styles */
+.input-field input:-webkit-autofill,
+.input-field input:-webkit-autofill:hover,
+.input-field input:-webkit-autofill:focus,
+.input-field input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    -webkit-text-fill-color: #003249 !important; /* Updated font color */
+    transition: background-color 5000s ease-in-out 0s ;
+}
+
+/* Style the select dropdown */
+.input-field select {
+  width: 100%;
+  height: 40px;
+  background-color: transparent; /* Make the background transparent */
+  border: none; /* Remove the border */
+  outline: none; /* Remove the outline when focused */
+  color: #003249; /* Updated font color */
+  font-family: inherit; /* Use the default font family */
+  font-size: 16px; /* Use the default font size */
+  padding: 5px 0; /* Add some padding for better spacing */
+  appearance: none; /* Remove default arrow */
+  -webkit-appearance: none; /* Remove default arrow for WebKit browsers */
+  -moz-appearance: none; /* Remove default arrow for Firefox */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="#003249" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); /* Custom arrow with updated color */
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+/* Style the dropdown options */
+.input-field select option {
+  background-color: transparent; /* Make the options' background transparent */
+  color: #333; /* Set the text color for options */
+  padding: 10px; /* Add padding to options for better spacing */
+}
+
+/* Move the label up when the select is focused or has a value */
+.input-field select:focus ~ label,
+.input-field select:not([value=""]) ~ label {
+  font-size: 0.8rem;
+  top: 10px;
+  transform: translateY(-120%);
+}
+
+.wrapper {
+  width: 400px;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent white background */
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #003249; /* Updated font color */
+}
+
+.input-field {
+  position: relative;
+  border-bottom: 2px solid #ccc;
+  margin: 15px 0;
+}
+
+.input-field label {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  color: #003249; /* Updated font color */
+  background-color: transparent;
+  font-size: 16px;
+  pointer-events: none;
+  transition: 0.15s ease;
+}
+
+.input-field input {
+  width: 100%;
+  height: 40px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #003249; /* Updated font color */
+}
+
+.input-field input:focus~label,
+.input-field input:valid~label {
+  font-size: 0.8rem;
+  top: 10px;
+  transform: translateY(-120%);
+}
+
+.forget {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 25px 0 35px 0;
+  color: #003249; /* Updated font color */
+}
+
+#remember {
+  accent-color: #003249; /* Updated accent color */
+}
+
+.forget label {
+  display: flex;
+  align-items: center;
+}
+
+.forget label p {
+  margin-left: 8px;
+}
+
+.wrapper a {
+  color: #003249; /* Updated font color */
+  text-decoration: none;
+}
+
+.wrapper a:hover {
+  text-decoration: underline;
+}
+
+button {
+  background: #003249; /* Updated button background color */
+  color: #fff; /* Updated button text color */
+  font-weight: 600;
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 16px;
+  border: 2px solid transparent;
+  transition: 0.3s ease;
+}
+
+button:hover {
+  color: #003249; /* Updated hover text color */
+  border-color: #003249; /* Updated hover border color */
+  background: rgba(255, 255, 255, 0.3); /* Semi-transparent white background on hover */
+}
+
+.register {
+  text-align: center;
+  margin-top: 30px;
+  color: #003249; /* Updated font color */
+}
+
+.alert {
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.alert-error {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
